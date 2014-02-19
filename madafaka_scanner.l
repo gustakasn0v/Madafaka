@@ -34,6 +34,15 @@ TOKEN_PROC	"procedure"
 TOKEN_FUNC	"begin"
 TOKEN_FOR	"fordafak"
 TOKEN_WHILE "whiledafak"
+TOKEN_VOID "vdafak"
+TOKEN_INT "idafak"
+TOKEN_FLOAT "fdafak"
+TOKEN_CHAR "cdafak"
+TOKEN_STRING "sdafak"
+TOKEN_STRUCT "tructdafak"
+TOKEN_UNION "niondafak"
+
+
 
 %%
 
@@ -66,25 +75,25 @@ TOKEN_WHILE "whiledafak"
 \"(\\\\|\\\"|[^\\\"])*\" {printf("Esto es una cadena");}
 
 
-"vdafak" {printf("Tipo void");}
+{TOKEN_VOID} {printf("Tipo void");}
 
 
-"idafak" {printf("Esto es un tipo int");}
+{TOKEN_INT} {printf("Esto es un tipo int");}
 
 
-"fdafak" {printf("Esto es el tipo float");}
+{TOKEN_FLOAT} {printf("Esto es el tipo float");}
 
 
-"cdafak" {printf("Esto es el tipo char");}
+{TOKEN_CHAR} {printf("Esto es el tipo char");}
 
 
-"sdafak" {printf("Esto es una cadena");}
+{TOKEN_STRING} {printf("Esto es una cadena");}
 
 
-"tructdafak" {printf("Esto es un struct");}
+{TOKEN_STRUCT} {printf("Esto es un struct");}
 
 
-"niondafak" {printf("Esto es un union");}
+{TOKEN_UNION} {printf("Esto es un union");}
 
 
 \."!"\. {printf("Paso por referencia");}
