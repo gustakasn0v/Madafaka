@@ -26,36 +26,69 @@ typedef MC::MC_Parser::token token;
 
 DIGIT		[0-9]
 ID 			[a-z][a-z0-9]*
-TOKEN_IF	"if"
-TOKEN_THEN	"then"
+TOKEN_IF	"ifdafak"
+TOKEN_THEN	"thendafak"
 TOKEN_BEGIN	"mada"
 TOKEN_END	"faka"
 TOKEN_PROC	"procedure"
 TOKEN_FUNC	"begin"
+TOKEN_FOR	"fordafak"
+TOKEN_WHILE "whiledafak"
 
 %%
 
 
 {DIGIT}+	{
-				printf( "An integer: %s (%d)\n", yytext,atoi( yytext ) );
+				printf( "Entero: %s (%d)\n", yytext,atoi( yytext ) );
 			}
 
 {DIGIT}+"."{DIGIT}*		{
-	printf( "A float: %s (%g)\n", yytext,
+	printf( "Flotante: %s (%g)\n", yytext,
 	atof( yytext ) );
 	}
 
-{TOKEN_IF}|{TOKEN_THEN}|{TOKEN_BEGIN}|{TOKEN_END}|{TOKEN_PROC}|{TOKEN_FUNC} {
-	printf( "A keyword: %s\n", yytext );
+{TOKEN_IF}|{TOKEN_THEN}|{TOKEN_BEGIN}|{TOKEN_END}|{TOKEN_PROC}|{TOKEN_FUNC}|{TOKEN_FOR} {
+	printf( "Palabra clave: %s\n", yytext );
 	}
 
 {ID}	{
-	printf( "An identifier: %s\n", yytext );
+	printf( "Identificador: %s\n", yytext );
 	}
 
 "+"|"-"|"*"|"/"		{
 	printf( "An operator: %s\n", yytext );
 }   
+
+
+\'.\' {printf("Esto es un char");}
+
+
+\"(\\\\|\\\"|[^\\\"])*\" {printf("Esto es una cadena");}
+
+
+"vdafak" {printf("Tipo void");}
+
+
+"idafak" {printf("Esto es un tipo int");}
+
+
+"fdafak" {printf("Esto es el tipo float");}
+
+
+"cdafak" {printf("Esto es el tipo char");}
+
+
+"sdafak" {printf("Esto es una cadena");}
+
+
+"tructdafak" {printf("Esto es un struct");}
+
+
+"niondafak" {printf("Esto es un union");}
+
+
+\."!"\. {printf("Paso por referencia");}
+
 
 "{"[^}\n]*"}"     /* eat up one-line comments */
 
@@ -64,3 +97,15 @@ TOKEN_FUNC	"begin"
 .				printf( "Unrecognized character: %s\n", yytext );
 
 %%
+
+     
+void main(int argc, char **argv){
+	++argv, --argc;  /* skip over program name */
+	if ( argc > 0 )
+		yyin = fopen( argv[0], "r" );
+	else
+		yyin = stdin;
+    yylex();
+}
+
+yywrap() { }
