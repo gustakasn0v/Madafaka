@@ -24,49 +24,42 @@ typedef MC::MC_Parser::token token;
 %option noyywrap 
 %option c++
 
-DIGIT		[0-9]
-ID 			[a-z][a-z0-9]*
-TOKEN_IF	"ifdafak"
-TOKEN_THEN	"thendafak"
-TOKEN_BEGIN	"mada"
-TOKEN_END	"faka"
-TOKEN_PROC	"procedure"
-TOKEN_FUNC	"begin"
-TOKEN_FOR	"fordafak"
-TOKEN_WHILE "whiledafak"
-TOKEN_VOID "vdafak"
-TOKEN_INT "idafak"
-TOKEN_FLOAT "fdafak"
-TOKEN_CHAR "cdafak"
-TOKEN_STRING "sdafak"
-TOKEN_STRUCT "tructdafak"
-TOKEN_UNION "niondafak"
-
-
+DIGIT			[0-9]
+ID 				[a-z][a-z0-9]*
+TOKEN_IF		"ifdafak"
+TOKEN_THEN		"thendafak"
+TOKEN_BEGIN		"mada"
+TOKEN_END		"faka"
+TOKEN_PROC		"procedure"
+TOKEN_FUNC		"begin"
+TOKEN_FOR		"fordafak"
+TOKEN_WHILE 	"whiledafak"
+TOKEN_VOID		"vdafak"
+TOKEN_INT		"idafak"
+TOKEN_FLOAT		"fdafak"
+TOKEN_CHAR		"cdafak"
+TOKEN_STRING	"sdafak"
+TOKEN_STRUCT	"strdafak"
+TOKEN_UNION		"unidafak"
+TOKEN_WRITE		"wdafak"
+TOKEN_READ		"rdafak"
+TOKEN_IN		"in"
+TOKEN_SEPARADOR ";"
 
 %%
 
 
-{DIGIT}+	{
-				printf( "Entero: %s (%d)\n", yytext,atoi( yytext ) );
-			}
+{DIGIT}+	{printf( "Entero: %s\n", yytext);}
 
-{DIGIT}+"."{DIGIT}*		{
-	printf( "Flotante: %s (%g)\n", yytext,
-	atof( yytext ) );
-	}
 
-{TOKEN_IF}|{TOKEN_THEN}|{TOKEN_BEGIN}|{TOKEN_END}|{TOKEN_PROC}|{TOKEN_FUNC}|{TOKEN_FOR} {
-	printf( "Palabra clave: %s\n", yytext );
-	}
+{DIGIT}+"."{DIGIT}*		{printf( "Flotante: %s (%g)\n", yytext);}
 
-{ID}	{
-	printf( "Identificador: %s\n", yytext );
-	}
 
-"+"|"-"|"*"|"/"		{
-	printf( "An operator: %s\n", yytext );
-}   
+{TOKEN_IF}|{TOKEN_THEN}|{TOKEN_BEGIN}|{TOKEN_END}|{TOKEN_PROC}|{TOKEN_FUNC}|{TOKEN_FOR} {printf( "Palabra clave: %s\n", yytext );}
+
+
+
+"+"|"-"|"*"|"/"		{printf( "An operator: %s\n", yytext );}  
 
 
 \'.\' {printf("Esto es un char");}
@@ -96,25 +89,25 @@ TOKEN_UNION "niondafak"
 {TOKEN_UNION} {printf("Esto es un union");}
 
 
+{TOKEN_SEPARADOR} {printf("Esto es un ;");}
+
+
+\[{DIGIT}+\] {printf("Dimension de un arreglo");}
+
+
 \."!"\. {printf("Paso por referencia");}
+
+
+{ID}	{printf( "Identificador: %s\n", yytext );}
 
 
 "{"[^}\n]*"}"     /* eat up one-line comments */
 
+
 [ \t\n]+	     /* eat up whitespace */
+
 
 .				printf( "Unrecognized character: %s\n", yytext );
 
 %%
 
-     
-void main(int argc, char **argv){
-	++argv, --argc;  /* skip over program name */
-	if ( argc > 0 )
-		yyin = fopen( argv[0], "r" );
-	else
-		yyin = stdin;
-    yylex();
-}
-
-yywrap() { }
