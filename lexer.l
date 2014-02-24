@@ -1,11 +1,65 @@
-DIGIT [0-9]
-ID [a-z][a-z0-9]*
+%{
+#include<stdio.h>
+%}
+
+DIGIT			[0-9]
+ID 				[a-z][a-z0-9]*
+TOKEN_IF		"ifdafak"
+TOKEN_THEN		"thendafak"
+TOKEN_BEGIN		"mada"
+TOKEN_END		"faka"
+TOKEN_PROC		"procedure"
+TOKEN_FUNC		"begin"
+TOKEN_FOR		"fordafak"
+TOKEN_WHILE 	"whiledafak"
+TOKEN_VOID		"vdafak"
+TOKEN_INT		"idafak"
+TOKEN_FLOAT		"fdafak"
+TOKEN_CHAR		"cdafak"
+TOKEN_STRING	"sdafak"
+TOKEN_STRUCT	"strdafak"
+TOKEN_UNION		"unidafak"
+TOKEN_WRITE		"wdafak"
+TOKEN_READ		"rdafak"
+TOKEN_IN		"in"
+TOKEN_SEPARADOR ";"
+TOKEN_AND		"and"
+TOKEN_OR		"or"
+TOKEN_NOT		"not"
+TOKEN_COMMENT	"fakafaka"
+TOKEN_LPAREN	"("
+TOKEN_RPAREN	")"
+TOKEN_MINUS		"-"
+TOKEN_EQ		"="
+TOKEN_TIMES 	"*"
+TOKEN_DIVIDE 	"/"
+TOKEN_MOD 		"%"
+TOKEN_PLUS 		"+"
+TOKEN_GREAT 	">"
+TOKEN_GREATEQ 	">="
+TOKEN_LESS 		"<"
+TOKEN_LESSEQ 	"<="
+TOKEN_EQEQ 		"=="
+
+
 %%
 
-{DIGIT}+ {printf("Esto es un int");}
+
+{DIGIT}+	{printf( "Entero: %s\n", yytext);}
 
 
-{DIGIT}+"."{DIGIT}* {printf("Esto es un float");}
+{DIGIT}+"."{DIGIT}*		{printf( "Flotante: %s (%g)\n", yytext);}
+
+
+{TOKEN_IF}|{TOKEN_THEN}|{TOKEN_BEGIN}|{TOKEN_END}|{TOKEN_PROC}|{TOKEN_FUNC}|{TOKEN_FOR} {printf( "Palabra clave: %s\n", yytext );}
+
+
+
+{TOKEN_LESS}|{TOKEN_LESSEQ}|{TOKEN_GREAT}|{TOKEN_GREATEQ}|{TOKEN_EQEQ}|{TOKEN_PLUS}|{TOKEN_MINUS}|{TOKEN_TIMES}|{TOKEN_DIVIDE}|{TOKEN_AND}|{TOKEN_OR}|{TOKEN_NOT}		{printf( "An operator: %s\n", yytext );}  
+
+
+{TOKEN_EQ} {printf("Esto es una asignacion\n");}
+
 
 
 \'.\' {printf("Esto es un char");}
@@ -14,44 +68,60 @@ ID [a-z][a-z0-9]*
 \"(\\\\|\\\"|[^\\\"])*\" {printf("Esto es una cadena");}
 
 
-"vdafak" {printf("Tipo void");}
+{TOKEN_VOID} {printf("Tipo void");}
 
 
-"idafak" {printf("Esto es un tipo int");}
+{TOKEN_INT} {printf("Esto es un tipo int");}
 
 
-"fdafak" {printf("Esto es el tipo float");}
+{TOKEN_FLOAT} {printf("Esto es el tipo float");}
 
 
-"cdafak" {printf("Esto es el tipo char");}
+{TOKEN_CHAR} {printf("Esto es el tipo char");}
 
 
-"sdafak" {printf("Esto es una cadena");}
+{TOKEN_STRING} {printf("Esto es una cadena");}
 
 
-"tructdafak" {printf("Esto es un struct");}
+{TOKEN_STRUCT} {printf("Esto es un struct");}
 
 
-"niondafak" {printf("Esto es un union");}
+{TOKEN_UNION} {printf("Esto es un union");}
+
+
+{TOKEN_SEPARADOR} {printf("Esto es un ;");}
+
+
+\[{DIGIT}+\] {printf("Dimension de un arreglo");}
 
 
 \."!"\. {printf("Paso por referencia");}
 
-\n {printf("Esto es un salto de linea");}
+
+{TOKEN_COMMENT} {printf("Esto es un comentario\n");}
 
 
+{ID}	{printf( "Identificador: %s\n", yytext );}
+
+
+"{"[^}\n]*"}"     /* eat up one-line comments */
+
+
+[ \t\n]+	     /* eat up whitespace */
+
+
+.				printf( "Unrecognized character: %s\n", yytext );
 
 %%
-     
-	 void main(int argc, char **argv)
-	 {
-		    ++argv, --argc;  /* skip over program name */
-			   if ( argc > 0 )
-				        yyin = fopen( argv[0], "r" );
-						   else
-							        yyin = stdin;
-									     
-										    yylex();
-	 }
 
-	 yywrap() { }
+void main(int argc, char **argv){
+	   ++argv, --argc;  /* skip over program name */
+	      if ( argc > 0 )
+			       yyin = fopen( argv[0], "r" );
+				      else
+						       yyin = stdin;
+							        
+									   yylex();
+}
+
+yywrap() { }
