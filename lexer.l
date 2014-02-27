@@ -40,7 +40,8 @@ TOKEN_GREATEQ 	">="
 TOKEN_LESS 		"<"
 TOKEN_LESSEQ 	"<="
 TOKEN_EQEQ 		"=="
-
+TOKEN_TRUE		"true"
+TOKEN_FALSE		"false"
 
 %%
 
@@ -51,7 +52,7 @@ TOKEN_EQEQ 		"=="
 {DIGIT}+"."{DIGIT}*		{printf( "Flotante: %s (%g)\n", yytext);}
 
 
-{TOKEN_IF}|{TOKEN_THEN}|{TOKEN_BEGIN}|{TOKEN_END}|{TOKEN_PROC}|{TOKEN_FUNC}|{TOKEN_FOR} {printf( "Palabra clave: %s\n", yytext );}
+{TOKEN_IF}|{TOKEN_THEN}|{TOKEN_BEGIN}|{TOKEN_END}|{TOKEN_PROC}|{TOKEN_FUNC}|{TOKEN_FOR}|{TOKEN_WHILE} {printf( "Palabra clave: %s\n", yytext );}
 
 
 
@@ -90,6 +91,18 @@ TOKEN_EQEQ 		"=="
 
 
 {TOKEN_SEPARADOR} {printf("Esto es un ;");}
+
+
+{TOKEN_LPAREN} {printf("Parentesis izquierdo\n");}
+
+
+{TOKEN_RPAREN} {printf("Parentesis derecho\n");}
+
+
+{TOKEN_TRUE}	{printf("Booleano\n");}
+
+
+{TOKEN_FALSE}	{printf("Booleano \n");}
 
 
 \[{DIGIT}+\] {printf("Dimension de un arreglo");}
