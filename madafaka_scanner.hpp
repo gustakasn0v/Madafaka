@@ -6,7 +6,7 @@
 #endif
  
 #undef YY_DECL
-#define YY_DECL int MC::MC_Scanner::yylex()
+#define YY_DECL int Madafaka::Madafaka_Scanner::yylex()
  
 //#include "mc_parser.tab.hh"
  
@@ -14,10 +14,11 @@ namespace Madafaka{
  
 class Madafaka_Scanner : public yyFlexLexer{
 	public:
-		MC_Scanner(std::istream *in) : 
+		Madafaka_Scanner(std::istream *in) : 
 			yyFlexLexer(in),
 			ylval( nullptr ){};
-		int yylex(MC::MC_Parser::semantic_type *lval){
+			
+		int yylex(Madafaka::Madafaka_Parser::semantic_type *lval){
 			yylval = lval;
 			return( yylex() );
 		}
