@@ -11,3 +11,8 @@
 *.lai
 *.la
 *.a
+
+# Lexer compiled files
+lex.yy
+lex.yy.c
+lex.yy.cc
