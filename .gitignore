@@ -19,3 +19,9 @@ lex.yy.cc
 
 # VIm swap files
 *.swp
+
+# Parser output files
+madafaka_parser.output
+madafaka_parser.tab.cc
+madafaka_parser.tab.hh
+stack.hh
