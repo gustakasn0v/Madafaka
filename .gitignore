@@ -16,3 +16,6 @@
 lex.yy
 lex.yy.c
 lex.yy.cc
+
+# VIm swap files
+*.swp
