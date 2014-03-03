@@ -2,14 +2,17 @@
 #include<stdio.h>
 %}
 
+%option yylineno
+%option c++
+%option yyclass="Madafaka_Scanner"
+
 DIGIT			[0-9]
 ID 				[a-z][a-z0-9]*
 TOKEN_IF		"ifdafak"
 TOKEN_THEN		"thendafak"
 TOKEN_BEGIN		"mada"
 TOKEN_END		"faka"
-TOKEN_PROC		"procedure"
-TOKEN_FUNC		"begin"
+TOKEN_ARGREF	"var"
 TOKEN_FOR		"fordafak"
 TOKEN_WHILE 	"whiledafak"
 TOKEN_VOID		"vdafak"
@@ -19,10 +22,11 @@ TOKEN_CHAR		"cdafak"
 TOKEN_STRING	"sdafak"
 TOKEN_STRUCT	"strdafak"
 TOKEN_UNION		"unidafak"
+TOKEN_ASSIGN	"="
 TOKEN_WRITE		"wdafak"
 TOKEN_READ		"rdafak"
 TOKEN_IN		"in"
-TOKEN_SEPARADOR ";"
+TOKEN_SEPARATOR ";"
 TOKEN_AND		"and"
 TOKEN_OR		"or"
 TOKEN_NOT		"not"
@@ -30,7 +34,7 @@ TOKEN_COMMENT	"fakafaka"
 TOKEN_LPAREN	"("
 TOKEN_RPAREN	")"
 TOKEN_MINUS		"-"
-TOKEN_EQ		"="
+TOKEN_EQ		"=="
 TOKEN_TIMES 	"*"
 TOKEN_DIVIDE 	"/"
 TOKEN_MOD 		"%"
@@ -52,14 +56,16 @@ TOKEN_FALSE		"false"
 {DIGIT}+"."{DIGIT}*		{printf( "Flotante: %s (%g)\n", yytext);}
 
 
-{TOKEN_IF}|{TOKEN_THEN}|{TOKEN_BEGIN}|{TOKEN_END}|{TOKEN_PROC}|{TOKEN_FUNC}|{TOKEN_FOR}|{TOKEN_WHILE} {printf( "Palabra clave: %s\n", yytext );}
+{TOKEN_IF}|{TOKEN_THEN}|{TOKEN_BEGIN}|{TOKEN_END}|{TOKEN_ARGREF}|{TOKEN_FOR}|{TOKEN_WHILE} {printf( "Palabra clave: %s\n", yytext );}
 
 
 
 {TOKEN_LESS}|{TOKEN_LESSEQ}|{TOKEN_GREAT}|{TOKEN_GREATEQ}|{TOKEN_EQEQ}|{TOKEN_PLUS}|{TOKEN_MINUS}|{TOKEN_TIMES}|{TOKEN_DIVIDE}|{TOKEN_AND}|{TOKEN_OR}|{TOKEN_NOT}		{printf( "An operator: %s\n", yytext );}  
 
 
-{TOKEN_EQ} {printf("Esto es una asignacion\n");}
+{TOKEN_ASSIGN} {printf("Esto es una asignacion\n");}
+
+{TOKEN_EQ} {printf("Esto es una igualdad\n");}
 
 
 
@@ -90,7 +96,7 @@ TOKEN_FALSE		"false"
 {TOKEN_UNION} {printf("Esto es un union");}
 
 
-{TOKEN_SEPARADOR} {printf("Esto es un ;");}
+{TOKEN_SEPARATOR} {printf("Esto es un ;");}
 
 
 {TOKEN_LPAREN} {printf("Parentesis izquierdo\n");}
