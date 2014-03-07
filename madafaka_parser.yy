@@ -6,11 +6,11 @@
 
 %defines 
 /* Use a particular namespace and parser class */ 
-%define api.namespace {Madafaka}
-%define parser_class_name {Madafaka_Parser}
+%define namespace "Madafaka"
+%define parser_class_name "Madafaka_Parser"
 
 /* Debug-enabled parser */
-%define parse.trace
+%debug
 
 %code requires{
    namespace Madafaka {
