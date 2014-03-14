@@ -1,0 +1,43 @@
+boolean_expression:
+  boolean_expression boolean_opr boolean_expression
+  | LPAREN boolean_expression RPAREN
+  | NOT boolean_expression
+  | NUMBER
+  | IDENTIFIER
+  ;
+
+arithmetic_expression:
+  arithmetic_expression PLUS arithmetic_expression
+  | arithmetic_expression MINUS arithmetic_expression
+  | arithmetic_expression TIMES arithmetic_expression
+  | arithmetic_expression TIMES arithmetic_expression
+
+Operacion_binaria : 
+  Operacion_binaria PLUS Operacion_binaria
+  | Operacion_binaria MINUS Operacion_binaria
+  | Operacion_binaria TIMES Operacion_binaria
+  | Operacion_binaria DIVIDE Operacion_binaria
+  | Operacion_binaria MOD Operacion_binaria
+  | Operacion_binaria AND Operacion_binaria
+  | Operacion_binaria OR Operacion_binaria
+  | Operacion_binaria EQEQ Operacion_binaria
+  | Operacion_binaria NEQEQ Operacion_binaria
+  | Operacion_binaria GREAT Operacion_binaria
+  | Operacion_binaria GREATEQ Operacion_binaria
+  | Operacion_binaria LESS Operacion_binaria
+  | Operacion_binaria LESSEQ Operacion_binaria
+  | Operacion_binaria IN Operacion_binaria
+  | Operacion_binaria RANGE Operacion_binaria
+  | Operacion_binaria INTERSECTION Operacion_binaria
+  | NOT Operacion_binaria
+  | NUMBER
+  | VAR_IDENTIFIER
+  | LPAREN Operacion_binaria RPAREN
+  | RTOI LPAREN Operacion_binaria RPAREN 
+  | LENGTH LPAREN Operacion_binaria RPAREN
+  | TOP LPAREN Operacion_binaria RPAREN
+  | BOTTOM LPAREN Operacion_binaria RPAREN 
+  | MINUS Operacion_binaria %prec UMINUS 
+  | TRUE
+  | FALSE
+  '''
