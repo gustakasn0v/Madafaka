@@ -16,7 +16,7 @@ class Madafaka_Scanner : public yyFlexLexer{
 	public:
 		Madafaka_Scanner(std::istream *in) : 
 			yyFlexLexer(in),
-			ylval( nullptr ){};
+			yylval( nullptr ){};
 			
 		int yylex(Madafaka::Madafaka_Parser::semantic_type *lval){
 			yylval = lval;
