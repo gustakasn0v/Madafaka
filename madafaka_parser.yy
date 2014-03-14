@@ -33,7 +33,7 @@
    #include <fstream>
    
    /* include for all driver functions */
-   #include "madafaka_driver.hpp"
+   #include "madafaka_driver.h"
 
    /* this is silly, but I can't figure out a way around */
    static int yylex(Madafaka::Madafaka_Parser::semantic_type *yylval,
@@ -42,11 +42,11 @@
 }
 
 /* token types */
-%union {
+%union values {  
    std::string *strvalue;
-   std::int intvalue;
-   std::float floatvalue;
-   std::boolean boolvalue;
+   int intvalue;
+   float floatvalue;
+   bool boolvalue;
 }
 
 /* Until whe have an AST, every nonterminal symbol with semantic meaning
@@ -111,15 +111,27 @@
 %type <strvalue> if_block
 
 
+/*
+Since expressions get their value from the SymTable,
+this will be commented out to avoid type clash warnings
+
+%type <boolvalue> boolean_expression
+%type <boolvalue> arithmetic_comparison
+%type <strvalue> arithmetic_expression
+%type <strvalue> boolean_opr
+%type <strvalue> arithmetic_opr
+%type <strvalue> comparison_opr
+*/
+
 %%
 
 program:
-  BEGIN instruction_list END {$$ = $instruction_list }
+  BEGIN instruction_list END {$$ = $instruction_list; }
   ;
 
 instruction_list:
   instruction SEPARATOR
-  | instruction_list instruction SEPARATOR {$$ = $1 ++ $2}
+  | instruction_list instruction SEPARATOR
   ;
 
 instruction:
@@ -156,15 +168,33 @@ general_expression:
   | boolean_expression
   ;
 
-arithmetic_expression:
-  procedure_invoc
+boolean_expression:
+  boolean_expression boolean_opr boolean_expression
+  | LPAREN boolean_expression RPAREN
+  | NOT boolean_expression
   | IDENTIFIER
+  | arithmetic_comparison
   ;
 
-boolean_expression:
-  procedure_invoc
-  | IDENTIFIER
+boolean_opr: AND | OR | EQ
   ;
+
+arithmetic_comparison:
+  arithmetic_expression comparison_opr arithmetic_expression 
+
+comparison_opr: EQ | LESS | LESSEQ 
+  | GREAT | GREATEQ
+  ;
+
+arithmetic_expression:
+  arithmetic_expression arithmetic_opr arithmetic_expression
+  | IDENTIFIER
+  | INTVALUE
+  | FLOATVALUE
+  ;
+
+
+arithmetic_opr: PLUS | MINUS | TIMES | DIVIDE | MOD
 
 procedure_decl:
   type IDENTIFIER LPAREN arg_decl_list RPAREN
