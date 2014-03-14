@@ -26,3 +26,5 @@ madafaka_parser.output
 madafaka_parser.tab.cc
 madafaka_parser.tab.hh
 stack.hh
+position.hh
+location.hh
