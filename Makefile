@@ -22,10 +22,10 @@ FILES = $(addsuffix .cpp, $(CPPOBJ))
 OBJS  = $(addsuffix .o, $(CPPOBJ))
  
 CLEANLIST =  $(addsuffix .o, $(OBJ)) $(OBJS) \
-    			 mc_parser.tab.cc mc_parser.tab.hh \
+    			 madafaka_parser.tab.cc madafaka_parser.tab.hh \
 				 location.hh position.hh \
-			    stack.hh mc_parser.output parser.o \
-				 lexer.o mc_lexer.yy.cc $(EXE)\
+			    stack.hh madafaka_parser.output parser.o \
+				 lexer.o madafaka_lexer.yy.cc *gch $(EXE)\
  
 .PHONY: all
 all: wc
