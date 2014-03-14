@@ -59,8 +59,9 @@
 %token <strvalue> SEPARATOR ";"
 %token <strvalue> ASSIGN "="
 %token <strvalue> COMMA ","
-%token <strvalue> LPAR "("
-%token <strvalue> RPAR ")"
+%token <strvalue> LPAREN "("
+%token <strvalue> RPAREN ")"
+%token COMMENT
 
 /* Primitive and composite data types */
 %token <strvalue> INTEGER
@@ -76,6 +77,24 @@
 %token <strvalue> WRITE
 %token <strvalue> VAR
 
+/* Tokens for constant expresions (eg. 42, "blah", 3.8) */
+%token <intvalue> INTVALUE
+%token <floatvalue> FLOATVALUE
+%token <boolvalue> BOOLVALUE
+%token <strvalue> STRVALUE
+
+/* Tokens for boolean/arithmetic expressions */
+%token TRUE
+%token FALSE
+
+%left OR
+%left AND
+%nonassoc NOT
+%nonassoc LESS LESSEQ GREAT GREATEQ
+%left EQ
+%left PLUS MINUS
+%left TIMES DIVIDE MOD
+
 /* Nonterminals. I didn't put the union type! */
 %type <strvalue> program
 %type <strvalue> instruction_list
@@ -89,6 +108,7 @@
 %type <strvalue> while_loop
 %type <strvalue> for_loop
 %type <strvalue> type
+%type <strvalue> if_block
 
 
 %%
@@ -147,11 +167,11 @@ boolean_expression:
   ;
 
 procedure_decl:
-  type IDENTIFIER LPAR arg_decl_list RPAR
+  type IDENTIFIER LPAREN arg_decl_list RPAREN
   ;
 
 procedure_invoc:
-  IDENTIFIER LPAR arg_list RPAR  
+  IDENTIFIER LPAREN arg_list RPAREN  
   ;
 
 arg_decl_list:
@@ -182,7 +202,7 @@ while_loop:
   WHILE boolean_expression instruction_list
 
 for_loop:
-  FOR LPAR assign COMMA boolean_expression COMMA assign RPAR instruction_list
+  FOR LPAREN assign COMMA boolean_expression COMMA assign RPAREN instruction_list
 
 
 if_block:
