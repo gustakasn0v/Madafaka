@@ -1,5 +1,9 @@
 %{
 #include<stdio.h>
+#include"madafaka_scanner.hpp"
+
+typedef Madafaka::Madafaka_Parser::token token;
+
 %}
 
 %option yylineno
@@ -43,29 +47,43 @@ TOKEN_GREAT 	">"
 TOKEN_GREATEQ 	">="
 TOKEN_LESS 		"<"
 TOKEN_LESSEQ 	"<="
-TOKEN_EQEQ 		"=="
 TOKEN_TRUE		"true"
 TOKEN_FALSE		"false"
 
 %%
 
 
-{DIGIT}+	{printf( "Entero: %s\n", yytext);}
+{DIGIT}+				{printf( "Entero: %s\n", yytext);}
 
 
 {DIGIT}+"."{DIGIT}*		{printf( "Flotante: %s (%g)\n", yytext);}
 
 
-{TOKEN_IF}|{TOKEN_THEN}|{TOKEN_BEGIN}|{TOKEN_END}|{TOKEN_ARGREF}|{TOKEN_FOR}|{TOKEN_WHILE} {printf( "Palabra clave: %s\n", yytext );}
+{TOKEN_IF}				{return token::IF;}
+{TOKEN_THEN}			{return token::THEN;}
+{TOKEN_BEGIN}			{return token::BEGIN;}
+{TOKEN_END}				{return token::END;}
+{TOKEN_ARGREF}			{return token::VAR;}
+{TOKEN_FOR}				{return token::FOR;}
+{TOKEN_WHILE}			{printf( "Palabra clave: %s\n", yytext ); return token::WHILE}
+{TOKEN_LESS}
+{TOKEN_LESSEQ}
+{TOKEN_GREAT}
+{TOKEN_GREATEQ}
+{TOKEN_PLUS}
+{TOKEN_MINUS}
+{TOKEN_TIMES}
+{TOKEN_DIVIDE}
+{TOKEN_AND}
+{TOKEN_OR}
+{TOKEN_NOT}		{printf( "An operator: %s\n", yytext );}  
 
 
-
-{TOKEN_LESS}|{TOKEN_LESSEQ}|{TOKEN_GREAT}|{TOKEN_GREATEQ}|{TOKEN_EQEQ}|{TOKEN_PLUS}|{TOKEN_MINUS}|{TOKEN_TIMES}|{TOKEN_DIVIDE}|{TOKEN_AND}|{TOKEN_OR}|{TOKEN_NOT}		{printf( "An operator: %s\n", yytext );}  
-
+{TOKEN_EQ} {printf("Esto es una igualdad\n");}	
 
 {TOKEN_ASSIGN} {printf("Esto es una asignacion\n");}
 
-{TOKEN_EQ} {printf("Esto es una igualdad\n");}
+
 
 
 

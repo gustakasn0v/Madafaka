@@ -71,6 +71,7 @@
 %token <strvalue> VOID
 %token <strvalue> FOR
 %token <strvalue> WHILE
+%token <strvalue> IF
 %token <strvalue> READ
 %token <strvalue> WRITE
 %token <strvalue> VAR
@@ -110,6 +111,7 @@ instruction:
   | read
   | while_loop
   | for_loop
+  | if_block
   ;
 
 declaration:
@@ -183,6 +185,8 @@ for_loop:
   FOR LPAR assign COMMA boolean_expression COMMA assign RPAR instruction_list
 
 
+if_block:
+  IF boolean_expression BEGIN instruction_list END
 
 
 %%

@@ -8,7 +8,7 @@
 #undef YY_DECL
 #define YY_DECL int Madafaka::Madafaka_Scanner::yylex()
  
-//#include "mc_parser.tab.hh"
+#include "madafaka_parser.tab.hh"
  
 namespace Madafaka{
  
