@@ -28,3 +28,4 @@ madafaka_parser.tab.hh
 stack.hh
 position.hh
 location.hh
+madafaka_lexer.yy.cc
