@@ -1,6 +1,6 @@
 %{
 #include<stdio.h>
-#include"madafaka_scanner.hpp"
+#include "madafaka_scanner.hpp"
 
 typedef Madafaka::Madafaka_Parser::token token;
 
