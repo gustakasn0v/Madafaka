@@ -47,6 +47,7 @@
    int intvalue;
    float floatvalue;
    bool boolvalue;
+   char charvalue;
 }
 
 /* Until whe have an AST, every nonterminal symbol with semantic meaning
@@ -61,6 +62,8 @@
 %token <strvalue> COMMA ","
 %token <strvalue> LPAREN "("
 %token <strvalue> RPAREN ")"
+%token <strvalue> PROC
+$token <strvalue> FUNC
 %token COMMENT
 
 /* Primitive and composite data types */
@@ -76,12 +79,14 @@
 %token <strvalue> READ
 %token <strvalue> WRITE
 %token <strvalue> VAR
+%token <strvalue> UNION
 
 /* Tokens for constant expresions (eg. 42, "blah", 3.8) */
 %token <intvalue> INTVALUE
 %token <floatvalue> FLOATVALUE
 %token <boolvalue> BOOLVALUE
 %token <strvalue> STRVALUE
+%token <charvalue> CHARVALUE
 
 /* Tokens for boolean/arithmetic expressions */
 %token TRUE
@@ -94,6 +99,10 @@
 %left EQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
+
+/*extra tokens*/
+%token <strvalue> REF ".!."
+%token <strvalue> UNKNOWN
 
 /* Nonterminals. I didn't put the union type! */
 %type <strvalue> program

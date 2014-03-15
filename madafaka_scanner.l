@@ -49,56 +49,126 @@ TOKEN_SEPARADOR ";"
 %%
 
 
-{DIGIT}+	{printf( "Entero: %s\n", yytext);}
+{DIGIT}+				{
+							yylval.intvalue = atoi(yytext);
+							return (token::INTVALUE);
+						}
 
 
-{DIGIT}+"."{DIGIT}*		{printf( "Flotante: %s (%g)\n", yytext);}
+{DIGIT}+"."{DIGIT}*		{
+							yylval.floatvalue = atof(yytext);
+							return (token::FLOATVALUE);
+						}
 
 
-{TOKEN_IF}|{TOKEN_THEN}|{TOKEN_BEGIN}|{TOKEN_END}|{TOKEN_PROC}|{TOKEN_FUNC}|{TOKEN_FOR} {printf( "Palabra clave: %s\n", yytext );}
+{TOKEN_IF}				{return ( token::IF );}
+
+
+{TOKEN_THEN}			{return (token::THEN);}
+
+
+{TOKEN_BEGIN} 			{return (token::BEGIN);}
 
 
 
-"+"|"-"|"*"|"/"		{printf( "An operator: %s\n", yytext );}  
+{TOKEN_END} 			{return (token::END);}
 
 
-\'.\' {printf("Esto es un char");}
+{TOKEN_PROC} 			{return (token::PROC);}
 
 
-\"(\\\\|\\\"|[^\\\"])*\" {printf("Esto es una cadena");}
+
+{TOKEN_FUNC}			{return (token::FUNC);}
 
 
-{TOKEN_VOID} {printf("Tipo void");}
+{TOKEN_FOR} 			{return (token::FOR);}
 
 
-{TOKEN_INT} {printf("Esto es un tipo int");}
 
 
-{TOKEN_FLOAT} {printf("Esto es el tipo float");}
+"+"						{return (token::PLUS);}
 
 
-{TOKEN_CHAR} {printf("Esto es el tipo char");}
+"-"		 				{return (token::MINUS);}
 
 
-{TOKEN_STRING} {printf("Esto es una cadena");}
+"*" 					{return (token::TIMES);}
 
 
-{TOKEN_STRUCT} {printf("Esto es un struct");}
+"/"						{return (token::DIVIDE);}
 
 
-{TOKEN_UNION} {printf("Esto es un union");}
+"%"						{return (token::MOD);}  
 
 
-{TOKEN_SEPARADOR} {printf("Esto es un ;");}
+"<"						{return (token::LESS)}
+
+">"						{return (token::GREAT);}
+
+">="					{return (token::GREATEQ);}
 
 
-\[{DIGIT}+\] {printf("Dimension de un arreglo");}
+"<="					{return (token::LESSEQ);}
 
 
-\."!"\. {printf("Paso por referencia");}
+
+\'.\' 					{
+							yylval.charvalue = yytext[0];
+							return (token::CHARVALUE);
+						}
 
 
-{ID}	{printf( "Identificador: %s\n", yytext );}
+\"(\\\\|\\\"|[^\\\"])*\" {	
+							yylval->strvalue = new std::string(yytext);
+							return (token::STRVALUE);
+							
+						}
+
+
+{TOKEN_VOID} 			{return (token::VOID);}
+
+
+
+{TOKEN_INT} 			{return (token::INTEGER);}
+
+
+{TOKEN_FLOAT} 			{return (token::FLOAT);}
+
+
+{TOKEN_CHAR} 			{return (token::CHAR);}
+
+
+{TOKEN_STRING} 			{return (token::STRING);}
+
+
+{TOKEN_STRUCT} 			{return (token::STRUCT);}
+
+
+{TOKEN_UNION} 			{return (token::UNION);}
+
+
+{TOKEN_SEPARADOR} 		{return (token::SEPARATOR);}
+
+
+"true"					{
+							yylval.boolvalue = 1;
+							return (token::BOOLVALUE);
+						}
+
+
+"false"  				{
+							yylval.boolvalue = 0;
+							return (token::BOOLVALUE);
+						}
+
+
+\."!"\. 				{return (token::REF);}
+
+
+{ID}					{
+							yylval->strvalue = new std::string(yytext);
+							return (token::IDENTIFIER);
+						}
 
 
 "{"[^}\n]*"}"     /* eat up one-line comments */
@@ -107,7 +177,7 @@ TOKEN_SEPARADOR ";"
 [ \t\n]+	     /* eat up whitespace */
 
 
-.				printf( "Unrecognized character: %s\n", yytext );
+.						{return (token::UNKOWN);}
 
 %%
 

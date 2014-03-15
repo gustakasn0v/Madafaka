@@ -16,7 +16,7 @@ TOKEN_IF		"ifdafak"
 TOKEN_THEN		"thendafak"
 TOKEN_BEGIN		"mada"
 TOKEN_END		"faka"
-TOKEN_ARGREF	"var"
+TOKEN_ARGREF	".!."
 TOKEN_FOR		"fordafak"
 TOKEN_WHILE 	"whiledafak"
 TOKEN_VOID		"vdafak"
@@ -53,92 +53,149 @@ TOKEN_FALSE		"false"
 %%
 
 
-{DIGIT}+				{printf( "Entero: %s\n", yytext);}
+{DIGIT}+				{
+							yylval.intvalue = atoi(yytext);
+							return token::INTVALUE;
+						}
 
 
-{DIGIT}+"."{DIGIT}*		{printf( "Flotante: %s (%g)\n", yytext);}
+{DIGIT}+"."{DIGIT}*		{
+							yylval.floatvalue = atof(yytext);
+							return token::FLOATVALUE;
+						}
 
 
 {TOKEN_IF}				{return token::IF;}
+
+
 {TOKEN_THEN}			{return token::THEN;}
+
+
 {TOKEN_BEGIN}			{return token::BEGIN;}
+
+
 {TOKEN_END}				{return token::END;}
-{TOKEN_ARGREF}			{return token::VAR;}
+
+
+{TOKEN_ARGREF}			{return token::REF;}
+
+
 {TOKEN_FOR}				{return token::FOR;}
-{TOKEN_WHILE}			{printf( "Palabra clave: %s\n", yytext ); return token::WHILE}
-{TOKEN_LESS}
-{TOKEN_LESSEQ}
-{TOKEN_GREAT}
-{TOKEN_GREATEQ}
-{TOKEN_PLUS}
-{TOKEN_MINUS}
-{TOKEN_TIMES}
-{TOKEN_DIVIDE}
-{TOKEN_AND}
-{TOKEN_OR}
-{TOKEN_NOT}		{printf( "An operator: %s\n", yytext );}  
 
 
-{TOKEN_EQ} {printf("Esto es una igualdad\n");}	
-
-{TOKEN_ASSIGN} {printf("Esto es una asignacion\n");}
+{TOKEN_WHILE}			{return token::WHILE;}
 
 
+{TOKEN_LESS}			{return token::LESS;}
+
+
+{TOKEN_LESSEQ}			{return token::LESSEQ;}
+
+
+{TOKEN_GREAT}			{return token::GREAT;}
+
+
+{TOKEN_GREATEQ}			{return token::GREATEQ;}
+
+
+{TOKEN_PLUS}			{return token::PLUS;}
+
+
+{TOKEN_MINUS}			{return token::MINUS;}
+
+
+{TOKEN_TIMES}			{return token::TIMES;}
+
+
+{TOKEN_DIVIDE}			{return token::DIVIDE;}
+
+
+{TOKEN_MOD}				{return token::MOD;}
+
+
+{TOKEN_AND}				{return token::AND;}
+
+
+{TOKEN_OR}				{return token::OR;}
+
+
+{TOKEN_NOT}				{return token::NOT;}  
+
+
+{TOKEN_EQ} 				{return token::EQ;}	
+
+
+{TOKEN_ASSIGN} 			{return token::ASSIGN;}
 
 
 
-\'.\' {printf("Esto es un char");}
+\'.\' 		{
+				yylval.charvalue = yytext[0];
+				return (token::CHARVALUE);
+			}
 
 
-\"(\\\\|\\\"|[^\\\"])*\" {printf("Esto es una cadena");}
+\"(\\\\|\\\"|[^\\\"])*\" {
+							yylval->strvalue = new std::string(yytext);
+							return (token::STRVALUE);
+						}
 
 
-{TOKEN_VOID} {printf("Tipo void");}
+{TOKEN_VOID} {return (token::VOID);}
 
 
-{TOKEN_INT} {printf("Esto es un tipo int");}
+{TOKEN_INT} {return (token::INTEGER);}
 
 
-{TOKEN_FLOAT} {printf("Esto es el tipo float");}
+{TOKEN_FLOAT} {return (token::FLOAT);}
 
 
-{TOKEN_CHAR} {printf("Esto es el tipo char");}
+{TOKEN_CHAR} { return (token::CHAR);}
 
 
-{TOKEN_STRING} {printf("Esto es una cadena");}
+{TOKEN_STRING} {return (token::STRING);}
 
 
-{TOKEN_STRUCT} {printf("Esto es un struct");}
+{TOKEN_STRUCT} {return (token::STRUCT);}
 
 
-{TOKEN_UNION} {printf("Esto es un union");}
+{TOKEN_UNION} 	{return (token::UNION);}
 
 
-{TOKEN_SEPARATOR} {printf("Esto es un ;");}
+{TOKEN_SEPARATOR} {return (token::SEPARATOR);}
 
 
-{TOKEN_LPAREN} {printf("Parentesis izquierdo\n");}
+{TOKEN_LPAREN} 	{return (token::LPAREN);}
 
 
-{TOKEN_RPAREN} {printf("Parentesis derecho\n");}
+{TOKEN_RPAREN} 	{return (token::RPAREN);}
 
 
-{TOKEN_TRUE}	{printf("Booleano\n");}
+{TOKEN_TRUE}	{
+					yylval.boolvalue = 1;
+					return (token::BOOLVALUE);
+				}
 
 
-{TOKEN_FALSE}	{printf("Booleano \n");}
+{TOKEN_FALSE}	{
+					yylval.boolvalue = 0;
+					return (token::BOOLVALUE);
+				}
 
 
-\[{DIGIT}+\] {printf("Dimension de un arreglo");}
+
+\."!"\. 		{return (token::REF);}
 
 
-\."!"\. {printf("Paso por referencia");}
+{TOKEN_COMMENT} {
+					return (token::COMMENT);
+				}
 
 
-{TOKEN_COMMENT} {printf("Esto es un comentario\n");}
-
-
-{ID}	{printf( "Identificador: %s\n", yytext );}
+{ID}			{
+					yylval->strvalue = new std::string(yytext);
+					return (token::IDENTIFIER);
+				}
 
 
 "{"[^}\n]*"}"     /* eat up one-line comments */
@@ -147,7 +204,7 @@ TOKEN_FALSE		"false"
 [ \t\n]+	     /* eat up whitespace */
 
 
-.				printf( "Unrecognized character: %s\n", yytext );
+.				{return (token::UNKOWN);}
 
 %%
 
