@@ -2,6 +2,12 @@
 #define MADAFAKASYMBOL_H
 
 #include <string>
+
+#ifndef estructuras
+	#define estructuras
+	#include"estructuras.h"
+#endif
+
 using namespace std;
 /**
  * @class SymTable "SymTable.h"
@@ -14,12 +20,6 @@ using namespace std;
 
 // Here is the type definition for the Madafaka Language
 
-union MadafakaTypes{
-	int intValue;
-	float floatValue;
-	char charValue;
-	string *stringValue;
-};
 
 class MadafakaSymbol{
 private:

@@ -34,7 +34,7 @@ TOKEN_SEPARATOR ";"
 TOKEN_AND		"and"
 TOKEN_OR		"or"
 TOKEN_NOT		"not"
-TOKEN_COMMENT	"fakafaka"
+TOKEN_COMMENT	"--"
 TOKEN_LPAREN	"("
 TOKEN_RPAREN	")"
 TOKEN_MINUS		"-"
@@ -187,9 +187,9 @@ TOKEN_FALSE		"false"
 \."!"\. 		{return (token::REF);}
 
 
-{TOKEN_COMMENT} {
-					return (token::COMMENT);
-				}
+{TOKEN_COMMENT}[^\n]* {
+						return (token::COMMENT);
+					  }
 
 
 {ID}			{
@@ -205,6 +205,7 @@ TOKEN_FALSE		"false"
 
 
 .				{return (token::UNKOWN);}
+
 
 %%
 
