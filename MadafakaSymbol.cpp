@@ -1,6 +1,12 @@
 #include <string>
 
 #include "MadafakaSymbol.h"
+
+#ifndef estructuras
+	#define estructuras
+	#include"estructuras.h"
+#endif
+
 using namespace std;
 /**
  * @class SymTable "SymTable.h"
