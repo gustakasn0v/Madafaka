@@ -31,5 +31,5 @@ class Madafaka_Scanner : public yyFlexLexer{
 		};
 		 
 } /* end namespace Madafaka */	
-#endif /* END __MCSCANNER_HPP__ */
+#endif /* END __MADAFAKASCANNER_HPP__ */
  
