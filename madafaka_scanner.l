@@ -1,28 +1,14 @@
 %{
-/* C++ string header, for string ops below */
-#include <string>
-/* Implementation of yyFlexScanner */ 
+#include<stdio.h>
 #include "madafaka_scanner.hpp"
 
-/* typedef to make the returns for the tokens shorter */
-typedef MC::MC_Parser::token token;
-
-/* define to keep from re-typing the same code over and over */
-#define STOKEN( x ) ( new std::string( x ) )
-
-/* define yyterminate as this instead of NULL */
-#define yyterminate() return( token::END )
-
-/* msvc2010 requires that we exclude this header file. */
-#define YY_NO_UNISTD_H
+typedef Madafaka::Madafaka_Parser::token token;
 
 %}
 
-%option debug 
-%option nodefault 
-%option yyclass="MC_Scanner" 
-%option noyywrap 
+%option yylineno
 %option c++
+%option yyclass="Madafaka_Scanner"
 
 DIGIT			[0-9]
 ID 				[a-z][a-z0-9]*
@@ -30,8 +16,7 @@ TOKEN_IF		"ifdafak"
 TOKEN_THEN		"thendafak"
 TOKEN_BEGIN		"mada"
 TOKEN_END		"faka"
-TOKEN_PROC		"procedure"
-TOKEN_FUNC		"begin"
+TOKEN_ARGREF	".!."
 TOKEN_FOR		"fordafak"
 TOKEN_WHILE 	"whiledafak"
 TOKEN_VOID		"vdafak"
@@ -41,134 +26,176 @@ TOKEN_CHAR		"cdafak"
 TOKEN_STRING	"sdafak"
 TOKEN_STRUCT	"strdafak"
 TOKEN_UNION		"unidafak"
+TOKEN_ASSIGN	"="
 TOKEN_WRITE		"wdafak"
 TOKEN_READ		"rdafak"
 TOKEN_IN		"in"
-TOKEN_SEPARADOR ";"
+TOKEN_SEPARATOR ";"
+TOKEN_AND		"and"
+TOKEN_OR		"or"
+TOKEN_NOT		"not"
+TOKEN_COMMENT	"--"
+TOKEN_LPAREN	"("
+TOKEN_RPAREN	")"
+TOKEN_MINUS		"-"
+TOKEN_EQ		"=="
+TOKEN_TIMES 	"*"
+TOKEN_DIVIDE 	"/"
+TOKEN_MOD 		"%"
+TOKEN_PLUS 		"+"
+TOKEN_GREAT 	">"
+TOKEN_GREATEQ 	">="
+TOKEN_LESS 		"<"
+TOKEN_LESSEQ 	"<="
+TOKEN_TRUE		"true"
+TOKEN_FALSE		"false"
 
 %%
 
 
 {DIGIT}+				{
 							yylval.intvalue = atoi(yytext);
-							return (token::INTVALUE);
+							return token::INTVALUE;
 						}
 
 
 {DIGIT}+"."{DIGIT}*		{
 							yylval.floatvalue = atof(yytext);
-							return (token::FLOATVALUE);
+							return token::FLOATVALUE;
 						}
 
 
-{TOKEN_IF}				{return ( token::IF );}
+{TOKEN_IF}				{return token::IF;}
 
 
-{TOKEN_THEN}			{return (token::THEN);}
+{TOKEN_THEN}			{return token::THEN;}
 
 
-{TOKEN_BEGIN} 			{return (token::BEGIN);}
+{TOKEN_BEGIN}			{return token::BEGIN;}
+
+
+{TOKEN_END}				{return token::END;}
+
+
+{TOKEN_ARGREF}			{return token::REF;}
+
+
+{TOKEN_FOR}				{return token::FOR;}
+
+
+{TOKEN_WHILE}			{return token::WHILE;}
+
+
+{TOKEN_LESS}			{return token::LESS;}
+
+
+{TOKEN_LESSEQ}			{return token::LESSEQ;}
+
+
+{TOKEN_GREAT}			{return token::GREAT;}
+
+
+{TOKEN_GREATEQ}			{return token::GREATEQ;}
+
+
+{TOKEN_PLUS}			{return token::PLUS;}
+
+
+{TOKEN_MINUS}			{return token::MINUS;}
+
+
+{TOKEN_TIMES}			{return token::TIMES;}
+
+
+{TOKEN_DIVIDE}			{return token::DIVIDE;}
+
+
+{TOKEN_MOD}				{return token::MOD;}
+
+
+{TOKEN_AND}				{return token::AND;}
+
+
+{TOKEN_OR}				{return token::OR;}
+
+
+{TOKEN_NOT}				{return token::NOT;}  
+
+
+{TOKEN_EQ} 				{return token::EQ;}	
+
+
+{TOKEN_ASSIGN} 			{return token::ASSIGN;}
 
 
 
-{TOKEN_END} 			{return (token::END);}
+\'.\' 		{
+				yylval.charvalue = yytext[0];
+				return (token::CHARVALUE);
+			}
 
 
-{TOKEN_PROC} 			{return (token::PROC);}
-
-
-
-{TOKEN_FUNC}			{return (token::FUNC);}
-
-
-{TOKEN_FOR} 			{return (token::FOR);}
-
-
-
-
-"+"						{return (token::PLUS);}
-
-
-"-"		 				{return (token::MINUS);}
-
-
-"*" 					{return (token::TIMES);}
-
-
-"/"						{return (token::DIVIDE);}
-
-
-"%"						{return (token::MOD);}  
-
-
-"<"						{return (token::LESS)}
-
-">"						{return (token::GREAT);}
-
-">="					{return (token::GREATEQ);}
-
-
-"<="					{return (token::LESSEQ);}
-
-
-
-\'.\' 					{
-							yylval.charvalue = yytext[0];
-							return (token::CHARVALUE);
-						}
-
-
-\"(\\\\|\\\"|[^\\\"])*\" {	
+\"(\\\\|\\\"|[^\\\"])*\" {
 							yylval->strvalue = new std::string(yytext);
 							return (token::STRVALUE);
-							
 						}
 
 
-{TOKEN_VOID} 			{return (token::VOID);}
+{TOKEN_VOID} {return (token::VOID);}
+
+
+{TOKEN_INT} {return (token::INTEGER);}
+
+
+{TOKEN_FLOAT} {return (token::FLOAT);}
+
+
+{TOKEN_CHAR} { return (token::CHAR);}
+
+
+{TOKEN_STRING} {return (token::STRING);}
+
+
+{TOKEN_STRUCT} {return (token::STRUCT);}
+
+
+{TOKEN_UNION} 	{return (token::UNION);}
+
+
+{TOKEN_SEPARATOR} {return (token::SEPARATOR);}
+
+
+{TOKEN_LPAREN} 	{return (token::LPAREN);}
+
+
+{TOKEN_RPAREN} 	{return (token::RPAREN);}
+
+
+{TOKEN_TRUE}	{
+					yylval.boolvalue = 1;
+					return (token::BOOLVALUE);
+				}
+
+
+{TOKEN_FALSE}	{
+					yylval.boolvalue = 0;
+					return (token::BOOLVALUE);
+				}
 
 
 
-{TOKEN_INT} 			{return (token::INTEGER);}
+\."!"\. 		{return (token::REF);}
 
 
-{TOKEN_FLOAT} 			{return (token::FLOAT);}
+{TOKEN_COMMENT}[^\n]* {
+						return (token::COMMENT);
+					  }
 
 
-{TOKEN_CHAR} 			{return (token::CHAR);}
-
-
-{TOKEN_STRING} 			{return (token::STRING);}
-
-
-{TOKEN_STRUCT} 			{return (token::STRUCT);}
-
-
-{TOKEN_UNION} 			{return (token::UNION);}
-
-
-{TOKEN_SEPARADOR} 		{return (token::SEPARATOR);}
-
-
-"true"					{
-							yylval.boolvalue = 1;
-							return (token::BOOLVALUE);
-						}
-
-
-"false"  				{
-							yylval.boolvalue = 0;
-							return (token::BOOLVALUE);
-						}
-
-
-\."!"\. 				{return (token::REF);}
-
-
-{ID}					{
-							yylval->strvalue = new std::string(yytext);
-							return (token::IDENTIFIER);
-						}
+{ID}			{
+					yylval->strvalue = new std::string(yytext);
+					return (token::IDENTIFIER);
+				}
 
 
 "{"[^}\n]*"}"     /* eat up one-line comments */
@@ -177,7 +204,19 @@ TOKEN_SEPARADOR ";"
 [ \t\n]+	     /* eat up whitespace */
 
 
-.						{return (token::UNKOWN);}
+.				{return (token::UNKOWN);}
+
 
 %%
 
+void main(int argc, char **argv){
+	   ++argv, --argc;  /* skip over program name */
+	      if ( argc > 0 )
+			       yyin = fopen( argv[0], "r" );
+				      else
+						       yyin = stdin;
+							        
+									   yylex();
+}
+
+yywrap() { }
