@@ -33,7 +33,7 @@ Madafaka::Madafaka_Driver::parse( const char *filename )
    delete(parser); 
    try
    {
-      parser = new Madafaka::MC_Madafaka( (*scanner) /* scanner */, 
+      parser = new Madafaka::Madafaka_Parser( (*scanner) /* scanner */, 
                                   (*this) /* driver */ );
    }
    catch( std::bad_alloc &ba )
@@ -102,7 +102,7 @@ MC::MC_Driver::add_char()
  
 */
 std::ostream& 
-MC::MC_Driver::print( std::ostream &stream )
+Madafaka::Madafaka_Driver::print( std::ostream &stream )
 {
    stream << "Uppercase: " << uppercase << "\n";
    stream << "Lowercase: " << lowercase << "\n";
