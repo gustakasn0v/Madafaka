@@ -33,7 +33,7 @@
    #include <fstream>
    
    /* include for all driver functions */
-   #include "madafaka_driver.h"
+   #include "madafaka_driver.hpp"
 
    /* this is silly, but I can't figure out a way around */
    static int yylex(Madafaka::Madafaka_Parser::semantic_type *yylval,
@@ -63,7 +63,7 @@
 %token <strvalue> LPAREN "("
 %token <strvalue> RPAREN ")"
 %token <strvalue> PROC
-$token <strvalue> FUNC
+%token <strvalue> FUNC
 %token COMMENT
 
 /* Primitive and composite data types */
@@ -251,15 +251,15 @@ if_block:
 %%
 
 
-void Madafaka::Madafaka_Parser::error( const Madafaka::Madafaka_Parser::location_type &l,
-                           const std::string &err_message)
-{
-   std::cerr << "Error: " << err_message << "\n"; 
-}
+// void Madafaka::Madafaka_Parser::error( const Madafaka::Madafaka_Parser::location_type &l,
+//                            const std::string &err_message)
+// {
+//    std::cerr << "Error: " << err_message << "\n"; 
+// }
 
 
 /* include for access to scanner.yylex */
-#include "Madafaka_scanner.hpp"
+#include "madafaka_scanner.hpp"
 static int yylex(Madafaka::Madafaka_Parser::semantic_type *yylval,
                  Madafaka::Madafaka_Scanner  &scanner,
                  Madafaka::Madafaka_Driver   &driver)
