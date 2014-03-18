@@ -6,15 +6,15 @@
  
 Madafaka::Madafaka_Driver::~Madafaka_Driver(){ 
    delete(scanner);
-   scanner = nullptr;
+   scanner = NULL;
    delete(parser);
-   parser = nullptr;
+   parser = NULL;
 }
  
 void 
 Madafaka::Madafaka_Driver::parse( const char *filename )
 {
-   assert( filename != nullptr );
+   assert( filename != NULL );
    std::ifstream in_file( filename );
    if( ! in_file.good() ) exit( EXIT_FAILURE );
    

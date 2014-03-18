@@ -6,8 +6,8 @@
 
 %defines 
 /* Use a particular namespace and parser class */ 
-%define namespace "Madafaka"
-%define parser_class_name "Madafaka_Parser"
+%define api.namespace {Madafaka}
+%define parser_class_name {Madafaka_Parser}
 
 /* Debug-enabled parser */
 %debug
@@ -42,7 +42,7 @@
 }
 
 /* token types */
-%union values {  
+%union {  
    std::string *strvalue;
    int intvalue;
    float floatvalue;
@@ -56,41 +56,39 @@
 /* Reserved words and its tokens */
 %token <strvalue> BEGIN "mada"
 %token <strvalue> END "faka"
-%token <strvalue> IDENTIFIER
+%token <strvalue> IDENTIFIER "variable_identifier"
 %token <strvalue> SEPARATOR ";"
 %token <strvalue> ASSIGN "="
 %token <strvalue> COMMA ","
 %token <strvalue> LPAREN "("
 %token <strvalue> RPAREN ")"
-%token <strvalue> PROC
-%token <strvalue> FUNC
-%token COMMENT
+%token COMMENT "fakafaka"
 
 /* Primitive and composite data types */
-%token <strvalue> INTEGER
-%token <strvalue> STRUCT
-%token <strvalue> CHAR
-%token <strvalue> STRING
-%token <strvalue> FLOAT
-%token <strvalue> VOID
-%token <strvalue> FOR
-%token <strvalue> WHILE
-%token <strvalue> IF
-%token <strvalue> READ
-%token <strvalue> WRITE
-%token <strvalue> VAR
-%token <strvalue> UNION
+%token <strvalue> INTEGER "idafak"
+%token <strvalue> STRUCT "strdafak"
+%token <strvalue> CHAR "cdafak"
+%token <strvalue> STRING "sdafak"
+%token <strvalue> FLOAT "fdafak"
+%token <strvalue> VOID "vdafak"
+%token <strvalue> FOR "fordafak"
+%token <strvalue> WHILE "whiledafak"
+%token <strvalue> IF "ifdafak"
+%token <strvalue> READ "rdafak"
+%token <strvalue> WRITE "wdafak"
+%token <strvalue> VAR "var"
+%token <strvalue> UNION "unidafak"
 
 /* Tokens for constant expresions (eg. 42, "blah", 3.8) */
-%token <intvalue> INTVALUE
-%token <floatvalue> FLOATVALUE
-%token <boolvalue> BOOLVALUE
-%token <strvalue> STRVALUE
-%token <charvalue> CHARVALUE
+%token <intvalue> INTVALUE "int_value"
+%token <floatvalue> FLOATVALUE "float_value"
+%token <boolvalue> BOOLVALUE "boolean_value"
+%token <strvalue> STRVALUE "string_value"
+%token <charvalue> CHARVALUE "char_value"
 
 /* Tokens for boolean/arithmetic expressions */
-%token TRUE
-%token FALSE
+%token TRUE "true"
+%token FALSE "false"
 
 %left OR
 %left AND
@@ -101,7 +99,6 @@
 %left TIMES DIVIDE MOD
 
 /*extra tokens*/
-%token <strvalue> REF ".!."
 %token <strvalue> UNKNOWN
 
 /* Nonterminals. I didn't put the union type! */
@@ -190,6 +187,7 @@ boolean_opr: AND | OR | EQ
 
 arithmetic_comparison:
   arithmetic_expression comparison_opr arithmetic_expression 
+  ;
 
 comparison_opr: EQ | LESS | LESSEQ 
   | GREAT | GREATEQ
@@ -204,6 +202,7 @@ arithmetic_expression:
 
 
 arithmetic_opr: PLUS | MINUS | TIMES | DIVIDE | MOD
+  ;
 
 procedure_decl:
   type IDENTIFIER LPAREN arg_decl_list RPAREN
@@ -239,13 +238,16 @@ read:
 
 while_loop:
   WHILE boolean_expression instruction_list
+  ;
 
 for_loop:
   FOR LPAREN assign COMMA boolean_expression COMMA assign RPAREN instruction_list
+  ;
 
 
 if_block:
   IF boolean_expression BEGIN instruction_list END
+  ;
 
 
 %%

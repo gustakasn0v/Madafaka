@@ -1,14 +1,19 @@
 %{
-#include<stdio.h>
+#include <stdio.h>
+#include <math.h>
 #include "madafaka_scanner.hpp"
-
 typedef Madafaka::Madafaka_Parser::token token;
+#define yyterminate() return( token::END )
+#define YY_NO_UNISTD_H
 
 %}
 
-%option yylineno
-%option c++
+%option debug
+%option nodefault
 %option yyclass="Madafaka_Scanner"
+%option noyywrap
+%option c++
+
 
 DIGIT			[0-9]
 ID 				[a-z][a-z0-9]*
@@ -16,7 +21,7 @@ TOKEN_IF		"ifdafak"
 TOKEN_THEN		"thendafak"
 TOKEN_BEGIN		"mada"
 TOKEN_END		"faka"
-TOKEN_ARGREF	".!."
+TOKEN_ARGREF	"var"
 TOKEN_FOR		"fordafak"
 TOKEN_WHILE 	"whiledafak"
 TOKEN_VOID		"vdafak"
@@ -130,7 +135,7 @@ TOKEN_FALSE		"false"
 
 
 \'.\' 		{
-				yylval.charvalue = yytext[0];
+				yylval.charvalue = yytext[1];
 				return (token::CHARVALUE);
 			}
 
@@ -208,15 +213,3 @@ TOKEN_FALSE		"false"
 
 
 %%
-
-void main(int argc, char **argv){
-	   ++argv, --argc;  /* skip over program name */
-	      if ( argc > 0 )
-			       yyin = fopen( argv[0], "r" );
-				      else
-						       yyin = stdin;
-							        
-									   yylex();
-}
-
-yywrap() { }

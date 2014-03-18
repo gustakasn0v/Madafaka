@@ -1,5 +1,5 @@
-CC    ?= gcc
-CXX   ?= g++
+CC    ?= clang
+CXX   ?= clang++
  
 EXE = madafaka
  
@@ -40,7 +40,7 @@ parser: madafaka_parser.yy
 	bison -d -v madafaka_parser.yy
 	$(CXX) $(CXXFLAGS) -c -o parser.o madafaka_parser.tab.cc
  
-lexer: lexer.l
+lexer: madafaka_scanner.l
 	flex --outfile=madafaka_lexer.yy.cc  $<
 	$(CXX)  $(CXXFLAGS) -c madafaka_lexer.yy.cc -o lexer.o
  

@@ -14,8 +14,8 @@ public:
                  lines(0),
                  uppercase(0),
                  lowercase(0),
-                 parser( nullptr ),
-                 scanner( nullptr ){};
+                 parser( NULL ),
+                 scanner( NULL ){};
  
    virtual ~Madafaka_Driver();
  
