@@ -14,7 +14,7 @@ CFLAGS = -O0  $(CDEBUG) $(CSTD)
 CXXFLAGS = -O0  $(CXXDEBUG) $(CXXSTD)
  
  
-CPPOBJ = main mc_driver
+CPPOBJ = main madafaka_driver
 SOBJ =  parser lexer
  
 FILES = $(addsuffix .cpp, $(CPPOBJ))
@@ -28,9 +28,9 @@ CLEANLIST =  $(addsuffix .o, $(OBJ)) $(OBJS) \
 				 lexer.o madafaka_lexer.yy.cc *gch $(EXE)\
  
 .PHONY: all
-all: wc
+all: madafaka
  
-wc: $(FILES)
+madafaka: $(FILES)
 	$(MAKE) $(SOBJ)
 	$(MAKE) $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(EXE) $(OBJS) parser.o lexer.o $(LIBS)
