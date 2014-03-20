@@ -29,3 +29,6 @@ stack.hh
 position.hh
 location.hh
 madafaka_lexer.yy.cc
+
+# Binary file
+madafaka
