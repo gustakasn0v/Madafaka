@@ -12,9 +12,9 @@ main(const int argc, const char **argv)
    
    driver.parse( argv[1] );
    
-   std::cout << "Results\n";
+   // std::cout << "Results\n";
    
-   driver.print(std::cout) << "\n";
+   // driver.print(std::cout) << "\n";
  
    return( EXIT_SUCCESS );
 }

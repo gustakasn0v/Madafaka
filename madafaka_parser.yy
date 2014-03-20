@@ -54,7 +54,7 @@
   will remain with string value */
 
 /* Reserved words and its tokens */
-%token <strvalue> BEGIN "mada"
+%token <strvalue> START "mada"
 %token <strvalue> END "faka"
 %token <strvalue> IDENTIFIER "variable_identifier"
 %token <strvalue> SEPARATOR ";"
@@ -62,7 +62,7 @@
 %token <strvalue> COMMA ","
 %token <strvalue> LPAREN "("
 %token <strvalue> RPAREN ")"
-%token COMMENT "fakafaka"
+%token <strvalue> COMMENT "fakafaka"
 
 /* Primitive and composite data types */
 %token <strvalue> INTEGER "idafak"
@@ -116,6 +116,7 @@
 %type <strvalue> type
 %type <strvalue> if_block
 
+%start program
 
 /*
 Since expressions get their value from the SymTable,
@@ -132,12 +133,13 @@ this will be commented out to avoid type clash warnings
 %%
 
 program:
-  BEGIN instruction_list END {$$ = $instruction_list; }
+  START instruction_list END { std::cout << "Hola"; return 0; }
   ;
 
 instruction_list:
-  instruction SEPARATOR
-  | instruction_list instruction SEPARATOR
+  %empty
+  | instruction
+  | instruction SEPARATOR instruction_list
   ;
 
 instruction:
@@ -246,18 +248,16 @@ for_loop:
 
 
 if_block:
-  IF boolean_expression BEGIN instruction_list END
+  IF boolean_expression START instruction_list END
   ;
-
 
 %%
 
 
-// void Madafaka::Madafaka_Parser::error( const Madafaka::Madafaka_Parser::location_type &l,
-//                            const std::string &err_message)
-// {
-//    std::cerr << "Error: " << err_message << "\n"; 
-// }
+void Madafaka::Madafaka_Parser::error( const std::string &err_message)
+{
+   std::cerr << "Error: " << err_message << "\n"; 
+}
 
 
 /* include for access to scanner.yylex */

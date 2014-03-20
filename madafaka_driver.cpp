@@ -2,7 +2,7 @@
 #include <fstream>
 #include <cassert>
  
-#include "madafaka_driver.h"
+#include "madafaka_driver.hpp"
  
 Madafaka::Madafaka_Driver::~Madafaka_Driver(){ 
    delete(scanner);
@@ -48,8 +48,7 @@ Madafaka::Madafaka_Driver::parse( const char *filename )
       std::cerr << "Parse failed!!\n";
    }
 }
- 
-void 
+
 
 /*
 Here will go some AST methods, right now they don't exist

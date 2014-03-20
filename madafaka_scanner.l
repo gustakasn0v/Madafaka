@@ -18,7 +18,6 @@ typedef Madafaka::Madafaka_Parser::token token;
 DIGIT			[0-9]
 ID 				[a-z][a-z0-9]*
 TOKEN_IF		"ifdafak"
-TOKEN_THEN		"thendafak"
 TOKEN_BEGIN		"mada"
 TOKEN_END		"faka"
 TOKEN_ARGREF	"var"
@@ -59,13 +58,13 @@ TOKEN_FALSE		"false"
 
 
 {DIGIT}+				{
-							yylval.intvalue = atoi(yytext);
+							yylval->intvalue = atoi(yytext);
 							return token::INTVALUE;
 						}
 
 
 {DIGIT}+"."{DIGIT}*		{
-							yylval.floatvalue = atof(yytext);
+							yylval->floatvalue = atof(yytext);
 							return token::FLOATVALUE;
 						}
 
@@ -73,16 +72,17 @@ TOKEN_FALSE		"false"
 {TOKEN_IF}				{return token::IF;}
 
 
-{TOKEN_THEN}			{return token::THEN;}
+{TOKEN_BEGIN}			{
+							return token::START;
+						}
 
 
-{TOKEN_BEGIN}			{return token::BEGIN;}
+{TOKEN_END}				{
+							return token::END;
+						}
 
 
-{TOKEN_END}				{return token::END;}
-
-
-{TOKEN_ARGREF}			{return token::REF;}
+{TOKEN_ARGREF}			{return token::VAR;}
 
 
 {TOKEN_FOR}				{return token::FOR;}
@@ -135,7 +135,7 @@ TOKEN_FALSE		"false"
 
 
 \'.\' 		{
-				yylval.charvalue = yytext[1];
+				yylval->charvalue = yytext[1];
 				return (token::CHARVALUE);
 			}
 
@@ -177,19 +177,19 @@ TOKEN_FALSE		"false"
 
 
 {TOKEN_TRUE}	{
-					yylval.boolvalue = 1;
+					yylval->boolvalue = 1;
 					return (token::BOOLVALUE);
 				}
 
 
 {TOKEN_FALSE}	{
-					yylval.boolvalue = 0;
+					yylval->boolvalue = 0;
 					return (token::BOOLVALUE);
 				}
 
 
 
-\."!"\. 		{return (token::REF);}
+\."!"\. 		{return (token::VAR);}
 
 
 {TOKEN_COMMENT}[^\n]* {
@@ -209,7 +209,7 @@ TOKEN_FALSE		"false"
 [ \t\n]+	     /* eat up whitespace */
 
 
-.				{return (token::UNKOWN);}
+.				{return (token::UNKNOWN);}
 
 
 %%
