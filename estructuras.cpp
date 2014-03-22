@@ -1,19 +1,49 @@
 #include"estructuras.h"
-
-#ifndef MADAFAKASYMTABLE_H
-	#include"MadafakaSymTable.hpp"
-#endif
-
-
-arbol::addHijo(arbol *hijo){
+#include<iostream>
+//using namespace std;
+void arbol::addHijo(arbol *hijo){
 	(*hijo).setPapa(this);
 	hijos.push_back(hijo);
 }
 
-arbol::setPapa(arbol *padre){
+void arbol::setPapa(arbol *padre){
 	papa=padre;
 }
 
-arbol::getContenido(){
-	return contenido;
+arbol *arbol::getPapa(){
+	return papa;
 }
+
+int arbol::estaContenido(string &s){
+	return contenido.count(s);
+}
+
+void arbol::insertar(string s,string tipo){
+	if(contenido.count(s)==0)
+		contenido[s]=tipo;
+}
+
+string arbol::tipoVar(string &var){
+	return contenido[var];
+}
+
+
+string buscarVariable(string var){
+         arbol *aux = actual;
+         while(aux!=NULL){
+             if((*aux).estaContenido(var)) return (*aux).tipoVar(var);
+             aux = (*aux).getPapa();
+         }
+         return "";
+}
+
+
+
+/* main de prueba del archivo
+int main(){
+	string s = "bla1";
+	(*actual).insertar(s,"strin");
+	cout << buscarVariable(s+"2") << endl;
+}
+
+*/

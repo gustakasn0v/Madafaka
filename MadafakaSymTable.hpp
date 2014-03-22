@@ -3,7 +3,7 @@
 
 #include <string>
 #include <map>
-#include "MadafakaSymbol.h"
+#include "MadafakaSymbol.hpp"
 using namespace std;
 /**
  * @class SymTable "SymTable.h"

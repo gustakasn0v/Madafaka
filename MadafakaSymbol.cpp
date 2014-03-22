@@ -1,6 +1,6 @@
 #include <string>
 
-#include "MadafakaSymbol.h"
+#include "MadafakaSymbol.hpp"
 
 #ifndef estructuras
 	#define estructuras
