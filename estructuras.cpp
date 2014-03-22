@@ -1,5 +1,6 @@
 #include"estructuras.h"
 #include<iostream>
+
 //using namespace std;
 void arbol::addHijo(arbol *hijo){
 	(*hijo).setPapa(this);
@@ -38,12 +39,24 @@ string buscarVariable(string var){
 }
 
 
+void enterScope(){
+	arbol *nuevo = new arbol;
+	(*actual).addHijo(nuevo);
+	actual = nuevo;
+}
+
+void exitScope(){
+	actual = (*actual).getPapa();
+}
+
 
 /* main de prueba del archivo
 int main(){
 	string s = "bla1";
 	(*actual).insertar(s,"strin");
-	cout << buscarVariable(s+"2") << endl;
+	enterScope();
+	enterScope();
+	cout << buscarVariable(s) << endl;
 }
 
 */

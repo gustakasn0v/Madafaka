@@ -2,6 +2,7 @@
 #include<vector>
 #include<string>
 #include<map>
+#include<new>
 using namespace std;
 #define estructuras
 
@@ -15,20 +16,19 @@ using namespace std;
 	//clase que representa el arbol de SymTable
 	class arbol{
 		private:
-		arbol *papa;
-		vector<arbol *> hijos;
-		map<string,string> contenido;
+			arbol *papa;
+			vector<arbol *> hijos;
+			map<string,string> contenido;
 
 		public:
-		arbol(){papa=NULL;contenido.clear();}
-		arbol(arbol *p,arbol *cont) : papa(p){contenido.clear();}
-
-		void addHijo(arbol *);
-		void setPapa(arbol *);
-		arbol *getPapa();
-		void insertar(string ,string );
-		int estaContenido(string &);
-		string tipoVar(string &);
+			arbol(){papa=NULL;contenido.clear();}
+			arbol(arbol *p,arbol *cont) : papa(p){contenido.clear();}
+			void addHijo(arbol *);
+			void setPapa(arbol *);
+			arbol *getPapa();
+			void insertar(string ,string );
+			int estaContenido(string &);
+			string tipoVar(string &);
 	};
 
 	arbol raiz;
@@ -39,3 +39,7 @@ using namespace std;
 	en caso de que no exista se retornara la cadena vacia*/
 
 	string buscarVariable(string);
+
+	void enterScope();
+
+	void exitScope();
