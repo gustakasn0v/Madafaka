@@ -39,6 +39,9 @@
    static int yylex(Madafaka::Madafaka_Parser::semantic_type *yylval,
                     Madafaka::Madafaka_Scanner  &scanner,
                     Madafaka::Madafaka_Driver   &driver);
+
+   /*Incluyendo estructuras auxiliares*/
+	#include"estructuras.h"
 }
 
 /* token types */
