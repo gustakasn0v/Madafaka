@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "madafaka_scanner.hpp"
-typedef Madafaka::Madafaka_Parser::token token;
+typedef Madafaka::Madafaka_Parser::token;
 #define yyterminate() return( token::END )
 #define YY_NO_UNISTD_H
 
