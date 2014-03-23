@@ -153,7 +153,7 @@ program:
   ;
 
 bloque:
-	/*{ enterScope(); }*/ declaration_list instruction_list {exitScope(actual);}
+	{ enterScope(actual); } declaration_list instruction_list {exitScope(actual);}
 	;
 
 instruction_list:
@@ -170,6 +170,7 @@ instruction:
   | while_loop
   | for_loop
   | if_block
+  | START bloque END
   ;
 
 
@@ -185,15 +186,15 @@ declaration_list:
 
 
 declaration:
-  type IDENTIFIER /*{ if(buscarVariable($2)==""){
+  type IDENTIFIER { if(buscarVariable(*($2),actual)==""){
 	  					string *s1 = new string(*($1));
 	  					string *s2 = new string(*($2));
-						insertar(*s2,*s1);
+						(*actual).insertar(*s2,*s1);
 	  				}  
 					else{
 						//Aqui va el error de variable ya declarada
 					}
-				}*/
+				}
   ;
 
 type:
@@ -207,12 +208,12 @@ type:
   ;
 
 assign:
-  IDENTIFIER ASSIGN general_expression/* {
-	  									if(buscarVariable($1)==""){
+  IDENTIFIER ASSIGN general_expression{
+	  									if(buscarVariable(*($1),actual)==""){
 											//Error no declarada
 										}
 	  								}
-									*/
+									
   ;
 
 general_expression:
@@ -241,11 +242,11 @@ comparison_opr: EQ | LESS | LESSEQ
 
 arithmetic_expression:
   arithmetic_expression arithmetic_opr arithmetic_expression
-  | IDENTIFIER /*{if(buscarVariable($1)==""){
+  | IDENTIFIER {if(buscarVariable(*($1),actual)==""){
 	  				//Variable no declarada
 	  			}
 			}
-			*/
+			
   | INTVALUE
   | FLOATVALUE
   ;
@@ -255,31 +256,33 @@ arithmetic_opr: PLUS | MINUS | TIMES | DIVIDE | MOD
   ;
 
 procedure_decl:
-  type IDENTIFIER LPAREN arg_decl_list RPAREN START bloque END /*{
-			if(buscarVariable($1)==""){
+  type IDENTIFIER LPAREN arg_decl_list RPAREN START bloque END 
+			{
+				if(buscarVariable(*($1),actual)==""){
 					string s = "funcion";
-	  				insertar(*($1),s);
+	  				(*actual).insertar(*($1),s);
 	  			}
 				else{
 					//Variable con el mismo nombre declarada
 				}
 			
-	  }
-	  */
+	  		}
+	  
   ;
 
 procedure_invoc:
-  IDENTIFIER LPAREN arg_list RPAREN  /*{
+  IDENTIFIER LPAREN arg_list RPAREN  
+  			{
 	  			string s = "funcion";
-				string p = buscarVariable($1);
+				string p = buscarVariable(*($1),actual);
 	  			if(p!=s && p!=""){
 	  				//La variable no es una funcion
 	  			}
 				else if(p==""){
 					//Funcion no ha sido declarada
 				}
+				
 			}
-			*/
   ;
 
 arg_decl_list:
@@ -303,11 +306,12 @@ write:
   ;
 
 read:
-  READ IDENTIFIER /*{
-	  	if(buscarVariable(*($2))==""){
-			//Error variable no declarada en el read
+  READ IDENTIFIER 
+  		{
+	  		if(buscarVariable(*($2),actual)==""){
+				//Error variable no declarada en el read
+			}
 		}
-	  }*/
   ;
 
 while_loop:

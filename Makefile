@@ -33,7 +33,7 @@ all: madafaka
 madafaka: $(FILES)
 	$(MAKE) $(SOBJ)
 	$(MAKE) $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(EXE) $(OBJS) parser.o lexer.o $(LIBS)
+	$(CXX) $(CXXFLAGS) -o $(EXE) $(OBJS) parser.o lexer.o estructuras.o $(LIBS)
  
  
 parser: madafaka_parser.yy 
