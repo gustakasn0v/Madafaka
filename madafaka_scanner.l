@@ -58,13 +58,13 @@ TOKEN_FALSE		"false"
 
 
 {DIGIT}+				{
-							yylval.intvalue = atoi(yytext);
+							yylval->intvalue = atoi(yytext);
 							return token::INTVALUE;
 						}
 
 
 {DIGIT}+"."{DIGIT}*		{
-							yylval.floatvalue = atof(yytext);
+							yylval->floatvalue = atof(yytext);
 							return token::FLOATVALUE;
 						}
 
@@ -135,53 +135,53 @@ TOKEN_FALSE		"false"
 
 
 \'.\' 		{
-				yylval.charvalue = yytext[1];
+				yylval->charvalue = yytext[1];
 				return (token::CHARVALUE);
 			}
 
 
 \"(\\\\|\\\"|[^\\\"])*\" {
-							yylval.strvalue = new std::string(yytext);
+							yylval->strvalue = new std::string(yytext);
 							return (token::STRVALUE);
 						}
 
 
 {TOKEN_VOID} {
-				yylval.strvalue = new std::string(yytext);
+				yylval->strvalue = new std::string(yytext);
 
 				return (token::VOID);
 			}
 
 
 {TOKEN_INT} {
-				yylval.strvalue = new std::string(yytext);
+				yylval->strvalue = new std::string(yytext);
 
 				return (token::INTEGER);
 			}
 
 
 {TOKEN_FLOAT} {
-				yylval.strvalue = new std::string(yytext);
+				yylval->strvalue = new std::string(yytext);
 
 				return (token::FLOAT);
 			}
 
 
 {TOKEN_CHAR} { 
-				yylval.strvalue = new std::string(yytext);
+				yylval->strvalue = new std::string(yytext);
 
 				return (token::CHAR);
 			}
 
 
 {TOKEN_STRING} {
-					yylval.strvalue = new std::string(yytext);
+					yylval->strvalue = new std::string(yytext);
 					return (token::STRING);
 				}
 
 
 {TOKEN_STRUCT} {
-					yylval.strvalue = new std::string(yytext);
+					yylval->strvalue = new std::string(yytext);
 
 					return (token::STRUCT);
 				}
@@ -189,7 +189,7 @@ TOKEN_FALSE		"false"
 
 {TOKEN_UNION} 	{
 					
-					yylval.strvalue = new std::string(yytext);
+					yylval->strvalue = new std::string(yytext);
 
 					return (token::UNION);
 				}
@@ -205,13 +205,13 @@ TOKEN_FALSE		"false"
 
 
 {TOKEN_TRUE}	{
-					yylval.boolvalue = 1;
+					yylval->boolvalue = 1;
 					return (token::BOOLVALUE);
 				}
 
 
 {TOKEN_FALSE}	{
-					yylval.boolvalue = 0;
+					yylval->boolvalue = 0;
 					return (token::BOOLVALUE);
 				}
 
@@ -226,7 +226,7 @@ TOKEN_FALSE		"false"
 
 
 {ID}			{
-					yylval.strvalue = new std::string(yytext);
+					yylval->strvalue = new std::string(yytext);
 					return (token::IDENTIFIER);
 				}
 
