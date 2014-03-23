@@ -144,7 +144,7 @@ bloque:
 	;
 
 instruction_list:
-  %empty
+  
   | instruction
   | instruction SEPARATOR instruction_list
   ;
@@ -161,12 +161,12 @@ instruction:
 
 
 declaration_proc:
-	%empty
+	
 	| procedure_decl SEPARATOR declaration_proc
 	;
 
 declaration_list:
-	%empty
+	
 	| declaration SEPARATOR declaration_list
 	;
 
@@ -227,7 +227,7 @@ comparison_opr: EQ | LESS | LESSEQ
 
 arithmetic_expression:
   arithmetic_expression arithmetic_opr arithmetic_expression
-  | IDENTIFIER {if(buscarVariable($s1)==""){
+  | IDENTIFIER {if(buscarVariable($1)==""){
 	  				//Variable no declarada
 	  			}
 			}
@@ -241,7 +241,7 @@ arithmetic_opr: PLUS | MINUS | TIMES | DIVIDE | MOD
 
 procedure_decl:
   type IDENTIFIER LPAREN arg_decl_list RPAREN START bloque END {
-			if(buscarVariable($s1)==""){
+			if(buscarVariable($1)==""){
 					string s = "funcion";
 	  				insertar(*($1),s);
 	  			}
