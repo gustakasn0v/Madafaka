@@ -136,8 +136,12 @@ this will be commented out to avoid type clash warnings
 %%
 
 program:
-  START instruction_list END { std::cout << "Hola"; return 0; }
+  START declaration_proc bloque END { return 0; }
   ;
+
+bloque:
+	{ enterScope(); } declaration_list instruction_list {exitScope();}
+	;
 
 instruction_list:
   %empty
@@ -146,9 +150,7 @@ instruction_list:
   ;
 
 instruction:
-  declaration
-  | assign
-  | procedure_decl  
+  assign
   | procedure_invoc
   | write
   | read
@@ -157,8 +159,28 @@ instruction:
   | if_block
   ;
 
+
+declaration_proc:
+	%empty
+	| procedure_decl SEPARATOR declaration_proc
+	;
+
+declaration_list:
+	%empty
+	| declaration SEPARATOR declaration_list
+	;
+
+
 declaration:
-  type IDENTIFIER
+  type IDENTIFIER { if(buscarVariable($2)==""){
+	  					string *s1 = new string(*($1));
+	  					string *s2 = new string(*($2));
+						insertar(*s2,*s1);
+	  				}  
+					else{
+						//Aqui va el error de variable ya declarada
+					}
+				}
   ;
 
 type:
@@ -168,10 +190,15 @@ type:
   | STRING
   | STRUCT
   | VOID
+  | UNION
   ;
 
 assign:
-  IDENTIFIER ASSIGN general_expression
+  IDENTIFIER ASSIGN general_expression {
+	  									if(buscarVariable($1)==""){
+											//Error no declarada
+										}
+	  								}
   ;
 
 general_expression:
@@ -200,7 +227,10 @@ comparison_opr: EQ | LESS | LESSEQ
 
 arithmetic_expression:
   arithmetic_expression arithmetic_opr arithmetic_expression
-  | IDENTIFIER
+  | IDENTIFIER {if(buscarVariable($s1)==""){
+	  				//Variable no declarada
+	  			}
+			}
   | INTVALUE
   | FLOATVALUE
   ;
@@ -210,11 +240,29 @@ arithmetic_opr: PLUS | MINUS | TIMES | DIVIDE | MOD
   ;
 
 procedure_decl:
-  type IDENTIFIER LPAREN arg_decl_list RPAREN
+  type IDENTIFIER LPAREN arg_decl_list RPAREN START bloque END {
+			if(buscarVariable($s1)==""){
+					string s = "funcion";
+	  				insertar(*($1),s);
+	  			}
+				else{
+					//Variable con el mismo nombre declarada
+				}
+			
+	  }
   ;
 
 procedure_invoc:
-  IDENTIFIER LPAREN arg_list RPAREN  
+  IDENTIFIER LPAREN arg_list RPAREN  {
+	  			string s = "funcion";
+				string p = buscarVariable($1);
+	  			if(p!=s && p!=""){
+	  				//La variable no es una funcion
+	  			}
+				else if(p==""){
+					//Funcion no ha sido declarada
+				}
+			}
   ;
 
 arg_decl_list:
@@ -238,20 +286,24 @@ write:
   ;
 
 read:
-  READ IDENTIFIER
+  READ IDENTIFIER {
+	  	if(buscarVariable(*($2))==""){
+			//Error variable no declarada en el read
+		}
+	  }
   ;
 
 while_loop:
-  WHILE boolean_expression instruction_list
+  WHILE boolean_expression START bloque END
   ;
 
 for_loop:
-  FOR LPAREN assign COMMA boolean_expression COMMA assign RPAREN instruction_list
+  FOR LPAREN assign COMMA boolean_expression COMMA assign RPAREN START bloque END
   ;
 
 
 if_block:
-  IF boolean_expression START instruction_list END
+  IF boolean_expression START bloque END
   ;
 
 %%
