@@ -1,9 +1,9 @@
 #include <cctype>
 #include <fstream>
 #include <cassert>
- 
+
 #include "madafaka_driver.hpp"
- 
+
 Madafaka::Madafaka_Driver::~Madafaka_Driver(){ 
    delete(scanner);
    scanner = NULL;

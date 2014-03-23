@@ -4,7 +4,6 @@
 #include <string>
 
 #ifndef estructuras
-	#define estructuras
 	#include"estructuras.h"
 #endif
 

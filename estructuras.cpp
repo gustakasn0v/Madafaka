@@ -1,4 +1,6 @@
-#include"estructuras.h"
+#ifndef estructuras
+	#include"estructuras.h"
+#endif
 #include<iostream>
 
 //using namespace std;

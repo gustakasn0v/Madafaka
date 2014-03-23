@@ -11,14 +11,12 @@
 
 /* Debug-enabled parser */
 %debug
-
 %code requires{
    namespace Madafaka {
       class Madafaka_Driver;
       class Madafaka_Scanner;
    }
-
-	/*#include "estructuras.h"*/
+	#include "estructuras.h"
 
 }
 
@@ -44,7 +42,6 @@
                     Madafaka::Madafaka_Driver   &driver);
 
    /*Incluyendo estructuras auxiliares*/
-	#include "estructuras.h"
 
 }
 
@@ -144,7 +141,7 @@ program:
   ;
 
 bloque:
-	{ enterScope(); } declaration_list instruction_list /*{exitScope();}*/
+	/*{ enterScope(); }*/ declaration_list instruction_list {exitScope();}
 	;
 
 instruction_list:

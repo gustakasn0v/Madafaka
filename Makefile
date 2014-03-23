@@ -36,7 +36,7 @@ madafaka: $(FILES)
 	$(CXX) $(CXXFLAGS) -o $(EXE) $(OBJS) parser.o lexer.o $(LIBS)
  
  
-parser: madafaka_parser.yy estructuras.o
+parser: madafaka_parser.yy 
 	bison -d -v madafaka_parser.yy
 	$(CXX) $(CXXFLAGS) -c -o parser.o madafaka_parser.tab.cc
  

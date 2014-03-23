@@ -4,7 +4,8 @@
 #include<map>
 #include<new>
 using namespace std;
-#define estructuras
+#ifndef estructuras
+	#define estructuras
 
 	union MadafakaTypes{
 	     int intValue;
@@ -43,3 +44,4 @@ using namespace std;
 	void enterScope();
 
 	void exitScope();
+#endif
