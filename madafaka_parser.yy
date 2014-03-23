@@ -16,8 +16,6 @@
       class Madafaka_Driver;
       class Madafaka_Scanner;
    }
-	#include "estructuras.h"
-
 }
 
 /* Pass the custom Driver and Scanner we made to the lexer and parser */
@@ -27,6 +25,16 @@
 
 %lex-param   { Madafaka_Driver  &driver  }
 %parse-param { Madafaka_Driver  &driver  }
+
+/* token types */
+%union {  
+   std::string *strvalue;
+   int intvalue;
+   float floatvalue;
+   bool boolvalue;
+   char charvalue;
+}
+
 
 %code{
    #include <iostream>
@@ -42,18 +50,22 @@
                     Madafaka::Madafaka_Driver   &driver);
 
    /*Incluyendo estructuras auxiliares*/
+	#include "estructuras.h"
+	arbol raiz;
+ 	arbol *actual = &raiz;
+
 
 }
 
 /* token types */
-%union {  
+/*%union {  
    std::string *strvalue;
    int intvalue;
    float floatvalue;
    bool boolvalue;
    char charvalue;
 }
-
+*/
 /* Until whe have an AST, every nonterminal symbol with semantic meaning
   will remain with string value */
 
@@ -141,7 +153,7 @@ program:
   ;
 
 bloque:
-	/*{ enterScope(); }*/ declaration_list instruction_list {exitScope();}
+	/*{ enterScope(); }*/ declaration_list instruction_list {exitScope(actual);}
 	;
 
 instruction_list:

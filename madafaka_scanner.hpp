@@ -9,7 +9,7 @@
 #define YY_DECL int Madafaka::Madafaka_Scanner::yylex()
  
 #include "madafaka_parser.tab.hh"
- 
+
 namespace Madafaka{
  
 class Madafaka_Scanner : public yyFlexLexer{

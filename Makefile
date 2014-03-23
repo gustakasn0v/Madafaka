@@ -15,7 +15,7 @@ CXXFLAGS = -O0  $(CXXDEBUG) $(CXXSTD)
  
  
 CPPOBJ = main madafaka_driver
-SOBJ =  parser lexer
+SOBJ =  parser lexer estructuras
  
 FILES = $(addsuffix .cpp, $(CPPOBJ))
  

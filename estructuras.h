@@ -32,16 +32,13 @@ using namespace std;
 			string tipoVar(string &);
 	};
 
-	arbol raiz;
-	arbol *actual = &raiz;
-
 	/* Funcion que retornara el tipo de la variable
 	que se esta consultando,
 	en caso de que no exista se retornara la cadena vacia*/
 
-	string buscarVariable(string);
+	string buscarVariable(string, arbol *);
 
-	void enterScope();
+	void enterScope(arbol *);
 
-	void exitScope();
+	void exitScope(arbol *);
 #endif

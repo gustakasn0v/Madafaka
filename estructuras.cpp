@@ -31,7 +31,7 @@ string arbol::tipoVar(string &var){
 }
 
 
-string buscarVariable(string var){
+string buscarVariable(string var, arbol *actual){
          arbol *aux = actual;
          while(aux!=NULL){
              if((*aux).estaContenido(var)) return (*aux).tipoVar(var);
@@ -41,13 +41,13 @@ string buscarVariable(string var){
 }
 
 
-void enterScope(){
+void enterScope(arbol *actual){
 	arbol *nuevo = new arbol;
 	(*actual).addHijo(nuevo);
 	actual = nuevo;
 }
 
-void exitScope(){
+void exitScope(arbol *actual){
 	actual = (*actual).getPapa();
 }
 
