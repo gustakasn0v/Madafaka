@@ -6,8 +6,8 @@
 
 %defines 
 /* Use a particular namespace and parser class */ 
-%define api.namespace {Madafaka}
-%define parser_class_name {Madafaka_Parser}
+%define namespace "Madafaka"
+%define parser_class_name "Madafaka_Parser"
 
 /* Debug-enabled parser */
 %debug
@@ -17,6 +17,9 @@
       class Madafaka_Driver;
       class Madafaka_Scanner;
    }
+
+	/*#include "estructuras.h"*/
+
 }
 
 /* Pass the custom Driver and Scanner we made to the lexer and parser */
@@ -41,7 +44,8 @@
                     Madafaka::Madafaka_Driver   &driver);
 
    /*Incluyendo estructuras auxiliares*/
-	#include"estructuras.h"
+	#include "estructuras.h"
+
 }
 
 /* token types */
@@ -140,7 +144,7 @@ program:
   ;
 
 bloque:
-	{ enterScope(); } declaration_list instruction_list {exitScope();}
+	{ enterScope(); } declaration_list instruction_list /*{exitScope();}*/
 	;
 
 instruction_list:
@@ -172,7 +176,7 @@ declaration_list:
 
 
 declaration:
-  type IDENTIFIER { if(buscarVariable($2)==""){
+  type IDENTIFIER /*{ if(buscarVariable($2)==""){
 	  					string *s1 = new string(*($1));
 	  					string *s2 = new string(*($2));
 						insertar(*s2,*s1);
@@ -180,7 +184,7 @@ declaration:
 					else{
 						//Aqui va el error de variable ya declarada
 					}
-				}
+				}*/
   ;
 
 type:
@@ -194,11 +198,12 @@ type:
   ;
 
 assign:
-  IDENTIFIER ASSIGN general_expression {
+  IDENTIFIER ASSIGN general_expression/* {
 	  									if(buscarVariable($1)==""){
 											//Error no declarada
 										}
 	  								}
+									*/
   ;
 
 general_expression:
@@ -227,10 +232,11 @@ comparison_opr: EQ | LESS | LESSEQ
 
 arithmetic_expression:
   arithmetic_expression arithmetic_opr arithmetic_expression
-  | IDENTIFIER {if(buscarVariable($1)==""){
+  | IDENTIFIER /*{if(buscarVariable($1)==""){
 	  				//Variable no declarada
 	  			}
 			}
+			*/
   | INTVALUE
   | FLOATVALUE
   ;
@@ -240,7 +246,7 @@ arithmetic_opr: PLUS | MINUS | TIMES | DIVIDE | MOD
   ;
 
 procedure_decl:
-  type IDENTIFIER LPAREN arg_decl_list RPAREN START bloque END {
+  type IDENTIFIER LPAREN arg_decl_list RPAREN START bloque END /*{
 			if(buscarVariable($1)==""){
 					string s = "funcion";
 	  				insertar(*($1),s);
@@ -250,10 +256,11 @@ procedure_decl:
 				}
 			
 	  }
+	  */
   ;
 
 procedure_invoc:
-  IDENTIFIER LPAREN arg_list RPAREN  {
+  IDENTIFIER LPAREN arg_list RPAREN  /*{
 	  			string s = "funcion";
 				string p = buscarVariable($1);
 	  			if(p!=s && p!=""){
@@ -263,6 +270,7 @@ procedure_invoc:
 					//Funcion no ha sido declarada
 				}
 			}
+			*/
   ;
 
 arg_decl_list:
@@ -286,11 +294,11 @@ write:
   ;
 
 read:
-  READ IDENTIFIER {
+  READ IDENTIFIER /*{
 	  	if(buscarVariable(*($2))==""){
 			//Error variable no declarada en el read
 		}
-	  }
+	  }*/
   ;
 
 while_loop:
@@ -309,10 +317,21 @@ if_block:
 %%
 
 
+void Madafaka::Madafaka_Parser::error( Madafaka::location const &bla, const std::string &err_message)
+{
+   std::cerr << "Error: " << err_message << "\n"; 
+}
+
+
+/* para el otro compilador
 void Madafaka::Madafaka_Parser::error( const std::string &err_message)
 {
    std::cerr << "Error: " << err_message << "\n"; 
 }
+*/
+
+
+
 
 
 /* include for access to scanner.yylex */
