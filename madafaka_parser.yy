@@ -54,7 +54,6 @@
 	arbol raiz;
  	arbol *actual = &raiz;
 
-
 }
 
 /* token types */
@@ -129,7 +128,7 @@
 %type <strvalue> read
 %type <strvalue> while_loop
 %type <strvalue> for_loop
-%type <strvalue> type
+%type <strvalue> typo
 %type <strvalue> if_block
 
 %start program
@@ -149,16 +148,19 @@ this will be commented out to avoid type clash warnings
 %%
 
 program:
-  START declaration_proc bloque END { return 0; }
+  {actual = enterScope(actual);}
+  declaration_proc START bloque END
+  { actual = exitScope(actual); recorrer(&raiz); return 0; }
   ;
 
 bloque:
-	{ enterScope(actual); } declaration_list instruction_list {exitScope(actual);}
+	{actual=enterScope(actual);} 
+	declaration_list instruction_list 
+	{actual = exitScope(actual);}
 	;
 
 instruction_list:
   
-  | instruction
   | instruction SEPARATOR instruction_list
   ;
 
@@ -181,12 +183,13 @@ declaration_proc:
 
 declaration_list:
 	
-	| declaration SEPARATOR declaration_list
+	| declaration SEPARATOR declaration_list 
+
 	;
 
 
 declaration:
-  type IDENTIFIER { if(buscarVariable(*($2),actual)==""){
+  typo IDENTIFIER { if(buscarVariable(*($2),actual)==""){
 	  					string *s1 = new string(*($1));
 	  					string *s2 = new string(*($2));
 						(*actual).insertar(*s2,*s1);
@@ -197,7 +200,7 @@ declaration:
 				}
   ;
 
-type:
+typo:
   INTEGER
   | FLOAT
   | CHAR
@@ -256,7 +259,7 @@ arithmetic_opr: PLUS | MINUS | TIMES | DIVIDE | MOD
   ;
 
 procedure_decl:
-  type IDENTIFIER LPAREN arg_decl_list RPAREN START bloque END 
+  typo IDENTIFIER LPAREN arg_decl_list RPAREN START bloque END 
 			{
 				if(buscarVariable(*($1),actual)==""){
 					string s = "funcion";

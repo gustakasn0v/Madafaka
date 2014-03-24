@@ -26,10 +26,12 @@ using namespace std;
 			arbol(arbol *p,arbol *cont) : papa(p){contenido.clear();}
 			void addHijo(arbol *);
 			void setPapa(arbol *);
+			vector<arbol *> getHijos();
 			arbol *getPapa();
 			void insertar(string ,string );
 			int estaContenido(string &);
 			string tipoVar(string &);
+			map<string,string> getContenido();
 	};
 
 	/* Funcion que retornara el tipo de la variable
@@ -38,8 +40,10 @@ using namespace std;
 
 	string buscarVariable(string, arbol *);
 
-	void enterScope(arbol *);
+	arbol *enterScope(arbol *);
 
-	void exitScope(arbol *);
+	arbol *exitScope(arbol *);
+
+	void recorrer(arbol *);
 
 #endif

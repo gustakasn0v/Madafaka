@@ -13,6 +13,10 @@ void arbol::setPapa(arbol *padre){
 	papa=padre;
 }
 
+vector<arbol*> arbol::getHijos(){
+	return hijos;
+}
+
 arbol *arbol::getPapa(){
 	return papa;
 }
@@ -20,6 +24,7 @@ arbol *arbol::getPapa(){
 int arbol::estaContenido(string &s){
 	return contenido.count(s);
 }
+
 
 void arbol::insertar(string s,string tipo){
 	if(contenido.count(s)==0)
@@ -30,6 +35,9 @@ string arbol::tipoVar(string &var){
 	return contenido[var];
 }
 
+map<string,string> arbol::getContenido(){
+	return contenido;
+}
 
 string buscarVariable(string var, arbol *actual){
          arbol *aux = actual;
@@ -41,16 +49,34 @@ string buscarVariable(string var, arbol *actual){
 }
 
 
-void enterScope(arbol *actual){
+arbol *enterScope(arbol *actual){
 	arbol *nuevo = new arbol;
 	(*actual).addHijo(nuevo);
 	actual = nuevo;
+	return actual;
 }
 
-void exitScope(arbol *actual){
+arbol *exitScope(arbol *actual){
 	actual = (*actual).getPapa();
+	return actual;
 }
 
+
+void recorrer(arbol *a){
+	map<string, string> vars = (*a).getContenido();
+	vector<arbol *> h = (*a).getHijos();
+	cout << endl << "\\/\\/\\/" << endl;
+
+	for(map<string,string>::iterator it = vars.begin();it!=vars.end();it++){
+		cout << it->first << " = " << it->second << endl;
+	}
+
+	for(int i =0;i<h.size();i++){
+		recorrer(h[i]);
+	}
+
+	cout << endl << "/\\/\\/\\" << endl;
+}
 
 /* main de prueba del archivo
 int main(){
