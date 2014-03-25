@@ -6,6 +6,11 @@ typedef Madafaka::Madafaka_Parser::token token;
 #define yyterminate() return( token::END )
 #define YY_NO_UNISTD_H
 
+int yycolumn = 1;
+int frcol = 0;
+int tocol = 0;
+#define YY_USER_ACTION { frcol = tocol; tocol += yyleng; }
+
 %}
 
 %option debug
@@ -13,6 +18,7 @@ typedef Madafaka::Madafaka_Parser::token token;
 %option yyclass="Madafaka_Scanner"
 %option noyywrap
 %option c++
+%option yylineno
 
 
 DIGIT			[0-9]
@@ -53,6 +59,7 @@ TOKEN_LESS 		"<"
 TOKEN_LESSEQ 	"<="
 TOKEN_TRUE		"true"
 TOKEN_FALSE		"false"
+
 
 %%
 
@@ -234,10 +241,11 @@ TOKEN_FALSE		"false"
 "{"[^}\n]*"}"     /* eat up one-line comments */
 
 
-[ \t\n]+	     /* eat up whitespace */
+[ \t]+	     /* eat up whitespace */
+\n 				{frcol = tocol = 0;}
 
 
-.				{return (token::UNKNOWN);}
+.				{ return token::UNKNOWN;}
 
 
 %%

@@ -9,6 +9,7 @@
 %define namespace "Madafaka"
 %define parser_class_name "Madafaka_Parser"
 
+
 /* Debug-enabled parser */
 %debug
 %code requires{
@@ -19,12 +20,15 @@
 }
 
 /* Pass the custom Driver and Scanner we made to the lexer and parser */
-
 %lex-param   { Madafaka_Scanner  &scanner  }
 %parse-param { Madafaka_Scanner  &scanner  }
 
 %lex-param   { Madafaka_Driver  &driver  }
 %parse-param { Madafaka_Driver  &driver  }
+
+
+/* Enable location tracking */
+%locations
 
 /* token types */
 %union {  
@@ -44,8 +48,10 @@
    /* include for all driver functions */
    #include "madafaka_driver.hpp"
 
+   //int yylex(Madafaka::Madafaka_Parser::semantic_type*);
    /* this is silly, but I can't figure out a way around */
    static int yylex(Madafaka::Madafaka_Parser::semantic_type *yylval,
+                    Madafaka::Madafaka_Parser::location_type *location,
                     Madafaka::Madafaka_Scanner  &scanner,
                     Madafaka::Madafaka_Driver   &driver);
 
@@ -53,8 +59,10 @@
 	#include "estructuras.h"
 	arbol raiz;
  	arbol *actual = &raiz;
-
+  bool compiled = true;
 }
+
+
 
 /* token types */
 /*%union {  
@@ -121,6 +129,7 @@
 %type <strvalue> instruction_list
 %type <strvalue> instruction
 %type <strvalue> declaration
+%type <strvalue> declaration_list
 %type <strvalue> assign
 %type <strvalue> procedure_decl  
 %type <strvalue> procedure_invoc
@@ -148,9 +157,17 @@ this will be commented out to avoid type clash warnings
 %%
 
 program:
-  {actual = enterScope(actual);}
+  {
+    actual = enterScope(actual);
+  }
+
   declaration_proc START bloque END
-  { actual = exitScope(actual); recorrer(&raiz); return 0; }
+
+  { 
+    actual = exitScope(actual); 
+    if (compiled) recorrer(&raiz);
+    return 0; 
+  }
   ;
 
 bloque:
@@ -183,7 +200,9 @@ declaration_proc:
 
 declaration_list:
 	
-	| declaration SEPARATOR declaration_list 
+	| declaration SEPARATOR declaration_list
+  | declaration error declaration_list {compiled = false ; error(@1,"Las declaraciones van separadas por ;");}
+  | error {compiled = false ; error(@1,"Se esperaba una declaración de variable");}
 
 	;
 
@@ -198,6 +217,7 @@ declaration:
 						//Aqui va el error de variable ya declarada
 					}
 				}
+  | error IDENTIFIER {compiled = false ; error(@1,"Los tipos válidos son idafak, etc");}  
   ;
 
 typo:
@@ -333,9 +353,11 @@ if_block:
 %%
 
 
-void Madafaka::Madafaka_Parser::error( Madafaka::location const &bla, const std::string &err_message)
+void Madafaka::Madafaka_Parser::error( Madafaka::location const &bla, const string& err_message)
 {
-   std::cerr << "Error: " << err_message << "\n"; 
+     fprintf(stderr, "Linea: %d Columna: %d: ", bla.begin.line+1, bla.begin.column);
+     std::cerr << err_message << "\n";
+     compiled=false;
 }
 
 
@@ -353,6 +375,7 @@ void Madafaka::Madafaka_Parser::error( const std::string &err_message)
 /* include for access to scanner.yylex */
 #include "madafaka_scanner.hpp"
 static int yylex(Madafaka::Madafaka_Parser::semantic_type *yylval,
+                 Madafaka::Madafaka_Parser::location_type *location,
                  Madafaka::Madafaka_Scanner  &scanner,
                  Madafaka::Madafaka_Driver   &driver)
 {
