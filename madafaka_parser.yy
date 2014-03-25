@@ -177,8 +177,9 @@ bloque:
 	;
 
 instruction_list:
-  
+
   | instruction SEPARATOR instruction_list
+  | instruction error instruction_list {compiled = false ; error(@1,"Las instrucciones deben ir separadas por comas");}
   ;
 
 instruction:
@@ -242,6 +243,7 @@ assign:
 general_expression:
   arithmetic_expression
   | boolean_expression
+  | error {compiled = false ; error(@1,"Expresión inválida");}  
   ;
 
 boolean_expression:
@@ -311,6 +313,7 @@ procedure_invoc:
 arg_decl_list:
   arg_decl
   | arg_list COMMA arg_decl
+  | arg_list error arg_decl {compiled = false ; error(@1,"Los argumentos deben ir separados por comas");}  
   ;
 
 arg_decl:
@@ -322,6 +325,7 @@ arg_decl:
 arg_list:
   general_expression COMMA
   | arg_list COMMA general_expression COMMA 
+  | arg_list error general_expression COMMA {compiled = false ; error(@1,"Los argumentos deben ir separados por comas");}
   ;
 
 write:
@@ -339,15 +343,18 @@ read:
 
 while_loop:
   WHILE boolean_expression START bloque END
+  | WHILE error {compiled = false ; error(@1,"Bloque while malformado");}
   ;
 
 for_loop:
   FOR LPAREN assign COMMA boolean_expression COMMA assign RPAREN START bloque END
+  | FOR error {compiled = false ; error(@1,"Bloque for malformado");}
   ;
 
 
 if_block:
   IF boolean_expression START bloque END
+  | IF error {compiled = false ; error(@1,"Bloque if malformado");}
   ;
 
 %%
