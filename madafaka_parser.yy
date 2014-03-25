@@ -203,8 +203,6 @@ declaration_list:
 	
 	| declaration SEPARATOR declaration_list
   | declaration error declaration_list {compiled = false ; error(@1,"Las declaraciones van separadas por ;");}
-  | error {compiled = false ; error(@1,"Se esperaba una declaración de variable");}
-
 	;
 
 
@@ -240,12 +238,23 @@ assign:
 									
   ;
 
+// There's a reduce/reduce conflict here, since the parser
+// might see the error token, and wouldn't know to reduce
+// using an arithmetic or boolean expression. The error
+// message is the same in both cases, so "deje así"
 general_expression:
   arithmetic_expression
   | boolean_expression
   | error {compiled = false ; error(@1,"Expresión inválida");}  
   ;
 
+// There are 3 shift/reduce conflicts, which occur when the parser
+// has encountered a boolean expression, and upon seeing 
+//boolean_opr ahead, doesn't know wether to reduce the expression
+// already seen, or continue shifting, to increase the size of the 
+// expression. Since we want the expression as a whole, rather than
+// sets of smaller (component) expressions, we want the parser
+// to shift upon conflicts like these, as it does by default. "Deje así"
 boolean_expression:
   boolean_expression boolean_opr boolean_expression
   | LPAREN boolean_expression RPAREN
@@ -265,6 +274,10 @@ comparison_opr: EQ | LESS | LESSEQ
   | GREAT | GREATEQ
   ;
 
+
+// This produces a shift/reduce situation similar to the one stated
+// above, with the boolean expressions. As above, we are OK with the
+// parser shifting in situations like these. "Deje así"
 arithmetic_expression:
   arithmetic_expression arithmetic_opr arithmetic_expression
   | IDENTIFIER {if(buscarVariable(*($1),actual)==""){
