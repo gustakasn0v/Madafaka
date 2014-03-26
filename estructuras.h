@@ -44,6 +44,6 @@ using namespace std;
 
 	arbol *exitScope(arbol *);
 
-	void recorrer(arbol *);
+	void recorrer(arbol *, int);
 
 #endif

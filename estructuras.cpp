@@ -62,20 +62,24 @@ arbol *exitScope(arbol *actual){
 }
 
 
-void recorrer(arbol *a){
+void recorrer(arbol *a, int nivel){
 	map<string, string> vars = (*a).getContenido();
 	vector<arbol *> h = (*a).getHijos();
-	cout << endl << "\\/\\/\\/" << endl;
+	string s = "";
+	for(int i=0;i<nivel;i++) s+='\t';
+	
+	cout << s << "Abriendo anidamiento"<<endl<<endl;
 
+	
 	for(map<string,string>::iterator it = vars.begin();it!=vars.end();it++){
-		cout << it->first << " = " << it->second << endl;
+		cout << s+"\t" << it->first << " es de tipo " << it->second << endl << endl;
 	}
 
 	for(int i =0;i<h.size();i++){
-		recorrer(h[i]);
+		recorrer(h[i],nivel+1);
 	}
+	cout << s << "Cerrando anidamiendo" << endl<<endl;
 
-	cout << endl << "/\\/\\/\\" << endl;
 }
 
 /* main de prueba del archivo

@@ -59,7 +59,7 @@
 	#include "estructuras.h"
 	arbol raiz;
  	arbol *actual = &raiz;
-  bool compiled = true;
+	bool compiled = true;
 }
 
 
@@ -157,15 +157,11 @@ this will be commented out to avoid type clash warnings
 %%
 
 program:
-  {
-    actual = enterScope(actual);
-  }
-
+  
   declaration_proc START bloque END
 
   { 
-    actual = exitScope(actual); 
-    if (compiled) recorrer(&raiz);
+    if (compiled) recorrer(&raiz,0);
     return 0; 
   }
   ;
