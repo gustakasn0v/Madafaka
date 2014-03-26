@@ -203,10 +203,11 @@ declaration_list:
 
 
 declaration:
-  typo IDENTIFIER { if(buscarVariable(*($2),actual)==""){
+  typo IDENTIFIER { 
+	  				if(buscarVariable(*($2),actual)==""){
 	  					string *s1 = new string(*($1));
 	  					string *s2 = new string(*($2));
-						(*actual).insertar(*s2,*s1);
+						(*actual).insertar(*s2,*s1,@2.first_line,@2.first_column);
 	  				}  
 					else{
 						//Aqui va el error de variable ya declarada
@@ -294,7 +295,7 @@ procedure_decl:
 			{
 				if(buscarVariable(*($1),actual)==""){
 					string s = "funcion";
-	  				(*actual).insertar(*($1),s);
+	  				(*actual).insertar(*($1),s,@2.first_line,@2.first_column);
 	  			}
 				else{
 					//Variable con el mismo nombre declarada

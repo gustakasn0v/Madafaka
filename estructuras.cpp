@@ -26,9 +26,11 @@ int arbol::estaContenido(string &s){
 }
 
 
-void arbol::insertar(string s,string tipo){
-	if(contenido.count(s)==0)
+void arbol::insertar(string s,string tipo,int fila, int col){
+	if(contenido.count(s)==0){
 		contenido[s]=tipo;
+		ubicacion[s] = make_pair(fila,col);
+	}
 }
 
 string arbol::tipoVar(string &var){
@@ -37,6 +39,10 @@ string arbol::tipoVar(string &var){
 
 map<string,string> arbol::getContenido(){
 	return contenido;
+}
+
+map<string,pair<int,int> > arbol::getUbicacion(){
+	return ubicacion;
 }
 
 string buscarVariable(string var, arbol *actual){
@@ -64,6 +70,7 @@ arbol *exitScope(arbol *actual){
 
 void recorrer(arbol *a, int nivel){
 	map<string, string> vars = (*a).getContenido();
+	map<string,pair<int,int> > ubic = (*a).getUbicacion();
 	vector<arbol *> h = (*a).getHijos();
 	string s = "";
 	for(int i=0;i<nivel;i++) s+='\t';
@@ -73,6 +80,10 @@ void recorrer(arbol *a, int nivel){
 	
 	for(map<string,string>::iterator it = vars.begin();it!=vars.end();it++){
 		cout << s+"\t" << it->first << " es de tipo " << it->second << endl << endl;
+		pair<int,int> p = ubicacion[it->first];
+		int t1 = p.first;
+		int t2 = p.second;
+		cout << s+"\t" << "Ubicacion, fila: " << t1 << ", columna: "<<t2<<endl<<endl;
 	}
 
 	for(int i =0;i<h.size();i++){
