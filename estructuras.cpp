@@ -80,7 +80,7 @@ void recorrer(arbol *a, int nivel){
 	
 	for(map<string,string>::iterator it = vars.begin();it!=vars.end();it++){
 		cout << s+"\t" << it->first << " es de tipo " << it->second << endl << endl;
-		pair<int,int> p = ubicacion[it->first];
+		pair<int,int> p = ubic[it->first];
 		int t1 = p.first;
 		int t2 = p.second;
 		cout << s+"\t" << "Ubicacion, fila: " << t1 << ", columna: "<<t2<<endl<<endl;

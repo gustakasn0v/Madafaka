@@ -30,7 +30,7 @@ using namespace std;
 			void setPapa(arbol *);
 			vector<arbol *> getHijos();
 			arbol *getPapa();
-			void insertar(string ,string );
+			void insertar(string ,string, int, int);
 			int estaContenido(string &);
 			string tipoVar(string &);
 			map<string,string> getContenido();

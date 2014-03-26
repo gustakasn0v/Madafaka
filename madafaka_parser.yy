@@ -207,7 +207,7 @@ declaration:
 	  				if(buscarVariable(*($2),actual)==""){
 	  					string *s1 = new string(*($1));
 	  					string *s2 = new string(*($2));
-						(*actual).insertar(*s2,*s1,@2.first_line,@2.first_column);
+						(*actual).insertar(*s2,*s1,@2.begin.line+1,@2.begin.column+1);
 	  				}  
 					else{
 						//Aqui va el error de variable ya declarada
@@ -295,7 +295,9 @@ procedure_decl:
 			{
 				if(buscarVariable(*($1),actual)==""){
 					string s = "funcion";
-	  				(*actual).insertar(*($1),s,@2.first_line,@2.first_column);
+					int t1 = @2.begin.line+1;
+					int t2 = @2.begin.column+1;
+	  				(*actual).insertar(*($2),s,t1,t2);
 	  			}
 				else{
 					//Variable con el mismo nombre declarada
