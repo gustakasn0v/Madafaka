@@ -199,10 +199,11 @@ declaration:
 						(*actual).insertar(*s2,*s1,yyline,frcol);
 	  				}  
 					else{
-						//Aqui va el error de variable ya declarada
+						compiled = false;
+						error(@$,"Variable ya declarada");
 					}
 				}
-  | error IDENTIFIER {compiled = false ; error(@$,"Los tipos válidos son idafak, etc");}  
+  | error IDENTIFIER {compiled = false ; error(@$,"Tipo no valido");}  
   ;
 
 typo:
@@ -218,7 +219,7 @@ typo:
 assign:
   IDENTIFIER ASSIGN general_expression{
 	  									if(buscarVariable(*($1),actual)==""){
-											//Error no declarada
+											error(@$,"Variable no declarada");
 										}
 	  								}
 									
@@ -250,6 +251,7 @@ boolean_expression:
   ;
 
 boolean_opr: AND | OR | EQ
+	| error {compiled = false; error(@$,"Operador booleano no valido");}
   ;
 
 arithmetic_comparison:
@@ -258,6 +260,7 @@ arithmetic_comparison:
 
 comparison_opr: EQ | LESS | LESSEQ 
   | GREAT | GREATEQ
+  | error {compiled = false; error(@$,"Operador de comparacion no valido");}
   ;
 
 
@@ -266,8 +269,11 @@ comparison_opr: EQ | LESS | LESSEQ
 // parser shifting in situations like these. "Deje así"
 arithmetic_expression:
   arithmetic_expression arithmetic_opr arithmetic_expression
-  | IDENTIFIER {if(buscarVariable(*($1),actual)==""){
-	  				//Variable no declarada
+  | IDENTIFIER {
+	  			string aux = buscarVariable(*($1),actual);
+	  			if(aux=="" || aux == "funcion"){
+	  				compiled = false;
+					error(@$,"Variable no declarada, o funcion con el mismo nombre solamente declarada");
 	  			}
 			}
 			
@@ -289,7 +295,7 @@ procedure_decl:
 	  				(*actual).insertar(*($2),s,t1,t2);
 	  			}
 				else{
-					//Variable con el mismo nombre declarada
+					error(@$,"Funcion ya declarada anteriormente");
 				}
 			
 	  		}
@@ -302,13 +308,18 @@ procedure_invoc:
 	  			string s = "funcion";
 				string p = buscarVariable(*($1),actual);
 	  			if(p!=s && p!=""){
-	  				//La variable no es una funcion
+	  				error(@$,"Se esta usando una variable como funcion");
+					compiled = false;
 	  			}
 				else if(p==""){
-					//Funcion no ha sido declarada
+					error(@$,"Funcion no declarada");
+					compiled = false;
+
 				}
 				
 			}
+  | IDENTIFIER LPAREN arg_list error {compiled =false; error(@$,"La llamada a una funcion debe terminar con un parentesis");} 
+
   ;
 
 arg_decl_list:
@@ -336,9 +347,13 @@ write:
 read:
   READ IDENTIFIER 
   		{
-	  		if(buscarVariable(*($2),actual)==""){
-				//Error variable no declarada en el read
+			string s = buscarVariable(*($2),actual);
+	  		if(s=="" || s == "funcion"){
+				compiled = false;
+				error(@$,"Variable no declarada");
 			}
+			
+			
 		}
   ;
 
