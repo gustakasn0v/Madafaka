@@ -176,6 +176,7 @@ instruction:
   | for_loop
   | if_block
   | START bloque END
+  | error {compiled = false; error(@$,"Instruccion no valida");}
   ;
 
 
@@ -203,7 +204,10 @@ declaration:
 						error(@$,"Variable ya declarada");
 					}
 				}
-  | error IDENTIFIER {compiled = false ; error(@$,"Tipo no valido");}  
+  | typo error {
+	  				compiled = false;
+					error(@$,"Nombre de variable no valido");
+	 			}
   ;
 
 typo:
@@ -214,6 +218,7 @@ typo:
   | STRUCT
   | VOID
   | UNION
+  | error {compiled = false; ; error(@$,"Tipo no valido");}
   ;
 
 assign:
@@ -279,6 +284,7 @@ arithmetic_expression:
 			
   | INTVALUE
   | FLOATVALUE
+  | procedure_invoc
   ;
 
 
