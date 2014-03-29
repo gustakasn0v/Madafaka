@@ -48,6 +48,9 @@
    /* include for all driver functions */
    #include "madafaka_driver.hpp"
 
+   /* Position tracking variables from Flex */
+   extern int yyline, frcol, tocol;
+
    //int yylex(Madafaka::Madafaka_Parser::semantic_type*);
    /* this is silly, but I can't figure out a way around */
    static int yylex(Madafaka::Madafaka_Parser::semantic_type *yylval,
@@ -374,7 +377,8 @@ if_block:
 
 void Madafaka::Madafaka_Parser::error( Madafaka::location const &bla, const string& err_message)
 {
-     fprintf(stderr, "Linea: %d Columna: %d: ", bla.begin.line+1, bla.begin.column);
+     //fprintf(stderr, "Linea: %d Columna: %d: ", bla.begin.line+1, bla.begin.column);
+    fprintf(stderr, "Linea: %d Columna: %d-%d: ", yyline, frcol, tocol);
      std::cerr << err_message << "\n";
      compiled=false;
 }

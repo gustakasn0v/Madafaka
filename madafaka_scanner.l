@@ -6,7 +6,7 @@ typedef Madafaka::Madafaka_Parser::token token;
 #define yyterminate() return( token::END )
 #define YY_NO_UNISTD_H
 
-int yycolumn = 1;
+int yyline = 1;
 int frcol = 0;
 int tocol = 0;
 #define YY_USER_ACTION { frcol = tocol; tocol += yyleng; }
@@ -242,7 +242,7 @@ TOKEN_FALSE		"false"
 
 
 [ \t]+	     /* eat up whitespace */
-\n 				{frcol = tocol = 0;}
+\n 				{frcol = tocol = 0; ++yyline;}
 
 
 .				{ return token::UNKNOWN;}
