@@ -27,9 +27,6 @@
 %parse-param { Madafaka_Driver  &driver  }
 
 
-/* Enable location tracking */
-%locations
-
 /* token types */
 %union {  
    std::string *strvalue;
@@ -54,7 +51,7 @@
    //int yylex(Madafaka::Madafaka_Parser::semantic_type*);
    /* this is silly, but I can't figure out a way around */
    static int yylex(Madafaka::Madafaka_Parser::semantic_type *yylval,
-                    Madafaka::Madafaka_Parser::location_type *location,
+                    Madafaka::Madafaka_Parser::location_type*,
                     Madafaka::Madafaka_Scanner  &scanner,
                     Madafaka::Madafaka_Driver   &driver);
 
@@ -65,17 +62,6 @@
 	bool compiled = true;
 }
 
-
-
-/* token types */
-/*%union {  
-   std::string *strvalue;
-   int intvalue;
-   float floatvalue;
-   bool boolvalue;
-   char charvalue;
-}
-*/
 /* Until whe have an AST, every nonterminal symbol with semantic meaning
   will remain with string value */
 
@@ -178,7 +164,7 @@ bloque:
 instruction_list:
 
   | instruction SEPARATOR instruction_list
-  | instruction error instruction_list {compiled = false ; error(@1,"Las instrucciones deben ir separadas por comas");}
+  | instruction error instruction_list {compiled = false ; error(@$,"Las instrucciones deben ir separadas por comas");}
   ;
 
 instruction:
@@ -201,7 +187,7 @@ declaration_proc:
 declaration_list:
 	
 	| declaration SEPARATOR declaration_list
-  | declaration error declaration_list {compiled = false ; error(@1,"Las declaraciones van separadas por ;");}
+  | declaration error declaration_list {compiled = false ; error(@$,"Las declaraciones van separadas por ;");}
 	;
 
 
@@ -210,13 +196,13 @@ declaration:
 	  				if(buscarVariable(*($2),actual)==""){
 	  					string *s1 = new string(*($1));
 	  					string *s2 = new string(*($2));
-						(*actual).insertar(*s2,*s1,@2.begin.line+1,@2.begin.column+1);
+						(*actual).insertar(*s2,*s1,yyline,frcol);
 	  				}  
 					else{
 						//Aqui va el error de variable ya declarada
 					}
 				}
-  | error IDENTIFIER {compiled = false ; error(@1,"Los tipos válidos son idafak, etc");}  
+  | error IDENTIFIER {compiled = false ; error(@$,"Los tipos válidos son idafak, etc");}  
   ;
 
 typo:
@@ -245,7 +231,7 @@ assign:
 general_expression:
   arithmetic_expression
   | boolean_expression
-  | error {compiled = false ; error(@1,"Expresión inválida");}  
+  | error {compiled = false ; error(@$,"Expresión inválida");}  
   ;
 
 // There are 3 shift/reduce conflicts, which occur when the parser
@@ -298,8 +284,8 @@ procedure_decl:
 			{
 				if(buscarVariable(*($1),actual)==""){
 					string s = "funcion";
-					int t1 = @2.begin.line+1;
-					int t2 = @2.begin.column+1;
+					int t1 = yyline;
+					int t2 = frcol;
 	  				(*actual).insertar(*($2),s,t1,t2);
 	  			}
 				else{
@@ -328,7 +314,7 @@ procedure_invoc:
 arg_decl_list:
   arg_decl
   | arg_list COMMA arg_decl
-  | arg_list error arg_decl {compiled = false ; error(@1,"Los argumentos deben ir separados por comas");}  
+  | arg_list error arg_decl {compiled = false ; error(@$,"Los argumentos deben ir separados por comas");}  
   ;
 
 arg_decl:
@@ -340,7 +326,7 @@ arg_decl:
 arg_list:
   general_expression COMMA
   | arg_list COMMA general_expression COMMA 
-  | arg_list error general_expression COMMA {compiled = false ; error(@1,"Los argumentos deben ir separados por comas");}
+  | arg_list error general_expression COMMA {compiled = false ; error(@$,"Los argumentos deben ir separados por comas");}
   ;
 
 write:
@@ -358,24 +344,24 @@ read:
 
 while_loop:
   WHILE boolean_expression START bloque END
-  | WHILE error {compiled = false ; error(@1,"Bloque while malformado");}
+  | WHILE error {compiled = false ; error(@$,"Bloque while malformado");}
   ;
 
 for_loop:
   FOR LPAREN assign COMMA boolean_expression COMMA assign RPAREN START bloque END
-  | FOR error {compiled = false ; error(@1,"Bloque for malformado");}
+  | FOR error {compiled = false ; error(@$,"Bloque for malformado");}
   ;
 
 
 if_block:
   IF boolean_expression START bloque END
-  | IF error {compiled = false ; error(@1,"Bloque if malformado");}
+  | IF error {compiled = false ; error(@$,"Bloque if malformado");}
   ;
 
 %%
 
 
-void Madafaka::Madafaka_Parser::error( Madafaka::location const &bla, const string& err_message)
+void Madafaka::Madafaka_Parser::error( const location_type&,const string& err_message)
 {
      //fprintf(stderr, "Linea: %d Columna: %d: ", bla.begin.line+1, bla.begin.column);
     fprintf(stderr, "Linea: %d Columna: %d-%d: ", yyline, frcol, tocol);
@@ -383,22 +369,10 @@ void Madafaka::Madafaka_Parser::error( Madafaka::location const &bla, const stri
      compiled=false;
 }
 
-
-/* para el otro compilador
-void Madafaka::Madafaka_Parser::error( const std::string &err_message)
-{
-   std::cerr << "Error: " << err_message << "\n"; 
-}
-*/
-
-
-
-
-
 /* include for access to scanner.yylex */
 #include "madafaka_scanner.hpp"
 static int yylex(Madafaka::Madafaka_Parser::semantic_type *yylval,
-                 Madafaka::Madafaka_Parser::location_type *location,
+                 Madafaka::Madafaka_Parser::location_type*,
                  Madafaka::Madafaka_Scanner  &scanner,
                  Madafaka::Madafaka_Driver   &driver)
 {

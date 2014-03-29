@@ -18,7 +18,6 @@ int tocol = 0;
 %option yyclass="Madafaka_Scanner"
 %option noyywrap
 %option c++
-%option yylineno
 
 
 DIGIT			[0-9]
