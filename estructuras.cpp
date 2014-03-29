@@ -26,10 +26,12 @@ int arbol::estaContenido(string &s){
 }
 
 
-void arbol::insertar(string s,string tipo,int fila, int col){
+void arbol::insertar(string s,string tipo,int fila, int col, int si){
 	if(contenido.count(s)==0){
 		contenido[s]=tipo;
 		ubicacion[s] = make_pair(fila,col);
+		if(si)
+			bloque[s] = hijos.size()-1;
 	}
 }
 
@@ -43,6 +45,10 @@ map<string,string> arbol::getContenido(){
 
 map<string,pair<int,int> > arbol::getUbicacion(){
 	return ubicacion;
+}
+
+map<string,int> arbol::getBloque(){
+	return bloque;
 }
 
 string buscarVariable(string var, arbol *actual){
@@ -71,7 +77,9 @@ arbol *exitScope(arbol *actual){
 void recorrer(arbol *a, int nivel){
 	map<string, string> vars = (*a).getContenido();
 	map<string,pair<int,int> > ubic = (*a).getUbicacion();
+	map<string,int> bloques = (*a).getBloque();
 	vector<arbol *> h = (*a).getHijos();
+	set<int> ya;
 	string s = "";
 	for(int i=0;i<nivel;i++) s+='\t';
 	
@@ -84,10 +92,16 @@ void recorrer(arbol *a, int nivel){
 		int t1 = p.first;
 		int t2 = p.second;
 		cout << s+"\t" << "Ubicacion, fila: " << t1 << ", columna: "<<t2<<endl<<endl;
+		if(it->second == "strdafak" || it->second=="unidafak"){
+			int t = bloques[it->first];
+			recorrer(h[t],nivel+1);
+			ya.insert(t);
+		}
 	}
 
 	for(int i =0;i<h.size();i++){
-		recorrer(h[i],nivel+1);
+		if(!ya.count(i))
+			recorrer(h[i],nivel+1);
 	}
 	cout << s << "Cerrando anidamiendo" << endl<<endl;
 

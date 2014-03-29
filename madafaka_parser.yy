@@ -127,6 +127,7 @@
 %type <strvalue> while_loop
 %type <strvalue> for_loop
 %type <strvalue> typo
+%type <strvalue> typo2
 %type <strvalue> if_block
 
 %start program
@@ -197,13 +198,37 @@ declaration:
 	  				if(buscarVariable(*($2),actual)==""){
 	  					string *s1 = new string(*($1));
 	  					string *s2 = new string(*($2));
-						(*actual).insertar(*s2,*s1,yyline,frcol);
+						(*actual).insertar(*s2,*s1,yyline,frcol,0);
 	  				}  
 					else{
 						compiled = false;
 						error(@$,"Variable ya declarada");
 					}
 				}
+  | typo2 IDENTIFIER START 
+  	{actual = enterScope(actual);}  
+	declaration_list 
+  	{
+		actual = exitScope(actual);
+
+		if(buscarVariable(*($2),actual)==""){
+			string *s1 = new string(*($1));
+			string *s2 = new string(*($2));
+			(*actual).insertar(*s2,*s1,yyline,frcol,1);
+	  	}  
+		else{
+			compiled = false;
+			error(@$,"Variable ya declarada");
+		}
+
+	}
+	END 
+  | typo2 error {
+	 				compiled = false;
+					error(@$,"Nombre de variable no valido");
+
+
+	  			}
   | typo error {
 	  				compiled = false;
 					error(@$,"Nombre de variable no valido");
@@ -215,11 +240,15 @@ typo:
   | FLOAT
   | CHAR
   | STRING
-  | STRUCT
   | VOID
-  | UNION
   | error {compiled = false; ; error(@$,"Tipo no valido");}
   ;
+
+typo2:
+	UNION
+	| STRUCT
+	| error {compiled = false; error(@$,"Tipo no valido");}
+	;
 
 assign:
   IDENTIFIER ASSIGN general_expression{
@@ -298,7 +327,7 @@ procedure_decl:
 					string s = "funcion";
 					int t1 = yyline;
 					int t2 = frcol;
-	  				(*actual).insertar(*($2),s,t1,t2);
+	  				(*actual).insertar(*($2),s,t1,t2,0);
 	  			}
 				else{
 					error(@$,"Funcion ya declarada anteriormente");

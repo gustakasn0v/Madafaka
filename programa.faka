@@ -7,12 +7,22 @@ mada
 	mada
 		fdafak f;
 		mada
-			strdafak str;
-
+			strdafak str 
+			mada
+				idafak bla;
+				strdafak bl
+				mada
+					idafak bla2;
+				faka;
+			faka;
+			idafak blo;
 		faka;
 		mada
 			fdafak p;
-			unidafak k;
+			unidafak k
+			mada
+				sdafak h;
+			faka;
 
 		faka;
 	faka;

@@ -4,6 +4,7 @@
 #include<map>
 #include<new>
 #include<utility>
+#include<set>
 using namespace std;
 #ifndef estructuras
 	#define estructuras
@@ -22,6 +23,7 @@ using namespace std;
 			vector<arbol *> hijos;
 			map<string,string> contenido;
 			map<string,pair<int,int> > ubicacion;
+			map<string,int> bloque;
 
 		public:
 			arbol(){papa=NULL;contenido.clear();ubicacion.clear();}
@@ -30,11 +32,12 @@ using namespace std;
 			void setPapa(arbol *);
 			vector<arbol *> getHijos();
 			arbol *getPapa();
-			void insertar(string ,string, int, int);
+			void insertar(string ,string, int, int, int);
 			int estaContenido(string &);
 			string tipoVar(string &);
 			map<string,string> getContenido();
 			map<string,pair<int,int> > getUbicacion();
+			map<string,int> getBloque();
 	};
 
 	/* Funcion que retornara el tipo de la variable
