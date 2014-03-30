@@ -38,6 +38,7 @@ using namespace std;
 			map<string,string> getContenido();
 			map<string,pair<int,int> > getUbicacion();
 			map<string,int> getBloque();
+			arbol *hijoEnStruct(string &);
 	};
 
 	/* Funcion que retornara el tipo de la variable
@@ -45,6 +46,8 @@ using namespace std;
 	en caso de que no exista se retornara la cadena vacia*/
 
 	string buscarVariable(string, arbol *);
+
+	arbol *buscarBloque(string, arbol *);
 
 	arbol *enterScope(arbol *);
 

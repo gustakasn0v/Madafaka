@@ -225,6 +225,8 @@ TOKEN_FALSE		"false"
 
 \."!"\. 		{return (token::VAR);}
 
+"."				{return (token::DOT);}
+
 
 {TOKEN_COMMENT}[^\n]* {
 						return (token::COMMENT);

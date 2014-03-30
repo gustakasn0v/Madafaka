@@ -1,5 +1,6 @@
 mada
 	idafak b;
+	
 	mada
 	 idafak i;
 	 idafak c;
@@ -7,7 +8,7 @@ mada
 	mada
 		fdafak f;
 		mada
-			strdafak str 
+			unidafak str 
 			mada
 				idafak bla;
 				strdafak bl
@@ -16,6 +17,10 @@ mada
 				faka;
 			faka;
 			idafak blo;
+
+		str.bl.bla2 = 3;
+		str.bla = 5;
+		
 		faka;
 		mada
 			fdafak p;

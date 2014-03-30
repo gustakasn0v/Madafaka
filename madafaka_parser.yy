@@ -59,6 +59,7 @@
 	#include "estructuras.h"
 	arbol raiz;
  	arbol *actual = &raiz;
+	arbol *bloque_struct;
 	bool compiled = true;
 }
 
@@ -101,6 +102,7 @@
 /* Tokens for boolean/arithmetic expressions */
 %token TRUE "true"
 %token FALSE "false"
+%token DOT "."
 
 %left OR
 %left AND
@@ -119,6 +121,8 @@
 %type <strvalue> instruction
 %type <strvalue> declaration
 %type <strvalue> declaration_list
+%type <strvalue> id_dotlist1
+%type <strvalue> id_dotlist2
 %type <strvalue> assign
 %type <strvalue> procedure_decl  
 %type <strvalue> procedure_invoc
@@ -195,14 +199,14 @@ declaration_list:
 
 declaration:
   typo IDENTIFIER { 
-	  				if(buscarVariable(*($2),actual)==""){
+	  				if(!(*actual).estaContenido(*($2))){
 	  					string *s1 = new string(*($1));
 	  					string *s2 = new string(*($2));
 						(*actual).insertar(*s2,*s1,yyline,frcol,0);
 	  				}  
 					else{
 						compiled = false;
-						error(@$,"Variable ya declarada");
+						error(@$,"Variable ya declarada en el mismo bloque");
 					}
 				}
   | typo2 IDENTIFIER START 
@@ -211,14 +215,14 @@ declaration:
   	{
 		actual = exitScope(actual);
 
-		if(buscarVariable(*($2),actual)==""){
+		if(!(*actual).estaContenido(*($2))){
 			string *s1 = new string(*($1));
 			string *s2 = new string(*($2));
 			(*actual).insertar(*s2,*s1,yyline,frcol,1);
 	  	}  
 		else{
 			compiled = false;
-			error(@$,"Variable ya declarada");
+			error(@$,"Variable ya declarada en el mismo bloque");
 		}
 
 	}
@@ -234,6 +238,55 @@ declaration:
 					error(@$,"Nombre de variable no valido");
 	 			}
   ;
+
+
+id_dotlist1:
+	IDENTIFIER 
+	{
+		string s =  buscarVariable(*($1),actual);
+
+		if(s!="strdafak" && s!="unidafak"){
+			compiled = false;
+			error(@$,"La variable no es de tipo strdafak o unidafak.");
+		}
+		else{
+			bloque_struct = buscarBloque(*($1),actual);
+			bloque_struct = (*bloque_struct).hijoEnStruct(*($1));
+		}
+	} 
+	DOT id_dotlist2;
+
+id_dotlist2:
+	IDENTIFIER
+	{
+
+		if(!(*bloque_struct).estaContenido(*($1))){
+			compiled = false;
+			error(@$,"Campo no contenido en la estructura.");
+		}
+
+	}
+
+  | IDENTIFIER 
+  	{
+		string s = "";
+
+		if((*bloque_struct).estaContenido(*($1))){
+			s = (*bloque_struct).tipoVar(*($1));
+		}
+
+		if(s!="unidafak" && s!="strdafak"){
+			compiled = false;
+			error(@$,"El campo no es de tipo strdafak o unidafak");
+		}
+		else{
+			bloque_struct = (*bloque_struct).hijoEnStruct(*($1));
+		}
+
+	}
+    DOT 
+	id_dotlist2;
+
 
 typo:
   INTEGER
@@ -257,7 +310,9 @@ assign:
 										}
 	  								}
 									
-  ;
+ | id_dotlist1 ASSIGN general_expression
+									
+ ;
 
 // There's a reduce/reduce conflict here, since the parser
 // might see the error token, and wouldn't know to reduce
@@ -281,6 +336,7 @@ boolean_expression:
   | LPAREN boolean_expression RPAREN
   | NOT boolean_expression
   | IDENTIFIER
+  | id_dotlist1
   | arithmetic_comparison
   ;
 
@@ -314,6 +370,7 @@ arithmetic_expression:
   | INTVALUE
   | FLOATVALUE
   | procedure_invoc
+  | id_dotlist1
   ;
 
 
@@ -390,6 +447,7 @@ read:
 			
 			
 		}
+ | READ id_dotlist1
   ;
 
 while_loop:

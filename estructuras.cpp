@@ -51,6 +51,13 @@ map<string,int> arbol::getBloque(){
 	return bloque;
 }
 
+
+arbol *arbol::hijoEnStruct(string &s){
+	int t = bloque[s];
+	return hijos[t];
+}
+
+
 string buscarVariable(string var, arbol *actual){
          arbol *aux = actual;
          while(aux!=NULL){
@@ -58,6 +65,16 @@ string buscarVariable(string var, arbol *actual){
              aux = (*aux).getPapa();
          }
          return "";
+}
+
+
+arbol *buscarBloque(string var, arbol *actual){
+		arbol *aux = actual;
+		while(aux!=NULL){
+             if((*aux).estaContenido(var)) return aux;
+             aux = (*aux).getPapa();
+        }
+		return aux;
 }
 
 
