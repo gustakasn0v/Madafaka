@@ -98,6 +98,8 @@
 %token <boolvalue> BOOLVALUE "boolean_value"
 %token <strvalue> STRVALUE "string_value"
 %token <charvalue> CHARVALUE "char_value"
+%token <strvalue> LARRAY "["
+%token <strvalue> RARRAY "]"
 
 /* Tokens for boolean/arithmetic expressions */
 %token TRUE "true"

@@ -58,7 +58,8 @@ TOKEN_LESS 		"<"
 TOKEN_LESSEQ 	"<="
 TOKEN_TRUE		"true"
 TOKEN_FALSE		"false"
-
+TOKEN_OPENA		"["
+TOKEN_CLOSEA	"]"
 
 %%
 
@@ -209,6 +210,9 @@ TOKEN_FALSE		"false"
 
 {TOKEN_RPAREN} 	{return (token::RPAREN);}
 
+{TOKEN_OPENA}	{return (token::LARRAY);}
+
+{TOKEN_CLOSEA}	{return (token::RARRAY);}
 
 {TOKEN_TRUE}	{
 					yylval->boolvalue = 1;
