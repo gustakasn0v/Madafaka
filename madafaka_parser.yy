@@ -196,6 +196,7 @@ declaration_proc:
 declaration_list:
 	
 	| declaration SEPARATOR declaration_list
+	| declaration2 SEPARATOR declaration_list
   | declaration error declaration_list {compiled = false ; error(@$,"Las declaraciones van separadas por ;");}
 	;
 
@@ -255,6 +256,36 @@ declaration2:
 
 
 id_dotlist1:
+	IDENTIFIER LARRAY arithmetic_expression RARRAY
+	{
+		string s =  buscarVariable(*($1),actual);
+		string s1 = (*actual).getTipoArray(*($1));
+		if(s!="array" || s1=="unidafak" || s1=="strdafak"){
+			compiled = false;
+			error(@$,"La variable no es un arreglo o es un arreglo de una estructura anidada.");
+		}
+	}
+	|
+	IDENTIFIER LARRAY arithmetic_expression RARRAY 
+	{
+		string s =  buscarVariable(*($1),actual);
+		string s1="";
+		if(s=="array")
+			s1 = (*actual).getTipoArray(*($1));
+		if(s!="array" || (s1!="unidafak" && s1!="strdafak")){
+			compiled = false;
+			error(@$,"La variable no es un arreglo o es un arreglo de una estructura anidada.");
+		}
+		else{
+			bloque_struct = buscarBloque(*($1),actual);
+			bloque_struct = (*bloque_struct).hijoEnStruct(*($1));
+
+		}
+		
+	}
+	DOT
+	id_dotlist2
+	|
 	IDENTIFIER 
 	{
 		string s =  buscarVariable(*($1),actual);
@@ -300,6 +331,38 @@ id_dotlist2:
 	}
     DOT 
 	id_dotlist2;
+  |
+	IDENTIFIER LARRAY arithmetic_expression RARRAY
+	{
+
+		if(!(*bloque_struct).estaContenido(*($1))){
+			compiled = false;
+			error(@$,"Campo no contenido en la estructura.");
+		}
+
+	}
+	|
+	IDENTIFIER LARRAY arithmetic_expression RARRAY 
+	{
+
+		string s = "";
+
+		if((*bloque_struct).estaContenido(*($1))){
+			s = (*bloque_struct).getTipoArray(*($1));
+		}
+
+		if(s!="unidafak" && s!="strdafak"){
+			compiled = false;
+			error(@$,"El campo no es de tipo strdafak o unidafak");
+		}
+		else{
+			bloque_struct = (*bloque_struct).hijoEnStruct(*($1));
+		}
+
+	}
+	DOT
+	id_dotlist2
+
   | error {error(@$,"Acceso a de strdafak o unidafak de manera incorrecta.");}
 
 

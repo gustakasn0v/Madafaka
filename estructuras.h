@@ -41,6 +41,7 @@ using namespace std;
 			map<string,int> getBloque();
 			arbol *hijoEnStruct(string &);
 			void esArray(string &);
+			string getTipoArray(string &);
 	};
 
 	/* Funcion que retornara el tipo de la variable

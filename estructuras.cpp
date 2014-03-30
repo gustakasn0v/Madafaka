@@ -63,6 +63,13 @@ void arbol::esArray(string &var){
 	contenido[var]="array";	
 }
 
+string arbol::getTipoArray(string &var){
+	if(arrays.count(var))
+		return arrays[var];
+	return "";
+}
+
+
 
 string buscarVariable(string var, arbol *actual){
          arbol *aux = actual;
@@ -119,6 +126,14 @@ void recorrer(arbol *a, int nivel){
 			int t = bloques[it->first];
 			recorrer(h[t],nivel+1);
 			ya.insert(t);
+		}
+		string tmp1 = it->first;
+		if(it->second == "array" && ((*a).getTipoArray(tmp1)=="strdafak"\
+								 || (*a).getTipoArray(tmp1)=="unidafak")){
+			int t = bloques[tmp1];
+			recorrer(h[t],nivel+1);
+			ya.insert(t);
+
 		}
 	}
 

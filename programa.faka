@@ -1,6 +1,16 @@
 mada
 	idafak b;
 	idafak str;
+	strdafak str2
+	mada
+		idafak bla;
+		strdafak ble
+		mada
+			idafak bli;
+		faka [5];
+	faka [10];
+	idafak str3;
+	str2[5].ble[3].bli = 1;
 	mada
 	 idafak i;
 	 idafak c;
