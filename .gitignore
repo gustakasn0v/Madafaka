@@ -32,3 +32,6 @@ madafaka_lexer.yy.cc
 
 # Binary file
 madafaka
+
+# Pandoc Output
+doc/madafaka.pdf
