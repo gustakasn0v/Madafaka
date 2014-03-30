@@ -286,6 +286,7 @@ id_dotlist2:
 	}
     DOT 
 	id_dotlist2;
+  | error {error(@$,"Acceso a de strdafak o unidafak de manera incorrecta.");}
 
 
 typo:
