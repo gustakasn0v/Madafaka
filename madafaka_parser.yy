@@ -154,9 +154,7 @@ this will be commented out to avoid type clash warnings
 %%
 
 program:
-  
   declaration_proc START bloque END
-
   { 
     if (compiled) recorrer(&raiz,0);
     return 0; 
@@ -194,7 +192,7 @@ declaration_proc:
 	;
 
 declaration_list:
-	
+
 	| declaration SEPARATOR declaration_list
 	| declaration2 SEPARATOR declaration_list
   | declaration error declaration_list {compiled = false ; error(@$,"Las declaraciones van separadas por ;");}
@@ -211,7 +209,9 @@ declaration:
 	  				}  
 					else{
 						compiled = false;
-						error(@$,"Variable ya declarada en el mismo bloque");
+						string errormsg = string("Variable ya declarada en el mismo bloque: ")
+						+ string(*($2));
+						error(@$,errormsg);
 					}
 				}
   | typo2 IDENTIFIER START 
@@ -227,7 +227,9 @@ declaration:
 	  	}  
 		else{
 			compiled = false;
-			error(@$,"Variable ya declarada en el mismo bloque");
+			string errormsg = string("Variable ya declarada en el mismo bloque: ")
+			+ string(*($2));
+			error(@$,errormsg);
 		}
 
 	}
@@ -292,7 +294,7 @@ id_dotlist1:
 
 		if(s!="strdafak" && s!="unidafak"){
 			compiled = false;
-			error(@$,"La variable no es de tipo strdafak o unidafak.");
+			error(@$,"La variable no es de tipo strdafak o unidafak");
 		}
 		else{
 			bloque_struct = buscarBloque(*($1),actual);
@@ -383,11 +385,12 @@ typo2:
 
 assign:
   IDENTIFIER ASSIGN general_expression{
-	  									if(buscarVariable(*($1),actual)==""){
-											error(@$,"Variable no declarada");
-										}
-	  								}
-									
+	if(buscarVariable(*($1),actual)==""){
+		compiled=false;
+		string errormsg = string("Variable no declarada: ")+ string(*($1));
+		error(@$,errormsg);
+	}
+  }									
  | id_dotlist1 ASSIGN general_expression
 									
  ;
@@ -441,7 +444,10 @@ arithmetic_expression:
 	  			string aux = buscarVariable(*($1),actual);
 	  			if(aux=="" || aux == "funcion"){
 	  				compiled = false;
-					error(@$,"Variable no declarada, o funcion con el mismo nombre solamente declarada");
+	  				string errormsg = 
+	  					string("Variable no declarada, o funcion con el mismo nombre solamente declarada: ")
+	  					+ string(*($1));
+					error(@$,errormsg);
 	  			}
 			}
 			
@@ -478,7 +484,10 @@ procedure_invoc:
 	  			string s = "funcion";
 				string p = buscarVariable(*($1),actual);
 	  			if(p!=s && p!=""){
-	  				error(@$,"Se esta usando una variable como funcion");
+	  				string errormsg = 
+	  					string("Se esta usando una variable como funcion: ")
+	  					+ string(*($1));
+	  				error(@$,errormsg);
 					compiled = false;
 	  			}
 				else if(p==""){
@@ -520,12 +529,13 @@ read:
 			string s = buscarVariable(*($2),actual);
 	  		if(s=="" || s == "funcion"){
 				compiled = false;
-				error(@$,"Variable no declarada");
+				string errormsg = string("Variable no declarada: ")
+				+ string(*($2));
+				error(@$,errormsg);
 			}
 			
 			
 		}
- | READ id_dotlist1
   ;
 
 while_loop:

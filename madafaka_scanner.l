@@ -94,8 +94,11 @@ TOKEN_CLOSEA	"]"
 
 {TOKEN_FOR}				{return token::FOR;}
 
-
 {TOKEN_WHILE}			{return token::WHILE;}
+
+{TOKEN_READ}			{return token::READ;}
+
+{TOKEN_WRITE}			{return token::WRITE;}
 
 
 {TOKEN_LESS}			{return token::LESS;}
@@ -229,7 +232,7 @@ TOKEN_CLOSEA	"]"
 
 \."!"\. 		{return (token::VAR);}
 
-"."				{return (token::DOT);}
+"\."				{return (token::DOT);}
 
 
 {TOKEN_COMMENT}[^\n]* 
@@ -250,7 +253,7 @@ TOKEN_CLOSEA	"]"
 \n 				{frcol = tocol = 0; ++yyline;}
 
 
-.				{ return token::UNKNOWN;}
+.				{ printf("Token invalido"); return token::UNKNOWN;}
 
 
 %%
