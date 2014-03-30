@@ -18,10 +18,11 @@ mada
 			faka;
 			idafak blo;
 
-			str.bl.bla2 = 3;
+			str.bl.bla2 = 3; ??esto es un comentario
 			str.bla = 5;
 		
 		faka;
+		?? commentario
 		mada
 			fdafak p;
 			unidafak k

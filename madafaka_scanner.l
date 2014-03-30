@@ -43,7 +43,7 @@ TOKEN_SEPARATOR ";"
 TOKEN_AND		"and"
 TOKEN_OR		"or"
 TOKEN_NOT		"not"
-TOKEN_COMMENT	"--"
+TOKEN_COMMENT	"??"
 TOKEN_LPAREN	"("
 TOKEN_RPAREN	")"
 TOKEN_MINUS		"-"
@@ -228,9 +228,9 @@ TOKEN_FALSE		"false"
 "."				{return (token::DOT);}
 
 
-{TOKEN_COMMENT}[^\n]* {
-						return (token::COMMENT);
-					  }
+{TOKEN_COMMENT}[^\n]* 
+						
+					  
 
 
 {ID}			{

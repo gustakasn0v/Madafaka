@@ -75,7 +75,7 @@
 %token <strvalue> COMMA ","
 %token <strvalue> LPAREN "("
 %token <strvalue> RPAREN ")"
-%token <strvalue> COMMENT "fakafaka"
+%token <strvalue> COMMENT "??"
 
 /* Primitive and composite data types */
 %token <strvalue> INTEGER "idafak"
