@@ -57,6 +57,12 @@ arbol *arbol::hijoEnStruct(string &s){
 	return hijos[t];
 }
 
+void arbol::esArray(string &var){
+	string t = contenido[var];
+	arrays[var]=t;
+	contenido[var]="array";	
+}
+
 
 string buscarVariable(string var, arbol *actual){
          arbol *aux = actual;

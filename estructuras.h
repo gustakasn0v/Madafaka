@@ -24,6 +24,7 @@ using namespace std;
 			map<string,string> contenido;
 			map<string,pair<int,int> > ubicacion;
 			map<string,int> bloque;
+			map<string,string> arrays;
 
 		public:
 			arbol(){papa=NULL;contenido.clear();ubicacion.clear();}
@@ -39,6 +40,7 @@ using namespace std;
 			map<string,pair<int,int> > getUbicacion();
 			map<string,int> getBloque();
 			arbol *hijoEnStruct(string &);
+			void esArray(string &);
 	};
 
 	/* Funcion que retornara el tipo de la variable

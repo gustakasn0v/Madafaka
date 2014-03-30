@@ -60,6 +60,7 @@
 	arbol raiz;
  	arbol *actual = &raiz;
 	arbol *bloque_struct;
+	string last;
 	bool compiled = true;
 }
 
@@ -205,6 +206,7 @@ declaration:
 	  					string *s1 = new string(*($1));
 	  					string *s2 = new string(*($2));
 						(*actual).insertar(*s2,*s1,yyline,frcol,0);
+						last = *($2);
 	  				}  
 					else{
 						compiled = false;
@@ -216,7 +218,7 @@ declaration:
 	declaration_list 
   	{
 		actual = exitScope(actual);
-
+		last = *($2);
 		if(!(*actual).estaContenido(*($2))){
 			string *s1 = new string(*($1));
 			string *s2 = new string(*($2));
@@ -239,6 +241,16 @@ declaration:
 	  				compiled = false;
 					error(@$,"Nombre de variable no valido");
 	 			}
+  ;
+
+declaration2:
+	declaration LARRAY arithmetic_expression RARRAY 
+	{
+		(*actual).esArray(last);
+	}
+
+	| error {compiled = false; error(@$,"Error de declaracion de arreglo");}
+		
   ;
 
 
