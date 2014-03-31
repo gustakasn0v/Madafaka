@@ -25,7 +25,7 @@ CLEANLIST =  $(addsuffix .o, $(OBJ)) $(OBJS) \
     			 madafaka_parser.tab.cc madafaka_parser.tab.hh \
 				 location.hh position.hh \
 			    stack.hh madafaka_parser.output parser.o estructuras.o\
-				 lexer.o madafaka_lexer.yy.cc *gch $(EXE)\
+				 lexer.o madafaka_lexer.yy.cc *gch *.o $(EXE)\
  
 .PHONY: all
 all: madafaka
