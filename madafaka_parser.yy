@@ -425,6 +425,17 @@ boolean_expression:
   | NOT boolean_expression
   | arithmetic_comparison
   | IDENTIFIER
+			{
+	  			string aux = buscarVariable(*($1),actual);
+	  			if(aux=="" || aux == "funcion"){
+	  				compiled = false;
+	  				string errormsg = 
+	  					string("Variable no declarada, o funcion con el mismo nombre solamente declarada: ")
+	  					+ string(*($1));
+					error(@$,errormsg);
+	  			}
+			}
+
   | BOOLVALUE
   | id_dotlist1
   
