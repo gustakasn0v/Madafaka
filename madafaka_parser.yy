@@ -87,6 +87,7 @@
 %token <strvalue> CHAR "cdafak"
 %token <strvalue> STRING "sdafak"
 %token <strvalue> FLOAT "fdafak"
+%token <strvalue> BOOL "bdafak"
 %token <strvalue> VOID "vdafak"
 %token <strvalue> FOR "fordafak"
 %token <strvalue> WHILE "whiledafak"
@@ -379,6 +380,7 @@ typo:
   | CHAR
   | STRING
   | VOID
+  | BOOL
   | error {compiled = false; ; error(@$,"Tipo no valido");}
   ;
 
@@ -423,12 +425,12 @@ boolean_expression:
   | NOT boolean_expression
   | arithmetic_comparison
   | IDENTIFIER
+  | BOOLVALUE
   | id_dotlist1
   
   ;
 
 boolean_opr: AND | OR | EQ
-	| error {compiled = false; error(@$,"Operador booleano no valido");}
   ;
 
 arithmetic_comparison:
@@ -437,7 +439,6 @@ arithmetic_comparison:
 
 comparison_opr: EQ | LESS | LESSEQ 
   | GREAT | GREATEQ
-  | error {compiled = false; error(@$,"Operador de comparacion no valido");}
   ;
 
 

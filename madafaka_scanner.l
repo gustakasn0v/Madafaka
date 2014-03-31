@@ -36,6 +36,7 @@ TOKEN_INT		"idafak"
 TOKEN_FLOAT		"fdafak"
 TOKEN_CHAR		"cdafak"
 TOKEN_STRING	"sdafak"
+TOKEN_BOOLEAN	"bdafak"
 TOKEN_STRUCT	"strdafak"
 TOKEN_UNION		"unidafak"
 TOKEN_ASSIGN	"="
@@ -196,6 +197,11 @@ TOKEN_CLOSEA	"]"
 {TOKEN_STRING} {
 					yylval->strvalue = new std::string(yytext);
 					return (token::STRING);
+				}
+
+{TOKEN_BOOLEAN} {
+					yylval->strvalue = new std::string(yytext);
+					return (token::BOOL);
 				}
 
 
