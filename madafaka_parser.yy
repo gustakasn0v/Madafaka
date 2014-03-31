@@ -91,6 +91,7 @@
 %token <strvalue> FOR "fordafak"
 %token <strvalue> WHILE "whiledafak"
 %token <strvalue> IF "ifdafak"
+%token <strvalue> ELSE "else"
 %token <strvalue> READ "rdafak"
 %token <strvalue> WRITE "wdafak"
 %token <strvalue> VAR "var"
@@ -418,9 +419,10 @@ boolean_expression:
   boolean_expression boolean_opr boolean_expression
   | LPAREN boolean_expression RPAREN
   | NOT boolean_expression
+  | arithmetic_comparison
   | IDENTIFIER
   | id_dotlist1
-  | arithmetic_comparison
+  
   ;
 
 boolean_opr: AND | OR | EQ
@@ -553,6 +555,7 @@ for_loop:
 
 if_block:
   IF boolean_expression START bloque END
+  | IF boolean_expression START bloque END ELSE START bloque END
   | IF error {compiled = false ; error(@$,"Bloque if malformado");}
   ;
 
