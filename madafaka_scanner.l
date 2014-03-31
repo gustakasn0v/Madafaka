@@ -25,6 +25,7 @@ DIGIT			[0-9]
 ID 				[a-z][a-z0-9]*
 TOKEN_IF		"ifdafak"
 TOKEN_ELSE		"else"
+TOKEN_BREAK		"madabreak"
 TOKEN_BEGIN		"mada"
 TOKEN_END		"faka"
 TOKEN_ARGREF	"var"
@@ -81,6 +82,10 @@ TOKEN_CLOSEA	"]"
 {TOKEN_IF}				{return token::IF;}
 
 {TOKEN_ELSE}				{return token::ELSE;}
+
+{TOKEN_BREAK}			{
+							return token::BREAK;
+						}
 
 
 {TOKEN_BEGIN}			{

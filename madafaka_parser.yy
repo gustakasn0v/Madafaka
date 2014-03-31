@@ -90,6 +90,7 @@
 %token <strvalue> VOID "vdafak"
 %token <strvalue> FOR "fordafak"
 %token <strvalue> WHILE "whiledafak"
+%token <strvalue> BREAK "madabreak"
 %token <strvalue> IF "ifdafak"
 %token <strvalue> ELSE "else"
 %token <strvalue> READ "rdafak"
@@ -182,6 +183,7 @@ instruction:
   | write
   | read
   | while_loop
+  | BREAK
   | for_loop
   | if_block
   | START bloque END
