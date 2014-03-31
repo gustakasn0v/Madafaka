@@ -539,19 +539,17 @@ read:
 				+ string(*($2));
 				error(@$,errormsg);
 			}
-			
-			
 		}
   ;
 
 while_loop:
   WHILE boolean_expression START bloque END
-  | WHILE error {compiled = false ; error(@$,"Bloque while malformado");}
+  | WHILE error END {compiled = false ; error(@$,"Bloque while malformado");}
   ;
 
 for_loop:
   FOR LPAREN assign SEPARATOR boolean_expression SEPARATOR assign RPAREN START bloque END
-  | FOR error {compiled = false ; error(@$,"Bloque for malformado");}
+  | FOR error END {compiled = false ; error(@$,"Bloque for malformado");}
   ;
 
 

@@ -1,0 +1,11 @@
+mada
+	idafak index;
+	index=index>2;
+	ifdafak (index>2 and index>3 or index>4) mada
+		idafak index2;
+	faka
+	else mada
+		idafak index3;
+	faka;
+
+faka
