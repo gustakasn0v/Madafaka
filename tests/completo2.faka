@@ -1,0 +1,19 @@
+
+?? Primera declaracion de funcon
+idafak hola(sdafak s)
+mada
+	idafak p;
+	p=1;
+	whiledafak(p<10) 
+	mada
+		p = p + 1;
+	faka;
+faka;
+
+
+mada
+	idafak s[10];
+	s[1] = 1;
+	
+	wdafak s[1];
+faka

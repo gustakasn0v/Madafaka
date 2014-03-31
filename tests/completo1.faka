@@ -1,0 +1,35 @@
+
+?? Primera declaracion de funcon
+idafak hola(sdafak s)
+mada
+	idafak p;
+	p=1;
+	whiledafak(p<10) 
+	mada
+		p = p + 1;
+	faka;
+faka;
+
+??Segunda declaracion de funcion
+idafak pepe()
+mada
+	idafak p;
+	sdafak s;
+
+	p=1;
+	rdafak s;
+	whiledafak(p<10) 
+	mada
+		wdafak s;
+		
+		p = p + 1;
+	faka;
+faka;
+
+mada
+	sdafak s;
+	rdafak s;
+	hola(s);
+	wdafak s;
+	pepe();	
+faka
