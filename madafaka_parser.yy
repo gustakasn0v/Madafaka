@@ -480,7 +480,11 @@ arithmetic_opr: PLUS | MINUS | TIMES | DIVIDE | MOD
   ;
 
 procedure_decl:
-  typo IDENTIFIER LPAREN arg_decl_list RPAREN START bloque END 
+  typo IDENTIFIER LPAREN 
+  {actual=enterScope(actual);}
+  arg_decl_list 
+  {actual=exitScope(actual);}
+  RPAREN START bloque END 
 			{
 				if(buscarVariable(*($1),actual)==""){
 					string s = "funcion";
@@ -520,9 +524,14 @@ procedure_invoc:
   ;
 
 arg_decl_list:
-  arg_decl
-  | arg_list COMMA arg_decl
-  | arg_list error arg_decl {compiled = false ; error(@$,"Los argumentos deben ir separados por comas");}  
+
+  | arg_decl arg_decl_list1
+  ;
+
+arg_decl_list1:
+
+  | COMMA arg_decl arg_decl_list1
+  |  error arg_decl {compiled = false ; error(@$,"Los argumentos deben ir separados por comas");}  
   ;
 
 arg_decl:
@@ -530,11 +539,15 @@ arg_decl:
   | VAR declaration
   ;
 
-
 arg_list:
-  general_expression COMMA
-  | arg_list COMMA general_expression COMMA 
-  | arg_list error general_expression COMMA {compiled = false ; error(@$,"Los argumentos deben ir separados por comas");}
+
+  | general_expression arg_list1
+  ;
+
+arg_list1:
+  
+  | COMMA general_expression arg_list1
+  | error general_expression {compiled = false ; error(@$,"Los argumentos deben ir separados por comas");}
   ;
 
 write:

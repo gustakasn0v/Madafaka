@@ -67,6 +67,7 @@ TOKEN_CLOSEA	"]"
 
 %%
 
+","						{return token::COMMA;}
 
 {DIGIT}+				{
 							yylval->intvalue = atoi(yytext);
