@@ -111,9 +111,7 @@ Las declaraciones de funciones se realizan mediante la sintaxis
 
     <TipoRetorno> <Identificador>(<TipoArg1> <id1>, <TipoArg2> <id2>,...)
 
-*	Las funciones pueden declararse en el alcance global, o en cualquier
-	alcance creado por el usuario, *excepto* dentro del alcance de una función.
-	No se permiten funciones anidadas.
+*	Todas las funciones deben declararse antes del primer bloque del lenguaje
 *	Una función puede tener cero o más parámetros.
 *	Los argumentos pueden ser de todos los tipos soportados por el lenguaje:
 	tipos primitivos, compuestos o arreglos.
