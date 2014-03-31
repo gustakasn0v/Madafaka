@@ -437,6 +437,7 @@ boolean_expression:
 			}
 
   | BOOLVALUE
+  | STRVALUE
   | id_dotlist1
   
   ;
