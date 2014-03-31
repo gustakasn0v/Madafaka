@@ -48,6 +48,9 @@
    /* Position tracking variables from Flex */
    extern int yyline, frcol, tocol;
 
+   /* If there was a Lexycal error, this will be set to true by Flex */
+   extern bool lexerror;
+
    //int yylex(Madafaka::Madafaka_Parser::semantic_type*);
    /* this is silly, but I can't figure out a way around */
    static int yylex(Madafaka::Madafaka_Parser::semantic_type *yylval,
@@ -156,7 +159,7 @@ this will be commented out to avoid type clash warnings
 program:
   declaration_proc START bloque END
   { 
-    if (compiled) recorrer(&raiz,0);
+    if (compiled and !lexerror) recorrer(&raiz,0);
     return 0; 
   }
   ;
@@ -170,7 +173,6 @@ bloque:
 instruction_list:
 
   | instruction SEPARATOR instruction_list
-  | instruction error instruction_list {compiled = false ; error(@$,"Las instrucciones deben ir separadas por comas");}
   ;
 
 instruction:
@@ -544,7 +546,7 @@ while_loop:
   ;
 
 for_loop:
-  FOR LPAREN assign COMMA boolean_expression COMMA assign RPAREN START bloque END
+  FOR LPAREN assign SEPARATOR boolean_expression SEPARATOR assign RPAREN START bloque END
   | FOR error {compiled = false ; error(@$,"Bloque for malformado");}
   ;
 
@@ -559,8 +561,7 @@ if_block:
 
 void Madafaka::Madafaka_Parser::error( const location_type&,const string& err_message)
 {
-     //fprintf(stderr, "Linea: %d Columna: %d: ", bla.begin.line+1, bla.begin.column);
-    fprintf(stderr, "Linea: %d Columna: %d-%d: ", yyline, frcol, tocol);
+     fprintf(stderr, "Linea: %d Columna: %d-%d: ", yyline, frcol, tocol);
      std::cerr << err_message << "\n";
      compiled=false;
 }

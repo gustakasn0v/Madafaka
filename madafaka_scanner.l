@@ -9,6 +9,7 @@ typedef Madafaka::Madafaka_Parser::token token;
 int yyline = 1;
 int frcol = 0;
 int tocol = 0;
+bool lexerror = false;
 #define YY_USER_ACTION { frcol = tocol; tocol += yyleng; }
 
 %}
@@ -253,7 +254,7 @@ TOKEN_CLOSEA	"]"
 \n 				{frcol = tocol = 0; ++yyline;}
 
 
-.				{ printf("Token invalido"); return token::UNKNOWN;}
+.				{ printf("Linea: %d Columna: %d: Token invalido: %s\n",yyline,frcol,yytext);  lexerror = true;}
 
 
 %%
