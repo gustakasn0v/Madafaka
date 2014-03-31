@@ -557,7 +557,7 @@ for_loop:
 if_block:
   IF boolean_expression START bloque END
   | IF boolean_expression START bloque END ELSE START bloque END
-  | IF error {compiled = false ; error(@$,"Bloque if malformado");}
+  | IF error END {compiled = false ; error(@$,"Bloque if malformado");}
   ;
 
 %%

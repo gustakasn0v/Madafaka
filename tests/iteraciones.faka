@@ -1,0 +1,10 @@
+?? Este es un programa que pone a prueba varios ciclos anidados
+
+mada
+	idafak hola;
+	for (hola=0; hola < 20 ; hola=hola+1) mada
+		while (hola < 30) mada
+			wdafak hola;
+		faka;
+	faka;
+faka

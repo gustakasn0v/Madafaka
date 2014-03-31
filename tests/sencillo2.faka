@@ -1,6 +1,17 @@
-?? Este es un ejemplo sencillo de un programa que compila
+?? Este es un ejemplo sencillo de un programa que no compila
+?? por un error con una expresión malformada, y que luego
+?? demuestra que el parser sincroniza
 mada
 	idafak enterito;
 	fdafak elqueflota;
-	a=2+;
+	enterito=2;
+	?? Ahora meto la pata con una expresión malformada
+	enterito=2+;
+
+	?? Para que se observe la recuperación de errores,
+	?? sigo programando como si nada
+	enterito=2;
+	
+	?? Sigo cometiendo errores
+	enterito2=0;
 faka
