@@ -4,8 +4,8 @@
 #include<iostream>
 
 //using namespace std;
-void arbol::addHijo(arbol *hijo){
-	(*hijo).setPapa(this);
+void arbol::addHijo(arbol *hijo)
+{	(*hijo).setPapa(this);
 	hijos.push_back(hijo);
 }
 
@@ -26,7 +26,7 @@ int arbol::estaContenido(string &s){
 }
 
 
-void arbol::insertar(string s,string tipo,int fila, int col, int si){
+void arbol::insertar(string s,MadafakaType tipo,int fila, int col, int si){
 	if(contenido.count(s)==0){
 		contenido[s]=tipo;
 		ubicacion[s] = make_pair(fila,col);
@@ -35,11 +35,11 @@ void arbol::insertar(string s,string tipo,int fila, int col, int si){
 	}
 }
 
-string arbol::tipoVar(string &var){
+MadafakaType arbol::tipoVar(string &var){
 	return contenido[var];
 }
 
-map<string,string> arbol::getContenido(){
+map<string,MadafakaType> arbol::getContenido(){
 	return contenido;
 }
 
@@ -57,11 +57,11 @@ arbol *arbol::hijoEnStruct(string &s){
 	return hijos[t];
 }
 
-void arbol::esArray(string &var){
-	string t = contenido[var];
-	arrays[var]=t;
-	contenido[var]="array";	
-}
+// void arbol::esArray(string &var){
+// 	string t = contenido[var];
+// 	arrays[var]=t;
+// 	contenido[var]="array";	
+// }
 
 string arbol::getTipoArray(string &var){
 	if(arrays.count(var))
@@ -71,13 +71,14 @@ string arbol::getTipoArray(string &var){
 
 
 
-string buscarVariable(string var, arbol *actual){
+MadafakaType buscarVariable(string var, arbol *actual){
          arbol *aux = actual;
          while(aux!=NULL){
              if((*aux).estaContenido(var)) return (*aux).tipoVar(var);
              aux = (*aux).getPapa();
          }
-         return "";
+         TypeError t;
+         return t;
 }
 
 

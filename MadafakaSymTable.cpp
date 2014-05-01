@@ -1,8 +1,8 @@
 #include <string>
 #include <map>
-#include "MadafakaSymbol.h"
+#include "MadafakaSymbol.hpp"
 
-#include "MadafakaSymTable.h"
+#include "MadafakaSymTable.hpp"
 using namespace std;
 /**
  * @class SymTable "SymTable.h"

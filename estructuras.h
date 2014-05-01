@@ -5,6 +5,7 @@
 #include<new>
 #include<utility>
 #include<set>
+#include"MadafakaTypes.cpp"
 using namespace std;
 #ifndef estructuras
 	#define estructuras
@@ -21,7 +22,7 @@ using namespace std;
 		private:
 			arbol *papa;
 			vector<arbol *> hijos;
-			map<string,string> contenido;
+			map<string,MadafakaType> contenido;
 			map<string,pair<int,int> > ubicacion;
 			map<string,int> bloque;
 			map<string,string> arrays;
@@ -33,10 +34,10 @@ using namespace std;
 			void setPapa(arbol *);
 			vector<arbol *> getHijos();
 			arbol *getPapa();
-			void insertar(string ,string, int, int, int);
+			void insertar(string ,MadafakaType, int, int, int);
 			int estaContenido(string &);
-			string tipoVar(string &);
-			map<string,string> getContenido();
+			MadafakaType tipoVar(string &);
+			map<string,MadafakaType> getContenido();
 			map<string,pair<int,int> > getUbicacion();
 			map<string,int> getBloque();
 			arbol *hijoEnStruct(string &);
@@ -48,7 +49,7 @@ using namespace std;
 	que se esta consultando,
 	en caso de que no exista se retornara la cadena vacia*/
 
-	string buscarVariable(string, arbol *);
+	MadafakaType buscarVariable(string, arbol *);
 
 	arbol *buscarBloque(string, arbol *);
 
