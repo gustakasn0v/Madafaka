@@ -26,7 +26,7 @@ int arbol::estaContenido(string &s){
 }
 
 
-void arbol::insertar(string s,MadafakaType tipo,int fila, int col, int si){
+void arbol::insertar(string s,MadafakaType *tipo,int fila, int col, int si){
 	if(contenido.count(s)==0){
 		contenido[s]=tipo;
 		ubicacion[s] = make_pair(fila,col);
@@ -35,11 +35,11 @@ void arbol::insertar(string s,MadafakaType tipo,int fila, int col, int si){
 	}
 }
 
-MadafakaType arbol::tipoVar(string &var){
+MadafakaType* arbol::tipoVar(string &var){
 	return contenido[var];
 }
 
-map<string,MadafakaType> arbol::getContenido(){
+map<string,MadafakaType*> arbol::getContenido(){
 	return contenido;
 }
 
@@ -71,13 +71,13 @@ string arbol::getTipoArray(string &var){
 
 
 
-MadafakaType buscarVariable(string var, arbol *actual){
+MadafakaType *buscarVariable(string var, arbol *actual){
          arbol *aux = actual;
          while(aux!=NULL){
              if((*aux).estaContenido(var)) return (*aux).tipoVar(var);
              aux = (*aux).getPapa();
          }
-         TypeError t;
+         TypeError* t = new TypeError();
          return t;
 }
 
@@ -106,7 +106,7 @@ arbol *exitScope(arbol *actual){
 
 
 void recorrer(arbol *a, int nivel){
-	map<string, MadafakaType> vars = (*a).getContenido();
+	map<string, MadafakaType*> vars = (*a).getContenido();
 	map<string,pair<int,int> > ubic = (*a).getUbicacion();
 	map<string,int> bloques = (*a).getBloque();
 	vector<arbol *> h = (*a).getHijos();
@@ -117,25 +117,25 @@ void recorrer(arbol *a, int nivel){
 	cout << s << "Abriendo anidamiento"<<endl<<endl;
 
 	
-	for(map<string,MadafakaTypex>::iterator it = vars.begin();it!=vars.end();it++){
+	for(map<string,MadafakaType*>::iterator it = vars.begin();it!=vars.end();it++){
 		cout << s+"\t" << it->first << " es de tipo " << it->second << endl << endl;
 		pair<int,int> p = ubic[it->first];
 		int t1 = p.first;
 		int t2 = p.second;
 		cout << s+"\t" << "Ubicacion, fila: " << t1 << ", columna: "<<t2<<endl<<endl;
-		if(it->second == "strdafak" || it->second=="unidafak"){
-			int t = bloques[it->first];
-			recorrer(h[t],nivel+1);
-			ya.insert(t);
-		}
+		// if(it->second == "strdafak" || it->second=="unidafak"){
+		// 	int t = bloques[it->first];
+		// 	recorrer(h[t],nivel+1);
+		// 	ya.insert(t);
+		// }
 		string tmp1 = it->first;
-		if(it->second == "array" && ((*a).getTipoArray(tmp1)=="strdafak"\
-								 || (*a).getTipoArray(tmp1)=="unidafak")){
-			int t = bloques[tmp1];
-			recorrer(h[t],nivel+1);
-			ya.insert(t);
+		// if(it->second == "array" && ((*a).getTipoArray(tmp1)=="strdafak"\
+		// 						 || (*a).getTipoArray(tmp1)=="unidafak")){
+		// 	int t = bloques[tmp1];
+		// 	recorrer(h[t],nivel+1);
+		// 	ya.insert(t);
 
-		}
+		// }
 	}
 
 	for(int i =0;i<h.size();i++){

@@ -4,7 +4,7 @@
 #include <string>
 #include "madafaka_scanner.hpp"
 #include "madafaka_parser.tab.hh"
-#include "estructuras.h" 
+#include "MadafakaTypes.hpp" 
 namespace Madafaka{
  
 class Madafaka_Driver{

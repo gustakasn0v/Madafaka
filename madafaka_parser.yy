@@ -13,6 +13,9 @@
 /* Debug-enabled parser */
 %debug
 %code requires{
+   #ifndef MADAFAKATYPES_H
+    #include "MadafakaTypes.hpp"
+   #endif
    namespace Madafaka {
       class Madafaka_Driver;
       class Madafaka_Scanner;
@@ -34,6 +37,7 @@
    float floatvalue;
    bool boolvalue;
    char charvalue;
+   MadafakaType *typevalue;
 }
 
 
@@ -59,7 +63,7 @@
                     Madafaka::Madafaka_Driver   &driver);
 
    /*Incluyendo estructuras auxiliares*/
-	#include "estructuras.h"
+  
 	arbol raiz;
  	arbol *actual = &raiz;
 	arbol *bloque_struct;
@@ -139,8 +143,8 @@
 %type <strvalue> read
 %type <strvalue> while_loop
 %type <strvalue> for_loop
-%type <strvalue> typo
-%type <strvalue> typo2
+%type <typevalue> typo
+%type <typevalue> typo2
 %type <strvalue> if_block
 
 %start program
@@ -208,9 +212,8 @@ declaration_list:
 declaration:
   typo IDENTIFIER { 
 	  				if(!(*actual).estaContenido(*($2))){
-	  					string *s1 = new string(*($1));
 	  					string *s2 = new string(*($2));
-						(*actual).insertar(*s2,*s1,yyline,frcol,0);
+						(*actual).insertar(*s2,$1,yyline,frcol,0);
 						last = *($2);
 	  				}  
 					else{
@@ -227,9 +230,8 @@ declaration:
 		actual = exitScope(actual);
 		last = *($2);
 		if(!(*actual).estaContenido(*($2))){
-			string *s1 = new string(*($1));
 			string *s2 = new string(*($2));
-			(*actual).insertar(*s2,*s1,yyline,frcol,1);
+			(*actual).insertar(*s2,$1,yyline,frcol,1);
 	  	}  
 		else{
 			compiled = false;
@@ -266,9 +268,10 @@ declaration2:
 id_dotlist1:
 	IDENTIFIER LARRAY arithmetic_expression RARRAY
 	{
-		string s =  buscarVariable(*($1),actual);
+    MadafakaType *fromSymTable;
+    fromSymTable = buscarVariable(*($1),actual);
 		string s1 = (*actual).getTipoArray(*($1));
-		if(s!="array" || s1=="unidafak" || s1=="strdafak"){
+		if(!(*fromSymTable=="array") || s1=="unidafak" || s1=="strdafak"){
 			compiled = false;
 			error(@$,"La variable no es un arreglo o es un arreglo de una estructura anidada.");
 		}
@@ -375,24 +378,25 @@ id_dotlist2:
 
 
 typo:
-  INTEGER
-  | FLOAT
-  | CHAR
-  | STRING
-  | VOID
-  | BOOL
+  INTEGER {$$ = new IntegerType();}
+  | FLOAT {$$ = new FloatType();}
+  | CHAR {$$ = new CharType();}
+  | STRING {$$ = new StringType();}
+  | VOID {$$ = new VoidType();}
+  | BOOL {$$ = new BoolType();}
   | error {compiled = false; ; error(@$,"Tipo no valido");}
   ;
 
 typo2:
-	UNION
-	| STRUCT
-	| error {compiled = false; error(@$,"Tipo no valido");}
+	UNION {$$ = new UnionType();}
+	| STRUCT {$$ = new RecordType();}
 	;
 
 assign:
   IDENTIFIER ASSIGN general_expression{
-	if(buscarVariable(*($1),actual)==""){
+  MadafakaType *fromSymTable;
+  fromSymTable = buscarVariable(*($1),actual);
+	if((*fromSymTable)=="Undeclared"){
 		compiled=false;
 		string errormsg = string("Variable no declarada: ")+ string(*($1));
 		error(@$,errormsg);
@@ -426,8 +430,9 @@ boolean_expression:
   | arithmetic_comparison
   | IDENTIFIER
 			{
-	  			string aux = buscarVariable(*($1),actual);
-	  			if(aux=="" || aux == "funcion"){
+          MadafakaType *fromSymTable;
+          fromSymTable = buscarVariable(*($1),actual);
+	  			if(*fromSymTable =="" || *fromSymTable == "Function"){
 	  				compiled = false;
 	  				string errormsg = 
 	  					string("Variable no declarada, o funcion con el mismo nombre solamente declarada: ")
@@ -460,8 +465,9 @@ comparison_opr: EQ | LESS | LESSEQ
 arithmetic_expression:
   arithmetic_expression arithmetic_opr arithmetic_expression
   | IDENTIFIER {
-	  			string aux = buscarVariable(*($1),actual);
-	  			if(aux=="" || aux == "funcion"){
+          MadafakaType *fromSymTable;
+          fromSymTable = buscarVariable(*($1),actual);
+	  			if(*fromSymTable=="Undeclared" || *fromSymTable == "Function"){
 	  				compiled = false;
 	  				string errormsg = 
 	  					string("Variable no declarada, o funcion con el mismo nombre solamente declarada: ")
@@ -487,11 +493,13 @@ procedure_decl:
   {actual=exitScope(actual);}
   RPAREN START bloque END 
 			{
-				if(buscarVariable(*($1),actual)==""){
+        MadafakaType *fromSymTable;
+        fromSymTable = buscarVariable(*($2),actual);
+				if(*fromSymTable == "Undeclared"){
 					string s = "funcion";
 					int t1 = yyline;
 					int t2 = frcol;
-	  				(*actual).insertar(*($2),s,t1,t2,0);
+	  				//(*actual).insertar(*($2),s,t1,t2,0);
 	  			}
 				else{
 					error(@$,"Funcion ya declarada anteriormente");
@@ -504,19 +512,18 @@ procedure_decl:
 procedure_invoc:
   IDENTIFIER LPAREN arg_list RPAREN  
   			{
-	  			string s = "funcion";
-				string p = buscarVariable(*($1),actual);
-	  			if(p!=s && p!=""){
-	  				string errormsg = 
-	  					string("Se esta usando una variable como funcion: ")
-	  					+ string(*($1));
-	  				error(@$,errormsg);
-					compiled = false;
-	  			}
-				else if(p==""){
-					error(@$,"Funcion no declarada");
-					compiled = false;
-
+	  			MadafakaType *fromSymTable;
+          fromSymTable = buscarVariable(*($1),actual);
+          if(!(*fromSymTable =="Function") && !(*fromSymTable=="Undeclared")){
+            string errormsg = 
+              string("Se esta usando una variable como funcion: ")
+              + string(*($1));
+            error(@$,errormsg);
+          compiled = false;
+          }
+        else if(*fromSymTable=="Undeclared"){
+          error(@$,"Funcion no declarada");
+          compiled = false;
 				}
 				
 			}
@@ -558,8 +565,10 @@ write:
 read:
   READ IDENTIFIER 
   		{
-			string s = buscarVariable(*($2),actual);
-	  		if(s=="" || s == "funcion"){
+
+        MadafakaType *fromSymTable;
+        fromSymTable = buscarVariable(*($2),actual);
+	  		if(*fromSymTable=="Undeclared" || *fromSymTable == "Function"){
 				compiled = false;
 				string errormsg = string("Variable no declarada: ")
 				+ string(*($2));

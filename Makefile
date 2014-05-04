@@ -44,8 +44,8 @@ lexer: madafaka_scanner.l
 	flex --outfile=madafaka_lexer.yy.cc  $<
 	$(CXX)  $(CXXFLAGS) -c madafaka_lexer.yy.cc -o lexer.o
 
-estructuras: estructuras.h estructuras.cpp
-	$(CXX) -c estructuras.cpp -o estructuras.o
+estructuras: MadafakaTypes.hpp MadafakaTypes.cpp
+	$(CXX) -c MadafakaTypes.cpp -o estructuras.o
  
 .PHONY: clean
 clean:
