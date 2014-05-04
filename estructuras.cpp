@@ -106,7 +106,7 @@ arbol *exitScope(arbol *actual){
 
 
 void recorrer(arbol *a, int nivel){
-	map<string, string> vars = (*a).getContenido();
+	map<string, MadafakaType> vars = (*a).getContenido();
 	map<string,pair<int,int> > ubic = (*a).getUbicacion();
 	map<string,int> bloques = (*a).getBloque();
 	vector<arbol *> h = (*a).getHijos();
@@ -117,7 +117,7 @@ void recorrer(arbol *a, int nivel){
 	cout << s << "Abriendo anidamiento"<<endl<<endl;
 
 	
-	for(map<string,string>::iterator it = vars.begin();it!=vars.end();it++){
+	for(map<string,MadafakaTypex>::iterator it = vars.begin();it!=vars.end();it++){
 		cout << s+"\t" << it->first << " es de tipo " << it->second << endl << endl;
 		pair<int,int> p = ubic[it->first];
 		int t1 = p.first;

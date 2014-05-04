@@ -19,6 +19,8 @@ using namespace std;
  public:
   string name;
   MadafakaType();
+  bool operator==(MadafakaType &rhs);
+  std::ostream &operator<<(std::ostream &os);
  	void print();
 };
 

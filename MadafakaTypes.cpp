@@ -16,6 +16,14 @@ void MadafakaType::print(){
 		return;
 }
 
+bool MadafakaType::operator==(MadafakaType &rhs){
+    return name==rhs.name;
+}
+
+std::ostream& MadafakaType::operator<<(std::ostream &os) { 
+    return os << name;
+}
+
 IntegerType::IntegerType(){
  		name = "Idafak";
  	};
