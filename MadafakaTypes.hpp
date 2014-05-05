@@ -157,18 +157,20 @@ class Undeclared: public MadafakaType{
 class RecordType: public MadafakaType{
 private:
   arbol* SymTable;
+  string symbolName;
  public:
-  RecordType();
-
+  RecordType(const char*);
+  bool operator==(RecordType &rhs);
   arbol* getSymTable();
 };
 
 class UnionType: public MadafakaType{
 private:
   arbol* SymTable;
+  string symbolName;
  public:
-  UnionType();
-
+  UnionType(const char*);
+  bool operator==(UnionType &rhs);
   arbol* getSymTable();
 };
 

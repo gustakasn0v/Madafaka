@@ -22,10 +22,6 @@ bool MadafakaType::operator==(MadafakaType &rhs){
     return name==rhs.name;
 }
 
-bool MadafakaType::operator==(string &rhs){
-    return name==rhs;
-}
-
 bool MadafakaType::operator==(const char* word){
     return name==string(word);
 }
@@ -92,19 +88,30 @@ VoidType* VoidType::instance(){
         return singleton_instance;
 };
 
-RecordType::RecordType(){
+RecordType::RecordType(const char* name){    
     name = "Struct";
+    symbolName = string(name);
     SymTable = new arbol();
 };
+
+// Equivalencia por nombre en los records y unions
+bool RecordType::operator==(RecordType &rhs){
+    return (symbolName==rhs.symbolName);
+}
 
 arbol* RecordType::getSymTable(){
      return SymTable;
 };
 
-UnionType::UnionType(){
+UnionType::UnionType(const char* name){
     name = "Union";
+    symbolName = string(name);
     SymTable = new arbol();
 };
+
+bool UnionType::operator==(UnionType &rhs){
+    return (symbolName==rhs.symbolName);
+}
 
 arbol* UnionType::getSymTable(){
      return SymTable;
