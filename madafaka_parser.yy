@@ -228,17 +228,24 @@ declaration:
   	{actual = enterScope(actual);}  
 	declaration_list 
   	{
-		actual = exitScope(actual);
-		last = *($2);
-		if(!(*actual).estaContenido(*($2))){
-			string *s2 = new string(*($2));
-			(*actual).insertar(*s2,$1,yyline,frcol,1);
-	  	}  
-		else{
-			compiled = false;
-			string errormsg = string("Variable ya declarada en el mismo bloque: ")
-			+ string(*($2));
-			error(@$,errormsg);
+      nuevaTabla = actual;
+    	actual = exitScope(actual);
+    	last = *($2);
+    	if(!(*actual).estaContenido(*($2))){
+        if (*($1) == "union"){
+          UnionType *newUnion = new UnionType($2,nuevaTabla);
+          (*actual).insertar(*($2),newUnion,yyline,frcol,1);
+        }
+        else{
+          RecordType *newRecord = new RecordType($2,nuevaTabla);
+          (*actual).insertar(*($2),newRecord,yyline,frcol,1);
+        }  
+      }  
+    	else{
+    		compiled = false;
+    		string errormsg = string("Variable ya declarada en el mismo bloque: ")
+    		+ string(*($2));
+    		error(@$,errormsg);
 		}
 
 	}

@@ -88,10 +88,10 @@ VoidType* VoidType::instance(){
         return singleton_instance;
 };
 
-RecordType::RecordType(const char* name){    
+RecordType::RecordType(string symname*, arbol newfields*){    
     name = "Struct";
-    symbolName = string(name);
-    SymTable = new arbol();
+    symbolName = symname;
+    SymTable = newfields;
 };
 
 // Equivalencia por nombre en los records y unions
@@ -103,9 +103,10 @@ arbol* RecordType::getSymTable(){
      return SymTable;
 };
 
-UnionType::UnionType(const char* name){
+UnionType::UnionType(string *symname, arbol *newfields){
     name = "Union";
-    symbolName = string(name);
+    symbolName = symname;
+    SymTable = newfields;
     SymTable = new arbol();
 };
 
