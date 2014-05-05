@@ -81,13 +81,6 @@ class VoidType: public MadafakaType{
   static VoidType *instance();
 };
 
-class FunctionType: public MadafakaType{
-  MadafakaType *src;
-  MadafakaType *dst;
- public:
-  FunctionType(MadafakaType*,MadafakaType*);
-};
-
 class TypeError: public MadafakaType{
   static TypeError *singleton_instance;
  public:
@@ -119,6 +112,7 @@ class Undeclared: public MadafakaType{
       map<string,MadafakaType*> contenido;
       map<string,pair<int,int> > ubicacion;
       map<string,int> bloque;
+      map<string,int> arguments;
       map<string,string> arrays;
 
     public:
@@ -172,6 +166,13 @@ private:
   UnionType(const char*);
   bool operator==(UnionType &rhs);
   arbol* getSymTable();
+};
+
+class FunctionType: public MadafakaType{
+  arbol *args;
+  MadafakaType *result;
+ public:
+  FunctionType(arbol*,MadafakaType*);
 };
 
 #endif

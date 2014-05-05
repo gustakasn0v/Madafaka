@@ -66,6 +66,7 @@
   
 	arbol raiz;
  	arbol *actual = &raiz;
+  arbol *nuevaTabla;
 	arbol *bloque_struct;
 	string last;
 	bool compiled = true;
@@ -144,7 +145,7 @@
 %type <strvalue> while_loop
 %type <strvalue> for_loop
 %type <typevalue> typo
-%type <typevalue> typo2
+%type <strvalue> typo2
 %type <strvalue> if_block
 
 %start program
@@ -388,8 +389,8 @@ typo:
   ;
 
 typo2:
-	UNION {$$ = new UnionType();}
-	| STRUCT {$$ = new RecordType();}
+	UNION {$$ = new string("union");}
+	| STRUCT {$$ = new string("struct");}
 	;
 
 assign:
@@ -490,16 +491,19 @@ procedure_decl:
   typo IDENTIFIER LPAREN 
   {actual=enterScope(actual);}
   arg_decl_list 
-  {actual=exitScope(actual);}
+  {
+    nuevaTabla = actual;
+    actual=exitScope(actual);
+  }
   RPAREN START bloque END 
 			{
         MadafakaType *fromSymTable;
         fromSymTable = buscarVariable(*($2),actual);
 				if(*fromSymTable == "Undeclared"){
-					string s = "funcion";
 					int t1 = yyline;
 					int t2 = frcol;
-	  				//(*actual).insertar(*($2),s,t1,t2,0);
+          FunctionType *tipoFuncion = new FunctionType(nuevaTabla,$1);
+	  				(*actual).insertar(*($2),tipoFuncion,t1,t2,0);
 	  			}
 				else{
 					error(@$,"Funcion ya declarada anteriormente");

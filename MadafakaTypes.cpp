@@ -124,10 +124,10 @@ ArrayType::ArrayType(int lo, int up, MadafakaType *t){
     type = t;
 };
 
-FunctionType::FunctionType(MadafakaType *source,MadafakaType *destination){
+FunctionType::FunctionType(arbol *arguments,MadafakaType *returntype){
     name = "Function";
-    src = source;
-    dst = destination;
+    args = arguments;
+    result = returntype;
 };
 
 TypeError::TypeError(){
@@ -174,6 +174,7 @@ int arbol::estaContenido(string &s){
 
 
 void arbol::insertar(string s,MadafakaType *tipo,int fila, int col, int si){
+  MadafakaType *valor = contenido[0];
   if(contenido.count(s)==0){
     contenido[s]=tipo;
     ubicacion[s] = make_pair(fila,col);
