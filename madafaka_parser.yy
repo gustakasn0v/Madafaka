@@ -214,6 +214,7 @@ declaration:
   typo IDENTIFIER { 
 	  				if(!(*actual).estaContenido(*($2))){
 	  					string *s2 = new string(*($2));
+	  					
 						(*actual).insertar(*s2,$1,yyline,frcol,0);
 						last = *($2);
 	  				}  

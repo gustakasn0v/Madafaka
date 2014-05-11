@@ -186,13 +186,16 @@ int arbol::estaContenido(string &s){
 
 
 void arbol::insertar(string s,MadafakaType *tipo,int fila, int col, int si){
-  MadafakaType *valor = contenido[0];
+  
+  //MadafakaType *valor = contenido[0];
+  //cout << valor << endl;
   if(contenido.count(s)==0){
     contenido[s]=tipo;
     ubicacion[s] = make_pair(fila,col);
     if(si)
       bloque[s] = hijos.size()-1;
   }
+  //cout << (*tipo).name << " " << s << endl;
 }
 
 MadafakaType* arbol::tipoVar(string &var){
