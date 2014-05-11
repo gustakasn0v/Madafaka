@@ -23,7 +23,7 @@ using namespace std;
 class MadafakaType{
  public:
   string name;
-  MadafakaType();
+  MadafakaType(){}
   bool operator==(MadafakaType &rhs);
   bool operator==(string &rhs);
   bool operator==(const char* word);
@@ -38,12 +38,16 @@ class IntegerType: public MadafakaType{
   static IntegerType *instance();
 };
 
+//IntegerType *IntegerType::singleton_instance = NULL;
+
 class FloatType: public MadafakaType{
   static FloatType *singleton_instance;
  public:
   FloatType();
   static FloatType *instance();
 };
+
+//FloatType *FloatType::singleton_instance = NULL;
 
 class StringType: public MadafakaType{
   static StringType *singleton_instance;
@@ -52,6 +56,8 @@ class StringType: public MadafakaType{
   static StringType *instance();
 };
 
+StringType *StringType::singleton_instance = NULL;
+
 class CharType: public MadafakaType{
   static CharType *singleton_instance;
  public:
@@ -59,6 +65,7 @@ class CharType: public MadafakaType{
   static CharType *instance();
 };
 
+CharType *CharType::singleton_instance = NULL;
 
 class BoolType: public MadafakaType{
   static BoolType *singleton_instance;
@@ -67,12 +74,16 @@ class BoolType: public MadafakaType{
   static BoolType *instance();
 };
 
+BoolType *BoolType::singleton_instance = NULL;
+
 class ArrayType: public MadafakaType{
   int lower,upper;
   MadafakaType *type;
  public:
   ArrayType(int, int, MadafakaType*);
 };
+
+//ArrayType *ArrayType::singleton_instance = NULL;
 
 class VoidType: public MadafakaType{
   static VoidType *singleton_instance;
@@ -81,6 +92,9 @@ class VoidType: public MadafakaType{
   static VoidType *instance();
 };
 
+VoidType *VoidType::singleton_instance = NULL;
+
+
 class TypeError: public MadafakaType{
   static TypeError *singleton_instance;
  public:
@@ -88,12 +102,16 @@ class TypeError: public MadafakaType{
   static TypeError *instance();
 };
 
+TypeError *TypeError::singleton_instance = NULL;
+
 class Undeclared: public MadafakaType{
   static Undeclared *singleton_instance;
  public:
   Undeclared();
   static Undeclared *instance();
 };
+
+Undeclared *Undeclared::singleton_instance = NULL;
 
 // Cosas de estructuras.h
 
@@ -153,6 +171,7 @@ private:
   arbol* SymTable;
   string *symbolName;
  public:
+  RecordType(){}
   RecordType(string*, arbol*);
   bool operator==(RecordType &rhs);
   arbol* getSymTable();

@@ -13,6 +13,17 @@ using namespace std;
  * @author Wilmer Bandres <wilmer0593@gmail.com>
  */
 
+
+IntegerType *IntegerType::singleton_instance = NULL;
+FloatType *FloatType::singleton_instance = NULL;
+StringType *StringType::singleton_instance = NULL;
+CharType *CharType::singleton_instance = NULL;
+BoolType *BoolType::singleton_instance = NULL;
+VoidType *VoidType::singleton_instance = NULL;
+TypeError *TypeError::singleton_instance = NULL;
+Undeclared *Undeclared::singleton_instance = NULL;
+
+
 void MadafakaType::print(){
 		cout << "Tipo: " << name;
 		return;
@@ -35,7 +46,7 @@ IntegerType::IntegerType(){
  	};
 
 IntegerType* IntegerType::instance(){
- 		if (!singleton_instance)
+ 	if (!singleton_instance)
         	singleton_instance = new IntegerType();
        	return singleton_instance;
  	};

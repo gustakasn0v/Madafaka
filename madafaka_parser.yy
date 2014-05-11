@@ -265,7 +265,7 @@ declaration:
 declaration2:
 	declaration LARRAY arithmetic_expression RARRAY 
 	{
-		(*actual).esArray(last);
+		//(*actual).esArray(last);
 	}
 
 	| error {compiled = false; error(@$,"Error de declaracion de arreglo");}
