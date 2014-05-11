@@ -196,7 +196,11 @@ void arbol::insertar(string s,MadafakaType *tipo,int fila, int col, int si){
 }
 
 MadafakaType* arbol::tipoVar(string &var){
-  return contenido[var];
+  if(contenido.count(var))
+    return contenido[var];
+  if(papa!=NULL)
+    return (*papa).tipoVar(var);
+  return NULL;
 }
 
 map<string,MadafakaType*> arbol::getContenido(){
@@ -226,6 +230,8 @@ arbol *arbol::hijoEnStruct(string &s){
 string arbol::getTipoArray(string &var){
   if(arrays.count(var))
     return arrays[var];
+  if(papa!=NULL)
+    return (*papa).getTipoArray(var);
   return "";
 }
 
