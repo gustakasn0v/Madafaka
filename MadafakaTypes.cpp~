@@ -206,11 +206,11 @@ arbol *arbol::hijoEnStruct(string &s){
   return hijos[t];
 }
 
- /*void arbol::esArray(string &var){
+ void arbol::esArray(string &var){
   string t = contenido[var];
   arrays[var]=t;
   contenido[var]="array"; 
- }*/
+ }
 
 string arbol::getTipoArray(string &var){
   if(arrays.count(var))

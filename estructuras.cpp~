@@ -36,11 +36,7 @@ void arbol::insertar(string s,MadafakaType *tipo,int fila, int col, int si){
 }
 
 MadafakaType* arbol::tipoVar(string &var){
-	if(contenido.count(var))
-	  return contenido[var];
-	if(papa!=NULL)
-	  return (*papa).tipoVar(var);
-	return NULL;
+	return contenido[var];
 }
 
 map<string,MadafakaType*> arbol::getContenido(){
