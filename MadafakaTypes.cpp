@@ -129,10 +129,9 @@ arbol* UnionType::getSymTable(){
      return SymTable;
 };
 
-ArrayType::ArrayType(int lo, int up, MadafakaType *t){
+ArrayType::ArrayType(int s, MadafakaType *t){
     name = "Array";
-    lower = lo;
-    upper = up;
+    size = s;
     type = t;
 };
 

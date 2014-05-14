@@ -219,7 +219,7 @@ declaration:
                 (*actual).insertar(*s2,$1,yyline,frcol,0);
               }
               else{
-                ArrayType *nuevotipo = new ArrayType(0,0,$1);
+                ArrayType *nuevotipo = new ArrayType(0,$1);
                 (*actual).insertar(*s2,nuevotipo,yyline,frcol,0);
               }
 	  					
@@ -272,8 +272,8 @@ declaration:
 
 array_variable:
       {$$ = new VoidType();}
-  | LARRAY arithmetic_expression DOT DOT arithmetic_expression RARRAY 
-      {$$ = new ArrayType(0,0,new VoidType());}
+  | LARRAY arithmetic_expression RARRAY 
+      {$$ = new ArrayType(0,new VoidType());}
 
 id_dotlist1:
 	IDENTIFIER LARRAY arithmetic_expression RARRAY
