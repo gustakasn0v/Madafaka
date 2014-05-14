@@ -147,6 +147,7 @@
 %type <typevalue> typo
 %type <strvalue> typo2
 %type <strvalue> if_block
+%type <typevalue> array_variable
 
 %start program
 
@@ -205,18 +206,23 @@ declaration_proc:
 declaration_list:
 
 	| declaration SEPARATOR declaration_list
-	| declaration2 SEPARATOR declaration_list
   | declaration error declaration_list {compiled = false ; error(@$,"Las declaraciones van separadas por ;");}
 	;
 
 
 declaration:
-  typo IDENTIFIER { 
+  typo IDENTIFIER array_variable{ 
 	  				if(!(*actual).estaContenido(*($2))){
-	  					string *s2 = new string(*($2));
+              string *s2 = new string(*($2));
+              // Chequeamos si es un arreglo
+              if (*($3) == "Void"){
+                (*actual).insertar(*s2,$1,yyline,frcol,0);
+              }
+              else{
+                ArrayType *nuevotipo = new ArrayType(0,0,$1);
+                (*actual).insertar(*s2,nuevotipo,yyline,frcol,0);
+              }
 	  					
-						(*actual).insertar(*s2,$1,yyline,frcol,0);
-						last = *($2);
 	  				}  
 					else{
 						compiled = false;
@@ -225,15 +231,15 @@ declaration:
 						error(@$,errormsg);
 					}
 				}
+
   | typo2 IDENTIFIER START 
   	{actual = enterScope(actual);}  
 	declaration_list 
   	{
       nuevaTabla = actual;
     	actual = exitScope(actual);
-    	last = *($2);
     	if(!(*actual).estaContenido(*($2))){
-        if (*($1) == "union"){
+        if (*($1) == "Union"){
           UnionType *newUnion = new UnionType($2,nuevaTabla);
           (*actual).insertar(*($2),newUnion,yyline,frcol,1);
         }
@@ -263,16 +269,11 @@ declaration:
 	 			}
   ;
 
-declaration2:
-	declaration LARRAY arithmetic_expression RARRAY 
-	{
-		//(*actual).esArray(last);
-	}
 
-	| error {compiled = false; error(@$,"Error de declaracion de arreglo");}
-		
-  ;
-
+array_variable:
+      {$$ = new VoidType();}
+  | LARRAY arithmetic_expression DOT DOT arithmetic_expression RARRAY 
+      {$$ = new ArrayType(0,0,new VoidType());}
 
 id_dotlist1:
 	IDENTIFIER LARRAY arithmetic_expression RARRAY
@@ -285,8 +286,7 @@ id_dotlist1:
 			error(@$,"La variable no es un arreglo o es un arreglo de una estructura anidada.");
 		}
 	}
-	|
-	IDENTIFIER LARRAY arithmetic_expression RARRAY 
+	| IDENTIFIER LARRAY arithmetic_expression RARRAY 
 	{
 		MadafakaType *fromSymTable;
 		fromSymTable = buscarVariable(*($1),actual);
@@ -301,7 +301,6 @@ id_dotlist1:
 			bloque_struct = buscarBloque(*($1),actual);
 			bloque_struct = (*bloque_struct).hijoEnStruct(*($1));
 		}
-		
 	}
 	DOT
 	id_dotlist2
@@ -393,6 +392,18 @@ typo:
   | STRING {$$ = new StringType();}
   | VOID {$$ = new VoidType();}
   | BOOL {$$ = new BoolType();}
+  | IDENTIFIER {
+      MadafakaType *fromSymTable;
+      fromSymTable = buscarVariable(*($1),actual);
+      if((*fromSymTable)=="Union" || (*fromSymTable)=="Struct"){
+        $$ = fromSymTable;
+      }
+      else{
+        compiled=false;
+        string errormsg = string("Tipo compuesto no declarado: ")+ string(*($1));
+        error(@$,errormsg);
+      }
+  }
   | error {compiled = false; ; error(@$,"Tipo no valido");}
   ;
 

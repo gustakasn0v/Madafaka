@@ -81,7 +81,7 @@ CharType* CharType::instance(){
 
 
 BoolType::BoolType(){
-    name = "Cdafak";
+    name = "Bdafak";
 };
 BoolType* BoolType::instance(){
     if (!singleton_instance)

@@ -77,9 +77,9 @@ class BoolType: public MadafakaType{
 //BoolType *BoolType::singleton_instance = NULL;
 
 class ArrayType: public MadafakaType{
+ public:
   int lower,upper;
   MadafakaType *type;
- public:
   ArrayType(int, int, MadafakaType*);
 };
 
