@@ -38,6 +38,7 @@
    bool boolvalue;
    char charvalue;
    MadafakaType *typevalue;
+   arbol *symboltreevalue;
 }
 
 
@@ -133,10 +134,10 @@
 %type <strvalue> program
 %type <strvalue> instruction_list
 %type <strvalue> instruction
-%type <strvalue> declaration
-%type <strvalue> declaration_list
-%type <strvalue> id_dotlist1
-%type <strvalue> id_dotlist2
+%type <typevalue> declaration
+%type <symboltreevalue> declaration_list
+%type <typevalue> id_dotlist1
+%type <typevalue> id_dotlist2
 %type <strvalue> assign
 %type <strvalue> procedure_decl  
 %type <strvalue> procedure_invoc
@@ -205,47 +206,52 @@ declaration_proc:
 
 declaration_list:
 
-	| declaration SEPARATOR declaration_list
+	| declaration SEPARATOR declaration_list { $$ = actual;}
   | declaration error declaration_list {compiled = false ; error(@$,"Las declaraciones van separadas por ;");}
 	;
 
 
 declaration:
+  // Declaración de una variable o arreglo de variables de tipo primitivo
   typo IDENTIFIER array_variable{ 
-	  				if(!(*actual).estaContenido(*($2))){
-              string *s2 = new string(*($2));
-              // Chequeamos si es un arreglo
-              if (*($3) == "Void"){
-                (*actual).insertar(*s2,$1,yyline,frcol,0);
-              }
-              else{
-                ArrayType *nuevotipo = new ArrayType(0,$1);
-                (*actual).insertar(*s2,nuevotipo,yyline,frcol,0);
-              }
-	  					
-	  				}  
-					else{
-						compiled = false;
-						string errormsg = string("Variable ya declarada en el mismo bloque: ")
-						+ string(*($2));
-						error(@$,errormsg);
-					}
-				}
+		if(!(*actual).estaContenido(*($2))){
+      string *s2 = new string(*($2));
+      // Chequeamos si es un arreglo
+      if (*($3) == "Void"){
+        (*actual).insertar(*s2,$1,yyline,frcol,0);
+      }
+      else{
+        ArrayType *nuevotipo = new ArrayType(0,$1);
+        (*actual).insertar(*s2,nuevotipo,yyline,frcol,0);
+      }
+			
+		}  
+  	else{
+  		compiled = false;
+  		string errormsg = string("Variable ya declarada en el mismo bloque: ")
+  		+ string(*($2));
+  		error(@$,errormsg);
+  	}
+	}
 
+  // Declaración de un struct o union
   | typo2 IDENTIFIER START 
   	{actual = enterScope(actual);}  
-	declaration_list 
+	declaration_list END
   	{
       nuevaTabla = actual;
     	actual = exitScope(actual);
+
     	if(!(*actual).estaContenido(*($2))){
         if (*($1) == "Union"){
           UnionType *newUnion = new UnionType($2,nuevaTabla);
           (*actual).insertar(*($2),newUnion,yyline,frcol,1);
+          $$ = newUnion;
         }
         else{
           RecordType *newRecord = new RecordType($2,nuevaTabla);
           (*actual).insertar(*($2),newRecord,yyline,frcol,1);
+          $$ = newRecord;
         }  
       }  
     	else{
@@ -256,133 +262,25 @@ declaration:
 		}
 
 	}
-	END 
+	
+
   | typo2 error {
 	 				compiled = false;
 					error(@$,"Nombre de variable no valido");
 
 
 	  			}
+
   | typo error {
 	  				compiled = false;
 					error(@$,"Nombre de variable no valido");
 	 			}
   ;
 
-
 array_variable:
-      {$$ = new VoidType();}
-  | LARRAY arithmetic_expression RARRAY 
-      {$$ = new ArrayType(0,new VoidType());}
-
-id_dotlist1:
-	IDENTIFIER LARRAY arithmetic_expression RARRAY
-	{
-    MadafakaType *fromSymTable;
-    fromSymTable = buscarVariable(*($1),actual);
-		string s1 = (*actual).getTipoArray(*($1));
-		if(!(*fromSymTable=="array") || s1=="unidafak" || s1=="strdafak"){
-			compiled = false;
-			error(@$,"La variable no es un arreglo o es un arreglo de una estructura anidada.");
-		}
-	}
-	| IDENTIFIER LARRAY arithmetic_expression RARRAY 
-	{
-		MadafakaType *fromSymTable;
-		fromSymTable = buscarVariable(*($1),actual);
-		string s1 =  (*actual).getTipoArray(*($1));
-		if(*fromSymTable=="array")
-			s1 = (*actual).getTipoArray(*($1));
-		if(!(*fromSymTable=="array") || (s1!="unidafak" && s1!="strdafak")){
-			compiled = false;
-			error(@$,"La variable no es un arreglo o es un arreglo de una estructura anidada.");
-		}
-		else{
-			bloque_struct = buscarBloque(*($1),actual);
-			bloque_struct = (*bloque_struct).hijoEnStruct(*($1));
-		}
-	}
-	DOT
-	id_dotlist2
-	|
-	IDENTIFIER 
-	{
-		MadafakaType *s =  buscarVariable(*($1),actual);
-
-		if(!((*s)=="strdafak") && !((*s)=="unidafak")){
-			compiled = false;
-			error(@$,"La variable no es de tipo strdafak o unidafak");
-		}
-		else{
-			bloque_struct = buscarBloque(*($1),actual);
-			bloque_struct = (*bloque_struct).hijoEnStruct(*($1));
-		}
-	} 
-	DOT id_dotlist2;
-
-id_dotlist2:
-	IDENTIFIER
-	{
-
-		if(!(*bloque_struct).estaContenido(*($1))){
-			compiled = false;
-			error(@$,"Campo no contenido en la estructura.");
-		}
-
-	}
-
-  | IDENTIFIER 
-  	{
-		MadafakaType *s;
-
-		if((*bloque_struct).estaContenido(*($1))){
-			s = (*bloque_struct).tipoVar(*($1));
-		}
-
-		if(!((*s)=="unidafak") && !((*s)=="strdafak")){
-			compiled = false;
-			error(@$,"El campo no es de tipo strdafak o unidafak");
-		}
-		else{
-			bloque_struct = (*bloque_struct).hijoEnStruct(*($1));
-		}
-
-	}
-    DOT 
-	id_dotlist2;
-  |
-	IDENTIFIER LARRAY arithmetic_expression RARRAY
-	{
-
-		if(!(*bloque_struct).estaContenido(*($1))){
-			compiled = false;
-			error(@$,"Campo no contenido en la estructura.");
-		}
-
-	}
-	|
-	IDENTIFIER LARRAY arithmetic_expression RARRAY 
-	{
-
-		string s = "";
-
-		if((*bloque_struct).estaContenido(*($1))){
-			s = (*bloque_struct).getTipoArray(*($1));
-		}
-
-		if(s!="unidafak" && s!="strdafak"){
-			compiled = false;
-			error(@$,"El campo no es de tipo strdafak o unidafak");
-		}
-		else{
-			bloque_struct = (*bloque_struct).hijoEnStruct(*($1));
-		}
-
-	}
-	DOT
-	id_dotlist2
-
-  | error {error(@$,"Acceso a de strdafak o unidafak de manera incorrecta.");}
+    {$$ = new VoidType();}
+| LARRAY arithmetic_expression RARRAY 
+    {$$ = new ArrayType(0,new VoidType());}
 
 
 typo:
@@ -411,6 +309,169 @@ typo2:
 	UNION {$$ = new string("union");}
 	| STRUCT {$$ = new string("struct");}
 	;
+
+// Producciones que se encargan del acceso a campos del struct o union
+
+id_dotlist1:
+  IDENTIFIER LARRAY arithmetic_expression RARRAY
+  {
+    MadafakaType *fromSymTable;
+    fromSymTable = buscarVariable(*($1),actual);
+    string s1 = (*actual).getTipoArray(*($1));
+    if(!(*fromSymTable=="Array")){
+      compiled = false;
+      error(@$,"La variable no es un arreglo o es un arreglo de una estructura anidada.");
+    }
+    else{
+      ArrayType *miarreglo = (ArrayType *) fromSymTable;
+      $$ = miarreglo->type;
+    }
+  }
+
+  | IDENTIFIER LARRAY arithmetic_expression RARRAY 
+  {
+    MadafakaType *fromSymTable;
+    fromSymTable = buscarVariable(*($1),actual);
+    if(*fromSymTable=="Array"){
+      ArrayType *miarreglo = (ArrayType *)fromSymTable;
+      MadafakaType *tipoarray =  miarreglo->type;
+      if ((*tipoarray == "Union")){
+        UnionType *miunion = (UnionType *) tipoarray;
+        bloque_struct = miunion->SymTable;
+      }
+      else if (*tipoarray == "Struct"){
+        RecordType *mirecord = (RecordType *) tipoarray;
+        bloque_struct = mirecord->SymTable;
+      }
+      else{
+        compiled = false;
+        error(@$,"La variable no es un arreglo de una estructura anidada.");
+      }
+    }
+    else{
+      compiled = false;
+      error(@$,"La variable no es un arreglo: ");
+    }
+  }
+    DOT id_dotlist2
+  {
+    $$ = $id_dotlist2;
+  }
+
+  | IDENTIFIER 
+  {
+    MadafakaType *s =  buscarVariable(*($1),actual);
+
+    if(!((*s)=="Struct") && !((*s)=="Union")){
+      compiled = false;
+      error(@$,"La variable no es de tipo strdafak o unidafak");
+    }
+    else{
+      if ((*s == "Union")){
+        UnionType *miunion = (UnionType *) s;
+        bloque_struct = miunion->SymTable;
+      }
+      else if (*s == "Struct"){
+        RecordType *mirecord = (RecordType *) s;
+        bloque_struct = mirecord->SymTable;
+      }
+    }
+  } 
+  DOT id_dotlist2
+  {
+    $$ = $id_dotlist2;
+  }
+
+id_dotlist2:
+  IDENTIFIER
+  {
+    MadafakaType *ptr = buscarVariable(*($1),bloque_struct);
+
+    if(*ptr == "Undeclared"){
+      compiled = false;
+      error(@$,"Campo no contenido en la estructura.");
+    }
+    else{
+      $$ = ptr;
+    }
+
+  }
+
+  | IDENTIFIER 
+  {
+    MadafakaType *s =  buscarVariable(*($1),bloque_struct);
+
+    if(!((*s)=="Struct") && !((*s)=="Union")){
+      compiled = false;
+      error(@$,"La variable no es de tipo strdafak o unidafak");
+    }
+    else{
+      if ((*s == "Union")){
+        UnionType *miunion = (UnionType *) s;
+        bloque_struct = miunion->SymTable;
+      }
+      else if (*s == "Struct"){
+        RecordType *mirecord = (RecordType *) s;
+        bloque_struct = mirecord->SymTable;
+      }
+    }
+  }
+  DOT id_dotlist2[right]
+  {
+    $$ = $right;
+  }
+
+  |
+  IDENTIFIER LARRAY arithmetic_expression RARRAY
+  {
+    MadafakaType *fromSymTable;
+    fromSymTable = buscarVariable(*($1),bloque_struct);
+    if(*fromSymTable=="Array"){
+      ArrayType *miarreglo = (ArrayType *)fromSymTable;
+      MadafakaType *tipoarray =  miarreglo->type;
+      $$ = tipoarray;
+    }
+    else{
+      compiled = false;
+      error(@$,"La variable no es un arreglo: ");
+    }
+
+  }
+  |
+  IDENTIFIER LARRAY arithmetic_expression RARRAY 
+  {
+
+    MadafakaType *fromSymTable;
+    fromSymTable = buscarVariable(*($1),bloque_struct);
+    if(*fromSymTable=="Array"){
+      ArrayType *miarreglo = (ArrayType *)fromSymTable;
+      MadafakaType *tipoarray =  miarreglo->type;
+      if ((*tipoarray == "Union")){
+        UnionType *miunion = (UnionType *) tipoarray;
+        bloque_struct = miunion->SymTable;
+      }
+      else if (*tipoarray == "Struct"){
+        RecordType *mirecord = (RecordType *) tipoarray;
+        bloque_struct = mirecord->SymTable;
+      }
+      else{
+        compiled = false;
+        error(@$,"La variable no es un arreglo de una estructura anidada.");
+      }
+    }
+    else{
+      compiled = false;
+      error(@$,"La variable no es un arreglo: ");
+    }
+
+  }
+  DOT id_dotlist2[right]
+  {
+    $$ = $right;
+  }
+
+  | error {error(@$,"Acceso a de strdafak o unidafak de manera incorrecta.");}
+  ;
 
 assign:
   IDENTIFIER ASSIGN general_expression{
