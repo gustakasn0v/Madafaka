@@ -150,19 +150,14 @@
 %type <strvalue> if_block
 %type <typevalue> array_variable
 
+%type <typevalue> boolean_expression
+//%type <typevalue> arithmetic_comparison
+//%type <typevalue> arithmetic_expression
+//%type <strvalue> boolean_opr
+//%type <strvalue> arithmetic_opr
+/%yo/type <strvalue> comparison_opr
+
 %start program
-
-/*
-Since expressions get their value from the SymTable,
-this will be commented out to avoid type clash warnings
-
-%type <boolvalue> boolean_expression
-%type <boolvalue> arithmetic_comparison
-%type <strvalue> arithmetic_expression
-%type <strvalue> boolean_opr
-%type <strvalue> arithmetic_opr
-%type <strvalue> comparison_opr
-*/
 
 %%
 
