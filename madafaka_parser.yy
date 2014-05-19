@@ -290,7 +290,7 @@ typo:
   | STRING {$$ = new StringType();}
   | VOID {$$ = new VoidType();}
   | BOOL {$$ = new BoolType();}
-  | IDENTIFIER {
+  | typo2 IDENTIFIER {
       MadafakaType *fromSymTable;
       fromSymTable = buscarVariable(*($1),actual);
       if((*fromSymTable)=="Union" || (*fromSymTable)=="Struct"){
