@@ -27,6 +27,7 @@ class MadafakaType{
   bool operator==(MadafakaType &rhs);
   bool operator==(const char* word);
   bool operator!=(const char* word);
+  operator string() const;
   friend std::ostream& operator<<(std::ostream &os,MadafakaType const &var);
   void print();
 };

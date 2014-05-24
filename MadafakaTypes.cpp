@@ -45,6 +45,10 @@ std::ostream& operator<<(std::ostream &os,MadafakaType const &var) {
     return os << var.name;
 }
 
+MadafakaType::operator string() const{
+  return name;
+}
+
 IntegerType::IntegerType(){
  		name = "Idafak";
  	};
@@ -169,7 +173,7 @@ MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right){
       (*right != "Fdafak" && *right != "Idafak")){
     return new TypeError();
   }
-  else if ((*left == "Fdafak") || (*left == "Idafak")) return new FloatType();
+  else if ((*left == "Fdafak") || (*right == "Fdafak")) return new FloatType();
   else return new IntegerType();
 }
 

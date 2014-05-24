@@ -528,11 +528,25 @@ assign:
     }
     else{
       compiled=false;
-      error(@$,"Error en la asignación.");
+      string message = string("Error en la asignación: se le intenta asignar una expresión de tipo ")
+      + string(*($3)) + string("a una variable de tipo ") + string(*($1));
+      error(@$,message);
       $$ = new TypeError();
     }
   }									
- | id_dotlist1 ASSIGN general_expression
+ | id_dotlist1 ASSIGN general_expression{
+    if(*($1) == *($3)){
+      // Se asignó correctamente la expresión
+      $$ = $3;
+    }
+    else{
+      compiled=false;
+      string message = string("Error en la asignación: se le intenta asignar una expresión de tipo ")
+      + string(*($3)) + string("a una variable de tipo ") + string(*($1));
+      error(@$,message);
+      $$ = new TypeError();
+    }
+ }
 									
  ;
 

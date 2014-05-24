@@ -11,8 +11,15 @@ mada
 		estructurita hola;
 	faka;
 	estructura hey[10];
+	bdafak erculo;
+	bdafak chamito;
+	idafak pene;
 	@@
 
-	hey[0].hola.jeje2=2;
+	?? Campo de tipo idafak, y le intento asignar una expresion booleana
+	hey[0].hola.jeje2=chamito and erculo;
+	
+	?? Campo de tipo idafak, y le intento asignar una expresion entera
+	hey[0].hola.jeje2=pene + pene*pene;
 	
 faka
