@@ -528,9 +528,13 @@ assign:
     }
     else{
       compiled=false;
-      string message = string("Error en la asignación: se le intenta asignar una expresión de tipo ")
-      + string(*($3)) + string("a una variable de tipo ") + string(*($1));
-      error(@$,message);
+      string message;
+      if (*($3) != "TypeError"){
+        message = string("Error en la asignación: se le intenta asignar una expresión de tipo ")
+        + string(*($3));
+        message += string(" a una variable de tipo ") + string(*($1));
+        error(@$,message);
+      }
       $$ = new TypeError();
     }
   }									
@@ -541,9 +545,13 @@ assign:
     }
     else{
       compiled=false;
-      string message = string("Error en la asignación: se le intenta asignar una expresión de tipo ")
-      + string(*($3)) + string("a una variable de tipo ") + string(*($1));
-      error(@$,message);
+      string message;
+      if (*($3) != "TypeError"){
+        message = string("Error en la asignación: se le intenta asignar una expresión de tipo ")
+        + string(*($3));
+        message += string(" a una variable de tipo ") + string(*($1));
+        error(@$,message);
+      }    
       $$ = new TypeError();
     }
  }
