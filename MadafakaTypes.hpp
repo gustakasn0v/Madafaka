@@ -37,6 +37,7 @@ class IntegerType: public MadafakaType{
  public:
   IntegerType();
   static IntegerType *instance();
+  static int tam;
 };
 
 //IntegerType *IntegerType::singleton_instance = NULL;
@@ -46,6 +47,7 @@ class FloatType: public MadafakaType{
  public:
   FloatType();
   static FloatType *instance();
+  static int tam;
 };
 
 //FloatType *FloatType::singleton_instance = NULL;
@@ -55,6 +57,7 @@ class StringType: public MadafakaType{
  public:
   StringType();
   static StringType *instance();
+  int tam;
 };
 
 //StringType *StringType::singleton_instance = NULL;
@@ -64,6 +67,7 @@ class CharType: public MadafakaType{
  public:
   CharType();
   static CharType *instance();
+  static int tam;
 };
 
 //CharType *CharType::singleton_instance = NULL;
@@ -73,6 +77,7 @@ class BoolType: public MadafakaType{
  public:
   BoolType();
   static BoolType *instance();
+  static int tam;
 };
 
 //BoolType *BoolType::singleton_instance = NULL;
@@ -82,6 +87,7 @@ class ArrayType: public MadafakaType{
   int size;
   MadafakaType *type;
   ArrayType(int, MadafakaType*);
+  int tam;
 };
 
 //ArrayType *ArrayType::singleton_instance = NULL;
@@ -91,6 +97,7 @@ class VoidType: public MadafakaType{
  public:
   VoidType();
   static VoidType *instance();
+  int tam;
 };
 
 //VoidType *VoidType::singleton_instance = NULL;
@@ -101,6 +108,7 @@ class TypeError: public MadafakaType{
  public:
   TypeError();
   static TypeError *instance();
+  int tam;
 };
 
 //TypeError *TypeError::singleton_instance = NULL;
@@ -110,6 +118,7 @@ class Undeclared: public MadafakaType{
  public:
   Undeclared();
   static Undeclared *instance();
+  int tam;
 };
 
 MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right);
@@ -178,6 +187,7 @@ private:
   RecordType(string*, arbol*);
   bool operator==(RecordType &rhs);
   arbol* getSymTable();
+  int tam;
 };
 
 class UnionType: public MadafakaType{
@@ -188,6 +198,7 @@ private:
   UnionType(string*, arbol*);
   bool operator==(UnionType &rhs);
   arbol* getSymTable();
+  int tam;
 };
 
 class FunctionType: public MadafakaType{
@@ -195,6 +206,7 @@ class FunctionType: public MadafakaType{
   MadafakaType *result;
  public:
   FunctionType(arbol*,MadafakaType*);
+  int tam;
 };
 
 #endif

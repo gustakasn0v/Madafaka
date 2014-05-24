@@ -13,14 +13,33 @@ using namespace std;
  * @author Wilmer Bandres <wilmer0593@gmail.com>
  */
 
-
+//campos estaticos de IntegerType
 IntegerType *IntegerType::singleton_instance = NULL;
+int IntegerType::tam = 4;
+
+//Campos estaticos de FloatType
 FloatType *FloatType::singleton_instance = NULL;
+int FloatType::tam = 8;
+
+//Campos estaticos de StringType
 StringType *StringType::singleton_instance = NULL;
+
+//Same as before
 CharType *CharType::singleton_instance = NULL;
+int CharType::tam = 1;
+
+//Same
 BoolType *BoolType::singleton_instance = NULL;
+int BoolType::tam = 1;
+
+
+//" "
 VoidType *VoidType::singleton_instance = NULL;
+
+//" "
 TypeError *TypeError::singleton_instance = NULL;
+
+//" "
 Undeclared *Undeclared::singleton_instance = NULL;
 
 
@@ -160,6 +179,7 @@ TypeError* TypeError::instance(){
 
 Undeclared::Undeclared(){
     name = "Undeclared";
+	tam =0;
 };
 Undeclared* Undeclared::instance(){
     if (!singleton_instance)
