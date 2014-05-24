@@ -145,7 +145,7 @@
 %type <symboltreevalue> declaration_list
 %type <typevalue> id_dotlist1
 %type <typevalue> id_dotlist2
-%type <strvalue> assign
+%type <typevalue> assign
 %type <strvalue> procedure_decl  
 %type <typevalue> procedure_invoc
 %type <strvalue> write
@@ -157,6 +157,7 @@
 %type <strvalue> if_block
 %type <typevalue> array_variable
 
+%type <typevalue> general_expression
 %type <typevalue> boolean_expression
 %type <typevalue> arithmetic_comparison
 %type <typevalue> arithmetic_expression
@@ -513,13 +514,23 @@ id_dotlist2:
 
 assign:
   IDENTIFIER ASSIGN general_expression{
-  MadafakaType *fromSymTable;
-  fromSymTable = buscarVariable(*($1),actual);
-	if((*fromSymTable)=="Undeclared"){
-		compiled=false;
-		string errormsg = string("Variable no declarada: ")+ string(*($1));
-		error(@$,errormsg);
-	}
+    MadafakaType *fromSymTable;
+    fromSymTable = buscarVariable(*($1),actual);
+  	if((*fromSymTable)=="Undeclared"){
+  		compiled=false;
+  		string errormsg = string("Variable no declarada: ")+ string(*($1));
+  		error(@$,errormsg);
+      $$ = new TypeError();
+  	}
+    else if(*fromSymTable == *($3)){
+      // Se asignó correctamente la expresión
+      $$ = $3;
+    }
+    else{
+      compiled=false;
+      error(@$,"Error en la asignación.");
+      $$ = new TypeError();
+    }
   }									
  | id_dotlist1 ASSIGN general_expression
 									
@@ -530,8 +541,8 @@ assign:
 // using an arithmetic or boolean expression. The error
 // message is the same in both cases, so "deje así"
 general_expression:
-  arithmetic_expression
-  | boolean_expression
+  arithmetic_expression {$$ = $1;}
+  | boolean_expression {$$ = $1;}
   | error {compiled = false ; error(@$,"Expresión inválida");}  
   ;
 
@@ -560,7 +571,7 @@ boolean_expression:
   }
   | arithmetic_comparison
   {
-    $$ = $2;
+    $$ = $1;
   }
   | IDENTIFIER
   	{
