@@ -25,9 +25,9 @@ class MadafakaType{
   string name;
   MadafakaType(){}
   bool operator==(MadafakaType &rhs);
-  bool operator==(string &rhs);
   bool operator==(const char* word);
-  std::ostream &operator<<(std::ostream &os);
+  bool operator!=(const char* word);
+  friend std::ostream& operator<<(std::ostream &os,MadafakaType const &var);
   void print();
 };
 
@@ -110,6 +110,8 @@ class Undeclared: public MadafakaType{
   Undeclared();
   static Undeclared *instance();
 };
+
+MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right);
 
 //Undeclared *Undeclared::singleton_instance = NULL;
 

@@ -37,8 +37,12 @@ bool MadafakaType::operator==(const char* word){
     return name==string(word);
 }
 
-std::ostream& MadafakaType::operator<<(std::ostream &os) { 
-    return os << name;
+bool MadafakaType::operator!=(const char* word){
+    return name!=string(word);
+}
+
+std::ostream& operator<<(std::ostream &os,MadafakaType const &var) { 
+    return os << var.name;
 }
 
 IntegerType::IntegerType(){
@@ -142,7 +146,7 @@ FunctionType::FunctionType(arbol *arguments,MadafakaType *returntype){
 };
 
 TypeError::TypeError(){
-    name = "Type Error";
+    name = "TypeError";
 };
 TypeError* TypeError::instance(){
     if (!singleton_instance)
@@ -159,6 +163,15 @@ Undeclared* Undeclared::instance(){
         return singleton_instance;
 };
 
+// Checkeo para las expresiones aritméticas
+MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right){
+  if ((*left != "Fdafak" && *left != "Idafak") || 
+      (*right != "Fdafak" && *right != "Idafak")){
+    return new TypeError();
+  }
+  else if ((*left == "Fdafak") || (*left == "Idafak")) return new FloatType();
+  else return new IntegerType();
+}
 
 // Cosas de estructuras.cpp
 
@@ -286,7 +299,7 @@ void recorrer(arbol *a, int nivel){
 
   
   for(map<string,MadafakaType*>::iterator it = vars.begin();it!=vars.end();it++){
-    cout << s+"\t" << it->first << " es de tipo " << it->second << endl << endl;
+    cout << s+"\t" << it->first << " es de tipo " << it->second->name << endl << endl;
     pair<int,int> p = ubic[it->first];
     int t1 = p.first;
     int t2 = p.second;

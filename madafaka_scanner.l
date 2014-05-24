@@ -64,6 +64,8 @@ TOKEN_TRUE		"true"
 TOKEN_FALSE		"false"
 TOKEN_OPENA		"["
 TOKEN_CLOSEA	"]"
+TOKEN_DECLARATIONS	"@@"
+
 
 %%
 
@@ -242,6 +244,10 @@ TOKEN_CLOSEA	"]"
 {TOKEN_FALSE}	{
 					yylval->boolvalue = 0;
 					return (token::BOOLVALUE);
+				}
+
+{TOKEN_DECLARATIONS}	{
+					return (token::DECLARATIONS);
 				}
 
 

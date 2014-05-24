@@ -1,0 +1,18 @@
+mada
+	@@
+	strdafak estructurita mada
+		idafak jeje;
+		idafak jeje2;
+	faka;
+
+	strdafak estructura mada
+		idafak webo;
+		idafak pene;
+		estructurita hola;
+	faka;
+	estructura hey[10];
+	@@
+
+	hey[0].hola.jeje2=2;
+	
+faka
