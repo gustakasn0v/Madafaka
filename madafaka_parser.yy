@@ -132,6 +132,7 @@
 %left EQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
+%left UMINUS
 
 /*extra tokens*/
 %token <strvalue> UNKNOWN
@@ -551,24 +552,15 @@ boolean_expression:
   }
   | LPAREN boolean_expression RPAREN
   {
-    if (*($2) != "Bdafak") {
-      $$ = new TypeError();
-    }
-    else $$ = new BoolType();
+    $$ = $2;
   }
   | NOT boolean_expression
   {
-    if (*($2) != "Bdafak") {
-      $$ = new TypeError();
-    }
-    else $$ = new BoolType();
+    $$ = $2;
   }
   | arithmetic_comparison
   {
-    if (*($1) != "Bdafak") {
-      $$ = new TypeError();
-    }
-    else $$ = new BoolType();
+    $$ = $2;
   }
   | IDENTIFIER
   	{
@@ -667,7 +659,14 @@ arithmetic_expression:
           }
           $$ = fromSymTable;
 			}
-			
+	| MINUS arithmetic_expression %prec UMINUS
+  {
+    $$ = $2;
+  }
+  | LPAREN arithmetic_expression RPAREN
+  {
+    $$ = $2;
+  }
   | INTVALUE{
     $$ = new IntegerType();
   }
