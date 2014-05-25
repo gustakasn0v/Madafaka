@@ -23,6 +23,7 @@ using namespace std;
 class MadafakaType{
  public:
   int tam;
+  bool var;
   string name;
   MadafakaType(){}
   bool operator==(MadafakaType &rhs);

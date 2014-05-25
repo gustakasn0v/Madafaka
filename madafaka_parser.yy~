@@ -73,6 +73,8 @@
   // Booleano que marca si la compilación va bien. Si no, no se 
   // imprime el árbol
 	bool compiled = true;
+	int os = -1; //valor para indicar el offset hacia arriba
+		    // o hacia abajo
 
   // Booleano que indica si han habido errores en el uso de campos de struct
   // o valores de arreglos
@@ -142,6 +144,10 @@
 %type <strvalue> instruction_list
 %type <strvalue> instruction
 %type <typevalue> declaration
+%type <typevalue> declaration1
+%type <typevalue> arg_decl
+%type <symboltreevalue> arg_decl_list
+%type <symboltreevalue> arg_decl_list1
 %type <symboltreevalue> declaration_list
 %type <typevalue> id_dotlist1
 %type <typevalue> id_dotlist2
@@ -216,22 +222,36 @@ declaration_list:
   | declaration error declaration_list {compiled = false ; error(@$,"Las declaraciones van separadas por ;");}
 	;
 
-
-declaration:
+declaration1:
   // Declaración de una variable o arreglo de variables de tipo primitivo
   typo IDENTIFIER array_variable{ 
       if(!(*actual).estaContenido(*($2))){
       string *s2 = new string(*($2));
       // Chequeamos si es un arreglo
+      
       if (*($3) == "Void"){
         (*actual).insertar(*s2,$1,yyline,frcol,0);
-        (*actual).setOffset(*s2,(*actual).getBase());
-        (*actual).addBase(($1)->tam);
+        if(os>0){
+	  (*actual).setOffset(*s2,(*actual).getBase());
+	  (*actual).addBase(($1)->tam *os);
+	}
+	else{
+	  (*actual).addBase(($1)->tam *os);
+	  (*actual).setOffset(*s2,(*actual).getBase());
+	}
         //cout << $1->tam << endl;
       }
       else{
         ArrayType *nuevotipo = new ArrayType(0,$1);
         (*actual).insertar(*s2,nuevotipo,yyline,frcol,0);
+        if(os>0){
+	  (*actual).setOffset(*s2,(*actual).getBase() *os);
+	  (*actual).addBase(($1)->tam *os);
+	}
+	else{
+	  (*actual).addBase(($1)->tam *os);
+	  (*actual).setOffset(*s2,(*actual).getBase() *os);
+	}
 	}
 			
       }  
@@ -241,8 +261,12 @@ declaration:
   		+ string(*($2));
   		error(@$,errormsg);
   	}
-	}
+  }
+;
 
+declaration:
+  // Declaración de una variable o arreglo de variables de tipo primitivo
+   declaration1
   // Declaración de un struct o union
   | typo2 IDENTIFIER START 
   	{actual = enterScope(actual);}  
@@ -250,7 +274,7 @@ declaration:
   	{
       nuevaTabla = actual;
     	actual = exitScope(actual);
-
+	nuevaTabla->var = false;
     	if(!(*actual).estaContenido(*($2))){
         if (*($1) == "Union"){
           UnionType *newUnion = new UnionType($2,nuevaTabla);
@@ -735,10 +759,11 @@ arithmetic_opr: PLUS | MINUS | TIMES | DIVIDE | MOD
 
 procedure_decl:
   typo IDENTIFIER LPAREN 
-  {actual=enterScope(actual);}
+  {actual=enterScope(actual);os=-1;}
   arg_decl_list 
   {
     nuevaTabla = actual;
+    os=1;
     actual=exitScope(actual);
   }
   RPAREN START bloque END 
@@ -784,19 +809,19 @@ procedure_invoc:
   ;
 
 arg_decl_list:
-
-  | arg_decl arg_decl_list1
+  
+  | arg_decl arg_decl_list1 {$$=actual;}
   ;
 
 arg_decl_list1:
-
-  | COMMA arg_decl arg_decl_list1
+  {$$=actual;}
+  | COMMA arg_decl arg_decl_list1 {$$=actual;}
   |  error arg_decl {compiled = false ; error(@$,"Los argumentos deben ir separados por comas");}  
   ;
 
 arg_decl:
-  declaration
-  | VAR declaration
+  declaration1 {$$=$1;}
+  | VAR declaration1 {$$=$2;}
   ;
 
 arg_list:

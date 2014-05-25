@@ -301,7 +301,7 @@ void arbol::setOffset(string &v, int val){
 }
 
 int arbol::getOffset(string &var){
-  if(!offset.count(var))return -1;
+  if(!offset.count(var))return -9000000;
   return offset[var];
 }
 
@@ -355,11 +355,13 @@ void recorrer(arbol *a, int nivel){
   
   for(map<string,MadafakaType*>::iterator it = vars.begin();it!=vars.end();it++){
     string s2 = it->first;
-    if(it->second->name!="Function" && (*a).getOffset(s2)<0) continue;
+    if(it->second->name!="Function" && (*a).getOffset(s2)<-800000) continue;
     cout << s+"\t" << it->first << " es de tipo " << it->second->name;
     
-    cout << " y su offset es: " << (*a).getOffset(s2);
-    cout << " y tam: " << it->second->tam << endl;
+    if(it->second->name!="Function"){
+      cout << " y su offset es: " << (*a).getOffset(s2);
+      cout << " y tam: " << it->second->tam << endl;
+    }
     cout << endl << endl;
     pair<int,int> p = ubic[it->first];
     int t1 = p.first;

@@ -145,8 +145,9 @@ MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right);
 		//la pila
 
     public:
-      arbol(){papa=NULL;contenido.clear();ubicacion.clear();base=0;}
-      arbol(arbol *p,arbol *cont) : papa(p){contenido.clear();base=0;}
+      bool var;
+      arbol(){papa=NULL;contenido.clear();ubicacion.clear();base=0;var=true;}
+      arbol(arbol *p,arbol *cont) : papa(p){contenido.clear();base=0;var=true;}
       void addHijo(arbol *);
       void setPapa(arbol *);
       vector<arbol *> getHijos();
