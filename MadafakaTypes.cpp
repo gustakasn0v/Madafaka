@@ -216,6 +216,14 @@ MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right){
   else return new IntegerType();
 }
 
+bool compatible(MadafakaType *left, MadafakaType *right){
+  // Son el mismo tipo
+  return *left == *right
+  // o son tipos compatibles
+  || *left = "Idafak" && *right = "Fdafak"
+  || *left = "Fdafak" && *right = "Idafak"
+};
+
 //funcion para agregar un hijo en un nodo del arbol de la tabla de
 //simbolos
 

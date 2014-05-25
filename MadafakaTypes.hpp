@@ -121,6 +121,8 @@ class Undeclared: public MadafakaType{
 
 MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right);
 
+bool compatible(MadafakaType *left, MadafakaType *right);
+
 //Undeclared *Undeclared::singleton_instance = NULL;
 
 // Cosas de estructuras.h
