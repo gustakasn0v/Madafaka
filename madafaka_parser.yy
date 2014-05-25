@@ -764,10 +764,11 @@ procedure_decl:
   {
     nuevaTabla = actual;
     os=1;
-    actual=exitScope(actual);
+    actual->addBase(-actual->getBase());
   }
   RPAREN START bloque END 
 			{
+	actual=exitScope(actual);
         MadafakaType *fromSymTable;
         fromSymTable = buscarVariable(*($2),actual);
 				if(*fromSymTable == "Undeclared"){
@@ -781,7 +782,6 @@ procedure_decl:
 				}
 			
 	  		}
-	  
   ;
 
 procedure_invoc:
