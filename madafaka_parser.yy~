@@ -242,15 +242,15 @@ declaration1:
         //cout << $1->tam << endl;
       }
       else{
-        ArrayType *nuevotipo = new ArrayType($3->tam,$1);
+        ArrayType *nuevotipo = new ArrayType($3->tam * $1->tam,$1);
         (*actual).insertar(*s2,nuevotipo,yyline,frcol,0);
         if(os>0){
-	  (*actual).setOffset(*s2,(*actual).getBase() *os);
+	  (*actual).setOffset(*s2,(*actual).getBase());
 	  (*actual).addBase(($1)->tam *os * $3->tam);
 	}
 	else{
-	  (*actual).addBase(($1)->tam *os);
-	  (*actual).setOffset(*s2,(*actual).getBase() *os *$3->tam);
+	  (*actual).addBase(($1)->tam * $3->tam * os);
+	  (*actual).setOffset(*s2,(*actual).getBase());
 	}
 	}
 			
