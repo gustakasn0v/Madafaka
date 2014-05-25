@@ -15,11 +15,9 @@ using namespace std;
 
 //campos estaticos de IntegerType
 IntegerType *IntegerType::singleton_instance = NULL;
-//int IntegerType::tam = 4;
 
 //Campos estaticos de FloatType
 FloatType *FloatType::singleton_instance = NULL;
-//int FloatType::tam = 8;
 
 //Campos estaticos de StringType
 StringType *StringType::singleton_instance = NULL;
@@ -42,16 +40,17 @@ TypeError *TypeError::singleton_instance = NULL;
 //" "
 Undeclared *Undeclared::singleton_instance = NULL;
 
-
+//definiendo el print de un MadafakaType
 void MadafakaType::print(){
 		cout << "Tipo: " << name;
 		return;
 }
-
+//Redefiniendo operador == para MadafakaType
 bool MadafakaType::operator==(MadafakaType &rhs){
     return name==rhs.name;
 }
 
+// redefiniendo operador == MadafakaType con un string
 bool MadafakaType::operator==(const char* word){
     return name==string(word);
 }
@@ -68,6 +67,7 @@ MadafakaType::operator string() const{
   return name;
 }
 
+//constructor de un IntegerType, el tamanio de un IntegerType es 0
 IntegerType::IntegerType(){
  		name = "Idafak";
 		tam = 4;
@@ -79,6 +79,7 @@ IntegerType* IntegerType::instance(){
        	return singleton_instance;
  	};
 
+//constructor de un FloatType, el tamanio de un FloatType es 0
 FloatType::FloatType(){
  		name = "Fdafak";
 		tam =8;
@@ -89,6 +90,7 @@ FloatType* FloatType::instance(){
        	return singleton_instance;
  	};
 
+//constructor de un StringType
 StringType::StringType(){
  		name = "Sdafak";
 		tam =4;
@@ -99,7 +101,9 @@ StringType* StringType::instance(){
         	singleton_instance = new StringType();
        	return singleton_instance;
  	};
-
+	
+	
+//constructor
 CharType::CharType(){
  		name = "Cdafak";
 		tam = 1;
@@ -110,7 +114,7 @@ CharType* CharType::instance(){
        	return singleton_instance;
 };
 
-
+//constructor
 BoolType::BoolType(){
     name = "Bdafak";
     tam = 1;
@@ -121,7 +125,7 @@ BoolType* BoolType::instance(){
         return singleton_instance;
 };
 
-
+//constructor
 VoidType::VoidType(){
     name = "Void";
     tam = 4;
@@ -132,11 +136,13 @@ VoidType* VoidType::instance(){
         return singleton_instance;
 };
 
+//constructor
 RecordType::RecordType(string *symname, arbol *newfields){    
     name = "Struct";
     symbolName = symname;
     SymTable = newfields;
-    tam=0;
+    tam=0; //se inicializa en 0 pues luego se actualiza para un
+	  // RecorType especifico
 };
 
 // Equivalencia por nombre en los records y unions
@@ -144,10 +150,12 @@ bool RecordType::operator==(RecordType &rhs){
     return (symbolName==rhs.symbolName);
 }
 
+//Retorna la tabla de simbolos de un arbol de un record
 arbol* RecordType::getSymTable(){
      return SymTable;
 };
 
+//constructor
 UnionType::UnionType(string *symname, arbol *newfields){
     name = "Union";
     symbolName = symname;
@@ -160,10 +168,12 @@ bool UnionType::operator==(UnionType &rhs){
     return (symbolName==rhs.symbolName);
 }
 
+//Retorna la tabla de simbolos de un arbol de un Union
 arbol* UnionType::getSymTable(){
      return SymTable;
 };
 
+//Constructor de un ArrayType
 ArrayType::ArrayType(int s, MadafakaType *t){
     name = "Array";
     size = s;
@@ -206,30 +216,36 @@ MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right){
   else return new IntegerType();
 }
 
-// Cosas de estructuras.cpp
+//funcion para agregar un hijo en un nodo del arbol de la tabla de
+//simbolos
 
 void arbol::addHijo(arbol *hijo)
 { (*hijo).setPapa(this);
   hijos.push_back(hijo);
 }
 
+//Asigna un padre a un nodo
 void arbol::setPapa(arbol *padre){
   papa=padre;
 }
 
+//Retorna la lista de hijos de un nodo en el arbol de la tabla 
+//de simbolos
 vector<arbol*> arbol::getHijos(){
   return hijos;
 }
 
+//Retorna el apa de un nodo
 arbol *arbol::getPapa(){
   return papa;
 }
 
+//Verifica si hay una variable de nombre s en el scope actual
 int arbol::estaContenido(string &s){
   return contenido.count(s);
 }
 
-
+//inserta un MadafakaType en el scope del nodo
 void arbol::insertar(string s,MadafakaType *tipo,int fila, int col, int si){
   
   //MadafakaType *valor = contenido[0];
@@ -243,6 +259,7 @@ void arbol::insertar(string s,MadafakaType *tipo,int fila, int col, int si){
   //cout << (*tipo).name << " " << s << endl;
 }
 
+//Indica de que tipo de variable es algun nombre
 MadafakaType* arbol::tipoVar(string &var){
   if(contenido.count(var))
     return contenido[var];
@@ -251,19 +268,23 @@ MadafakaType* arbol::tipoVar(string &var){
   return NULL;
 }
 
+//Retorna el mapa de hijos de un nodo
 map<string,MadafakaType*> arbol::getContenido(){
   return contenido;
 }
 
+//Retorna las ubicaciones de todos los nodos, que es un mapa
 map<string,pair<int,int> > arbol::getUbicacion(){
   return ubicacion;
 }
 
+//Retorna los bloques correspondiente a un nodo o scope
 map<string,int> arbol::getBloque(){
   return bloque;
 }
 
-
+//Busca el hijo del struct al cual debe moverse para verificacion
+//de acceso a campos a tiempo de compilacion
 arbol *arbol::hijoEnStruct(string &s){
   int t = bloque[s];
   return hijos[t];
@@ -275,6 +296,7 @@ arbol *arbol::hijoEnStruct(string &s){
   contenido[var]="array"; 
  }*/
 
+//Indica de que tipo es un arreglo
 string arbol::getTipoArray(string &var){
   if(arrays.count(var))
     return arrays[var];
@@ -283,29 +305,37 @@ string arbol::getTipoArray(string &var){
   return "";
 }
 
+//Indica el tamanio de una variable
 int arbol::getTam(string &n1){
 	return contenido[n1]->tam;
 }
 
-
+//Indica la base actual del scope
+//Nota: es acumulativa, al final va a quedar la sumatoria de 
+//	todos los offsets
 int arbol::getBase(){
 	return base;
 }
 
+//Agrega a la base del scope un tamanio
 void arbol::addBase(int val){
 	base+=val;
 }
 
+//Setea el offset del nodo o scope
 void arbol::setOffset(string &v, int val){
   offset[v]=val;
 }
 
+//indica el offset de una variable
 int arbol::getOffset(string &var){
-  if(!offset.count(var))return -9000000;
+  if(!offset.count(var))
+    return -9000000;//si no se encuentra exagero su offset
   return offset[var];
 }
 
-
+//Busca una variable iterativamente hasta llegar al anidamiento
+//principal
 MadafakaType *buscarVariable(string var, arbol *actual){
          arbol *aux = actual;
          while(aux!=NULL){
@@ -316,7 +346,7 @@ MadafakaType *buscarVariable(string var, arbol *actual){
          return t;
 }
 
-
+//Busca el nodo o bloque correspondiente a una variable
 arbol *buscarBloque(string var, arbol *actual){
     arbol *aux = actual;
     while(aux!=NULL){
@@ -326,7 +356,7 @@ arbol *buscarBloque(string var, arbol *actual){
     return aux;
 }
 
-
+//Entra en un nuevo scope que se crea aqui
 arbol *enterScope(arbol *actual){
   arbol *nuevo = new arbol;
   (*actual).addHijo(nuevo);
@@ -334,12 +364,14 @@ arbol *enterScope(arbol *actual){
   return actual;
 }
 
+
+//sale del scope actual, y vuelve al del padre
 arbol *exitScope(arbol *actual){
   actual = (*actual).getPapa();
   return actual;
 }
 
-
+//Recorre el arbol y lo imprime en pantalla
 void recorrer(arbol *a, int nivel){
   map<string, MadafakaType*> vars = (*a).getContenido();
   map<string,pair<int,int> > ubic = (*a).getUbicacion();

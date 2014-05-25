@@ -20,6 +20,11 @@ using namespace std;
  * @author Wilmer Bandres <wilmer0593@gmail.com>
  */
 
+/*
+ Nota: los comentarios que explican el significado de cada funcion
+	estan en el archivo .cpp
+ */
+
 class MadafakaType{
  public:
   int tam;
