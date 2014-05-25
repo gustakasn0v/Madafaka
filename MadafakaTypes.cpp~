@@ -371,7 +371,7 @@ arbol *exitScope(arbol *actual){
   return actual;
 }
 
-
+//Recorre el arbol y lo imprime en pantalla
 void recorrer(arbol *a, int nivel){
   map<string, MadafakaType*> vars = (*a).getContenido();
   map<string,pair<int,int> > ubic = (*a).getUbicacion();

@@ -42,7 +42,9 @@ mada
 		@@
 		idafak p;
 		fdafak q;
+		fdafak parray[10];
 		e jeje;
+		e jeje2[2];
 		idafak h;
 		@@
 		mada 

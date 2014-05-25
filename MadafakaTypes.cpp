@@ -178,7 +178,7 @@ ArrayType::ArrayType(int s, MadafakaType *t){
     name = "Array";
     size = s;
     type = t;
-    tam =1;
+    tam =s;
 };
 
 FunctionType::FunctionType(arbol *arguments,MadafakaType *returntype){

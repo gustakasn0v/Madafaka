@@ -242,15 +242,15 @@ declaration1:
         //cout << $1->tam << endl;
       }
       else{
-        ArrayType *nuevotipo = new ArrayType(0,$1);
+        ArrayType *nuevotipo = new ArrayType($3->tam * $1->tam,$1);
         (*actual).insertar(*s2,nuevotipo,yyline,frcol,0);
         if(os>0){
 	  (*actual).setOffset(*s2,(*actual).getBase() *os);
-	  (*actual).addBase(($1)->tam *os);
+	  (*actual).addBase(($1)->tam *os * $3->tam);
 	}
 	else{
 	  (*actual).addBase(($1)->tam *os);
-	  (*actual).setOffset(*s2,(*actual).getBase() *os);
+	  (*actual).setOffset(*s2,(*actual).getBase() *os *$3->tam);
 	}
 	}
 			
@@ -314,8 +314,8 @@ declaration:
 
 array_variable:
     {$$ = new VoidType();}
-| LARRAY arithmetic_expression RARRAY 
-    {$$ = new ArrayType(0,new VoidType());}
+| LARRAY INTVALUE RARRAY 
+    {$$ = new ArrayType($2,new VoidType());}
 
 
 typo:
