@@ -220,18 +220,21 @@ declaration_list:
 declaration:
   // Declaración de una variable o arreglo de variables de tipo primitivo
   typo IDENTIFIER array_variable{ 
-		if(!(*actual).estaContenido(*($2))){
+      if(!(*actual).estaContenido(*($2))){
       string *s2 = new string(*($2));
       // Chequeamos si es un arreglo
       if (*($3) == "Void"){
         (*actual).insertar(*s2,$1,yyline,frcol,0);
+        (*actual).setOffset(*s2,(*actual).getBase());
+        (*actual).addBase(($1)->tam);
+        //cout << $1->tam << endl;
       }
       else{
         ArrayType *nuevotipo = new ArrayType(0,$1);
         (*actual).insertar(*s2,nuevotipo,yyline,frcol,0);
-      }
+	}
 			
-		}  
+      }  
   	else{
   		compiled = false;
   		string errormsg = string("Variable ya declarada en el mismo bloque: ")
@@ -247,15 +250,17 @@ declaration:
   	{
       nuevaTabla = actual;
     	actual = exitScope(actual);
-
+	nuevaTabla->var = false;
     	if(!(*actual).estaContenido(*($2))){
         if (*($1) == "Union"){
           UnionType *newUnion = new UnionType($2,nuevaTabla);
+          newUnion->tam = (*nuevaTabla).getBase();
           (*actual).insertar(*($2),newUnion,yyline,frcol,1);
           $$ = newUnion;
         }
         else{
           RecordType *newRecord = new RecordType($2,nuevaTabla);
+          newRecord->tam = (*nuevaTabla).getBase();
           (*actual).insertar(*($2),newRecord,yyline,frcol,1);
           $$ = newRecord;
         }  

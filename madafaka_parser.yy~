@@ -38,6 +38,7 @@
    bool boolvalue;
    char charvalue;
    MadafakaType *typevalue;
+   arbol *symboltreevalue;
 }
 
 
@@ -69,7 +70,13 @@
   arbol *nuevaTabla;
 	arbol *bloque_struct;
 	string last;
+  // Booleano que marca si la compilación va bien. Si no, no se 
+  // imprime el árbol
 	bool compiled = true;
+
+  // Booleano que indica si han habido errores en el uso de campos de struct
+  // o valores de arreglos
+  bool structureError = false;
 }
 
 /* Until whe have an AST, every nonterminal symbol with semantic meaning
@@ -85,6 +92,7 @@
 %token <strvalue> LPAREN "("
 %token <strvalue> RPAREN ")"
 %token <strvalue> COMMENT "??"
+%token <strvalue> DECLARATIONS "@@"
 
 /* Primitive and composite data types */
 %token <strvalue> INTEGER "idafak"
@@ -118,13 +126,13 @@
 %token FALSE "false"
 %token DOT "."
 
-%left OR
-%left AND
+%left OR AND
 %nonassoc NOT
 %nonassoc LESS LESSEQ GREAT GREATEQ
 %left EQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
+%left UMINUS
 
 /*extra tokens*/
 %token <strvalue> UNKNOWN
@@ -133,13 +141,13 @@
 %type <strvalue> program
 %type <strvalue> instruction_list
 %type <strvalue> instruction
-%type <strvalue> declaration
-%type <strvalue> declaration_list
-%type <strvalue> id_dotlist1
-%type <strvalue> id_dotlist2
-%type <strvalue> assign
+%type <typevalue> declaration
+%type <symboltreevalue> declaration_list
+%type <typevalue> id_dotlist1
+%type <typevalue> id_dotlist2
+%type <typevalue> assign
 %type <strvalue> procedure_decl  
-%type <strvalue> procedure_invoc
+%type <typevalue> procedure_invoc
 %type <strvalue> write
 %type <strvalue> read
 %type <strvalue> while_loop
@@ -147,20 +155,17 @@
 %type <typevalue> typo
 %type <strvalue> typo2
 %type <strvalue> if_block
+%type <typevalue> array_variable
 
-%start program
-
-/*
-Since expressions get their value from the SymTable,
-this will be commented out to avoid type clash warnings
-
-%type <boolvalue> boolean_expression
-%type <boolvalue> arithmetic_comparison
-%type <strvalue> arithmetic_expression
+%type <typevalue> general_expression
+%type <typevalue> boolean_expression
+%type <typevalue> arithmetic_comparison
+%type <typevalue> arithmetic_expression
 %type <strvalue> boolean_opr
 %type <strvalue> arithmetic_opr
 %type <strvalue> comparison_opr
-*/
+
+%start program
 
 %%
 
@@ -170,17 +175,20 @@ program:
     if (compiled and !lexerror) recorrer(&raiz,0);
     return 0; 
   }
+  | error {compiled = false; error(@$,"Something wicked happened");}
   ;
 
 bloque:
 	{actual=enterScope(actual);} 
-	declaration_list instruction_list 
+	DECLARATIONS declaration_list DECLARATIONS instruction_list 
 	{actual = exitScope(actual);}
+  | error {compiled = false; error(@$,"Something wicked happened");}
 	;
 
 instruction_list:
 
   | instruction SEPARATOR instruction_list
+  | error {compiled = false; error(@$,"Something wicked happened");}
   ;
 
 instruction:
@@ -204,42 +212,57 @@ declaration_proc:
 
 declaration_list:
 
-	| declaration SEPARATOR declaration_list
-	| declaration2 SEPARATOR declaration_list
+	| declaration SEPARATOR declaration_list { $$ = actual;}
   | declaration error declaration_list {compiled = false ; error(@$,"Las declaraciones van separadas por ;");}
 	;
 
 
 declaration:
-  typo IDENTIFIER { 
-	  				if(!(*actual).estaContenido(*($2))){
-	  					string *s2 = new string(*($2));
-	  					cout << (*$1).name << endl;
-						(*actual).insertar(*s2,$1,yyline,frcol,0);
-						last = *($2);
-	  				}  
-					else{
-						compiled = false;
-						string errormsg = string("Variable ya declarada en el mismo bloque: ")
-						+ string(*($2));
-						error(@$,errormsg);
-					}
-				}
+  // Declaración de una variable o arreglo de variables de tipo primitivo
+  typo IDENTIFIER array_variable{ 
+      if(!(*actual).estaContenido(*($2))){
+      string *s2 = new string(*($2));
+      // Chequeamos si es un arreglo
+      if (*($3) == "Void"){
+        (*actual).insertar(*s2,$1,yyline,frcol,0);
+        (*actual).setOffset(*s2,(*actual).getBase());
+        (*actual).addBase(($1)->tam);
+        //cout << $1->tam << endl;
+      }
+      else{
+        ArrayType *nuevotipo = new ArrayType(0,$1);
+        (*actual).insertar(*s2,nuevotipo,yyline,frcol,0);
+	}
+			
+      }  
+  	else{
+  		compiled = false;
+  		string errormsg = string("Variable ya declarada en el mismo bloque: ")
+  		+ string(*($2));
+  		error(@$,errormsg);
+  	}
+	}
+
+  // Declaración de un struct o union
   | typo2 IDENTIFIER START 
   	{actual = enterScope(actual);}  
-	declaration_list 
+	declaration_list END
   	{
       nuevaTabla = actual;
     	actual = exitScope(actual);
-    	last = *($2);
+
     	if(!(*actual).estaContenido(*($2))){
-        if (*($1) == "union"){
+        if (*($1) == "Union"){
           UnionType *newUnion = new UnionType($2,nuevaTabla);
+          newUnion->tam = (*nuevaTabla).getBase();
           (*actual).insertar(*($2),newUnion,yyline,frcol,1);
+          $$ = newUnion;
         }
         else{
           RecordType *newRecord = new RecordType($2,nuevaTabla);
+          newRecord->tam = (*nuevaTabla).getBase();
           (*actual).insertar(*($2),newRecord,yyline,frcol,1);
+          $$ = newRecord;
         }  
       }  
     	else{
@@ -250,140 +273,25 @@ declaration:
 		}
 
 	}
-	END 
+	
+
   | typo2 error {
 	 				compiled = false;
 					error(@$,"Nombre de variable no valido");
 
 
 	  			}
+
   | typo error {
 	  				compiled = false;
 					error(@$,"Nombre de variable no valido");
 	 			}
   ;
 
-declaration2:
-	declaration LARRAY arithmetic_expression RARRAY 
-	{
-		//(*actual).esArray(last);
-	}
-
-	| error {compiled = false; error(@$,"Error de declaracion de arreglo");}
-		
-  ;
-
-
-id_dotlist1:
-	IDENTIFIER LARRAY arithmetic_expression RARRAY
-	{
-    MadafakaType *fromSymTable;
-    fromSymTable = buscarVariable(*($1),actual);
-		string s1 = (*actual).getTipoArray(*($1));
-		if(!(*fromSymTable=="array") || s1=="unidafak" || s1=="strdafak"){
-			compiled = false;
-			error(@$,"La variable no es un arreglo o es un arreglo de una estructura anidada.");
-		}
-	}
-	|
-	IDENTIFIER LARRAY arithmetic_expression RARRAY 
-	{
-		MadafakaType *fromSymTable;
-		fromSymTable = buscarVariable(*($1),actual);
-		string s1 =  (*actual).getTipoArray(*($1));
-		if(*fromSymTable=="array")
-			s1 = (*actual).getTipoArray(*($1));
-		if(!(*fromSymTable=="array") || (s1!="unidafak" && s1!="strdafak")){
-			compiled = false;
-			error(@$,"La variable no es un arreglo o es un arreglo de una estructura anidada.");
-		}
-		else{
-			bloque_struct = buscarBloque(*($1),actual);
-			bloque_struct = (*bloque_struct).hijoEnStruct(*($1));
-		}
-		
-	}
-	DOT
-	id_dotlist2
-	|
-	IDENTIFIER 
-	{
-		MadafakaType *s =  buscarVariable(*($1),actual);
-
-		if(!((*s)=="strdafak") && !((*s)=="unidafak")){
-			compiled = false;
-			error(@$,"La variable no es de tipo strdafak o unidafak");
-		}
-		else{
-			bloque_struct = buscarBloque(*($1),actual);
-			bloque_struct = (*bloque_struct).hijoEnStruct(*($1));
-		}
-	} 
-	DOT id_dotlist2;
-
-id_dotlist2:
-	IDENTIFIER
-	{
-
-		if(!(*bloque_struct).estaContenido(*($1))){
-			compiled = false;
-			error(@$,"Campo no contenido en la estructura.");
-		}
-
-	}
-
-  | IDENTIFIER 
-  	{
-		MadafakaType *s;
-
-		if((*bloque_struct).estaContenido(*($1))){
-			s = (*bloque_struct).tipoVar(*($1));
-		}
-
-		if(!((*s)=="unidafak") && !((*s)=="strdafak")){
-			compiled = false;
-			error(@$,"El campo no es de tipo strdafak o unidafak");
-		}
-		else{
-			bloque_struct = (*bloque_struct).hijoEnStruct(*($1));
-		}
-
-	}
-    DOT 
-	id_dotlist2;
-  |
-	IDENTIFIER LARRAY arithmetic_expression RARRAY
-	{
-
-		if(!(*bloque_struct).estaContenido(*($1))){
-			compiled = false;
-			error(@$,"Campo no contenido en la estructura.");
-		}
-
-	}
-	|
-	IDENTIFIER LARRAY arithmetic_expression RARRAY 
-	{
-
-		string s = "";
-
-		if((*bloque_struct).estaContenido(*($1))){
-			s = (*bloque_struct).getTipoArray(*($1));
-		}
-
-		if(s!="unidafak" && s!="strdafak"){
-			compiled = false;
-			error(@$,"El campo no es de tipo strdafak o unidafak");
-		}
-		else{
-			bloque_struct = (*bloque_struct).hijoEnStruct(*($1));
-		}
-
-	}
-	DOT
-	id_dotlist2
-
-  | error {error(@$,"Acceso a de strdafak o unidafak de manera incorrecta.");}
+array_variable:
+    {$$ = new VoidType();}
+| LARRAY arithmetic_expression RARRAY 
+    {$$ = new ArrayType(0,new VoidType());}
 
 
 typo:
@@ -393,7 +301,18 @@ typo:
   | STRING {$$ = new StringType();}
   | VOID {$$ = new VoidType();}
   | BOOL {$$ = new BoolType();}
-  | error {compiled = false; ; error(@$,"Tipo no valido");}
+  | IDENTIFIER {
+      MadafakaType *fromSymTable;
+      fromSymTable = buscarVariable(*($1),actual);
+      if((*fromSymTable)=="Union" || (*fromSymTable)=="Struct"){
+        $$ = fromSymTable;
+      }
+      else{
+        compiled=false;
+        string errormsg = string("Tipo compuesto no declarado: ")+ string(*($1));
+        error(@$,errormsg);
+      }
+  }
   ;
 
 typo2:
@@ -401,17 +320,246 @@ typo2:
 	| STRUCT {$$ = new string("struct");}
 	;
 
+// Producciones que se encargan del acceso a campos del struct o union
+
+id_dotlist1:
+  IDENTIFIER LARRAY arithmetic_expression RARRAY
+  {
+    MadafakaType *fromSymTable;
+    fromSymTable = buscarVariable(*($1),actual);
+    string s1 = (*actual).getTipoArray(*($1));
+    if(!(*fromSymTable=="Array")){
+      compiled = false;
+      structureError = true;
+      string errormsg = string("La variable no es un arreglo o es un arreglo de una estructura anidada: ")
+      + *($1);
+      error(@$,errormsg);
+      $$ = new TypeError();
+    }
+    else{
+      ArrayType *miarreglo = (ArrayType *) fromSymTable;
+      $$ = miarreglo->type;
+    }
+  }
+
+  | IDENTIFIER LARRAY arithmetic_expression RARRAY 
+  {
+    MadafakaType *fromSymTable;
+    fromSymTable = buscarVariable(*($1),actual);
+    if(*fromSymTable=="Array"){
+      ArrayType *miarreglo = (ArrayType *)fromSymTable;
+      MadafakaType *tipoarray =  miarreglo->type;
+      if ((*tipoarray == "Union")){
+        UnionType *miunion = (UnionType *) tipoarray;
+        bloque_struct = miunion->SymTable;
+      }
+      else if (*tipoarray == "Struct"){
+        RecordType *mirecord = (RecordType *) tipoarray;
+        bloque_struct = mirecord->SymTable;
+      }
+      else{
+        compiled = false;
+        structureError = true;
+        string errormsg = string("La variable no es un arreglo de una estructura anidada: ")
+        + *($1);
+        error(@$,errormsg);
+      }
+    }
+    else{
+      compiled = false;
+      structureError = true;
+      string errormsg = string("La variable no es un arreglo: ")
+      + *($1);
+      error(@$,errormsg);
+    }
+  }
+    DOT id_dotlist2
+  {
+    if (!structureError) $$ = $id_dotlist2;
+    else $$ = new TypeError();
+  }
+
+  | IDENTIFIER 
+  {
+    MadafakaType *s =  buscarVariable(*($1),actual);
+    if(!((*s)=="Struct") && !((*s)=="Union")){
+      compiled = false;
+      structureError = true;
+      string errormsg = string("La variable no es de tipo strdafak o unidafak: ")
+      + *($1);
+      error(@$,errormsg);
+    }
+    else{
+      if ((*s == "Union")){
+        UnionType *miunion = (UnionType *) s;
+        bloque_struct = miunion->SymTable;
+      }
+      else if (*s == "Struct"){
+        RecordType *mirecord = (RecordType *) s;
+        bloque_struct = mirecord->SymTable;
+      }
+    }
+  } 
+  DOT id_dotlist2
+  {
+    if (!structureError) $$ = $id_dotlist2;
+    else $$ = new TypeError();
+  }
+
+id_dotlist2:
+  IDENTIFIER
+  {
+    if (!structureError){
+      MadafakaType *ptr = buscarVariable(*($1),bloque_struct);
+      if(*ptr == "Undeclared"){
+        compiled = false;
+        structureError = true;
+        string errormsg = string("Campo no contenido en la estructura: ")
+        + *($1);
+        error(@$,errormsg);
+        $$ = new TypeError();
+      }
+      else{
+        $$ = ptr;
+      }
+    }
+    else $$ = new TypeError();
+  }
+
+  | IDENTIFIER 
+  {
+    if(!structureError){
+      MadafakaType *s =  buscarVariable(*($1),bloque_struct);
+      if(!((*s)=="Struct") && !((*s)=="Union")){
+        compiled = false;
+        structureError = true;
+        string errormsg = string("La variable no es de tipo strdafak o unidafak: ")
+        + *($1);
+        error(@$,errormsg);
+      }
+      else{
+        if ((*s == "Union")){
+          UnionType *miunion = (UnionType *) s;
+          bloque_struct = miunion->SymTable;
+        }
+        else if (*s == "Struct"){
+          RecordType *mirecord = (RecordType *) s;
+          bloque_struct = mirecord->SymTable;
+        }
+      }  
+    }
+  }
+  DOT id_dotlist2[right]
+  {
+    if (!structureError) $$ = $right;
+    else $$ = new TypeError();
+  }
+
+  | IDENTIFIER LARRAY arithmetic_expression RARRAY
+  {
+    if (!structureError){
+      MadafakaType *fromSymTable;
+      fromSymTable = buscarVariable(*($1),bloque_struct);
+      if(*fromSymTable=="Array"){
+        ArrayType *miarreglo = (ArrayType *)fromSymTable;
+        MadafakaType *tipoarray =  miarreglo->type;
+        $$ = tipoarray;
+      }
+      else{
+        compiled = false;
+        structureError = true;
+        string errormsg = string("La variable no es un arreglo: ")
+        + *($1);
+        error(@$,errormsg);
+      }
+    }
+  }
+
+  | IDENTIFIER LARRAY arithmetic_expression RARRAY 
+  {
+    if (!structureError){
+      MadafakaType *fromSymTable;
+      fromSymTable = buscarVariable(*($1),bloque_struct);
+      if(*fromSymTable=="Array"){
+        ArrayType *miarreglo = (ArrayType *)fromSymTable;
+        MadafakaType *tipoarray =  miarreglo->type;
+        if ((*tipoarray == "Union")){
+          UnionType *miunion = (UnionType *) tipoarray;
+          bloque_struct = miunion->SymTable;
+        }
+        else if (*tipoarray == "Struct"){
+          RecordType *mirecord = (RecordType *) tipoarray;
+          bloque_struct = mirecord->SymTable;
+        }
+        else{
+          compiled = false;
+          structureError = false;
+          string errormsg = string("La variable no es un arreglo de estructura anidada: ")
+          + *($1);
+          error(@$,errormsg);
+        }
+      }
+      else{
+        compiled = false;
+        structureError = true;
+        string errormsg = string("La variable no es un arreglo: ")
+        + *($1);
+        error(@$,errormsg);
+      }
+    }
+  }
+  DOT id_dotlist2[right]
+  {
+    if (!structureError) $$ = $right;
+    else $$ = new TypeError();
+  }
+
+  | error {error(@$,"Acceso a de strdafak o unidafak de manera incorrecta.");}
+  ;
+
 assign:
   IDENTIFIER ASSIGN general_expression{
-  MadafakaType *fromSymTable;
-  fromSymTable = buscarVariable(*($1),actual);
-	if((*fromSymTable)=="Undeclared"){
-		compiled=false;
-		string errormsg = string("Variable no declarada: ")+ string(*($1));
-		error(@$,errormsg);
-	}
+    MadafakaType *fromSymTable;
+    fromSymTable = buscarVariable(*($1),actual);
+  	if((*fromSymTable)=="Undeclared"){
+  		compiled=false;
+  		string errormsg = string("Variable no declarada: ")+ string(*($1));
+  		error(@$,errormsg);
+      $$ = new TypeError();
+  	}
+    else if(*fromSymTable == *($3)){
+      // Se asignó correctamente la expresión
+      $$ = $3;
+    }
+    else{
+      compiled=false;
+      string message;
+      if (*($3) != "TypeError"){
+        message = string("Error en la asignación: se le intenta asignar una expresión de tipo ")
+        + string(*($3));
+        message += string(" a una variable de tipo ") + string(*($1));
+        error(@$,message);
+      }
+      $$ = new TypeError();
+    }
   }									
- | id_dotlist1 ASSIGN general_expression
+ | id_dotlist1 ASSIGN general_expression{
+    if(*($1) == *($3)){
+      // Se asignó correctamente la expresión
+      $$ = $3;
+    }
+    else{
+      compiled=false;
+      string message;
+      if (*($3) != "TypeError"){
+        message = string("Error en la asignación: se le intenta asignar una expresión de tipo ")
+        + string(*($3));
+        message += string(" a una variable de tipo ") + string(*($1));
+        error(@$,message);
+      }    
+      $$ = new TypeError();
+    }
+ }
 									
  ;
 
@@ -420,8 +568,8 @@ assign:
 // using an arithmetic or boolean expression. The error
 // message is the same in both cases, so "deje así"
 general_expression:
-  arithmetic_expression
-  | boolean_expression
+  arithmetic_expression {$$ = $1;}
+  | boolean_expression {$$ = $1;}
   | error {compiled = false ; error(@$,"Expresión inválida");}  
   ;
 
@@ -433,34 +581,88 @@ general_expression:
 // sets of smaller (component) expressions, we want the parser
 // to shift upon conflicts like these, as it does by default. "Deje así"
 boolean_expression:
-  boolean_expression boolean_opr boolean_expression
+  boolean_expression[left] boolean_opr boolean_expression[right]
+  {
+    if (*($left) != "Bdafak" || *($right) != "Bdafak") {
+      $$ = new TypeError();
+    }
+    else $$ = new BoolType();
+  }
   | LPAREN boolean_expression RPAREN
+  {
+    $$ = $2;
+  }
   | NOT boolean_expression
+  {
+    $$ = $2;
+  }
   | arithmetic_comparison
+  {
+    $$ = $1;
+  }
   | IDENTIFIER
-			{
-          MadafakaType *fromSymTable;
-          fromSymTable = buscarVariable(*($1),actual);
-	  			if(*fromSymTable =="" || *fromSymTable == "Function"){
-	  				compiled = false;
-	  				string errormsg = 
-	  					string("Variable no declarada, o funcion con el mismo nombre solamente declarada: ")
-	  					+ string(*($1));
-					error(@$,errormsg);
-	  			}
-			}
-
-  | BOOLVALUE
-  | STRVALUE
-  | id_dotlist1
-  
+  	{
+        MadafakaType *fromSymTable;
+        fromSymTable = buscarVariable(*($1),actual);
+  			if(*fromSymTable =="Undeclared" || *fromSymTable == "Function" ){
+  				compiled = false;
+  				string errormsg = 
+  					string("Variable no declarada, o funcion con el mismo nombre solamente declarada: ")
+  					+ string(*($1));
+            error(@$,errormsg);
+            $$ = new TypeError();
+  			}
+        else if(*fromSymTable != "Bdafak"){
+          compiled = false;
+          string errormsg = 
+            string("Variable no declarada de tipo booleano: ")
+            + string(*($1));
+            error(@$,errormsg);
+            $$ = new TypeError();
+        }
+        else $$ = fromSymTable;
+  	}
+  | BOOLVALUE {$$ = new BoolType();}
+  | id_dotlist1 
+  {
+    if (*($1) != "Bdafak"){
+      compiled = false;
+      error(@$,"Error en expresión compuesta");
+      $$ = new TypeError();
+    }
+    else $$ = new BoolType();
+  }
+  | procedure_invoc 
+  {
+    if (*($1) != "Bdafak"){
+      compiled = false;
+      error(@$,"Error en llamada a procedimiento");
+      $$ = new TypeError();
+    }
+    else $$ = new BoolType();
+  }
   ;
 
 boolean_opr: AND | OR | EQ
   ;
 
 arithmetic_comparison:
-  arithmetic_expression comparison_opr arithmetic_expression 
+  arithmetic_expression comparison_opr arithmetic_expression
+  {
+    if (
+      // Ambas expresiones son de tipo entero o flotante
+      ((*($1) == "Idafak") || (*($1) == "Idafak")) 
+      && ((*($3) == "Fdafak") || (*($3) == "Fdafak"))
+      ){
+      $$ = new BoolType();
+    }
+    else{
+      compiled = false;
+      string errormsg = string("Comparación booleana malformada");
+      error(@$,errormsg);
+      $$ = new TypeError();
+    }
+  }
   ;
 
 comparison_opr: EQ | LESS | LESSEQ 
@@ -472,23 +674,59 @@ comparison_opr: EQ | LESS | LESSEQ
 // above, with the boolean expressions. As above, we are OK with the
 // parser shifting in situations like these. "Deje así"
 arithmetic_expression:
-  arithmetic_expression arithmetic_opr arithmetic_expression
+  arithmetic_expression[left] arithmetic_opr arithmetic_expression[right]
+  {
+    $$ = check_and_widen($left,$right);
+  }
   | IDENTIFIER {
           MadafakaType *fromSymTable;
           fromSymTable = buscarVariable(*($1),actual);
 	  			if(*fromSymTable=="Undeclared" || *fromSymTable == "Function"){
 	  				compiled = false;
 	  				string errormsg = 
-	  					string("Variable no declarada, o funcion con el mismo nombre solamente declarada: ")
-	  					+ string(*($1));
-					error(@$,errormsg);
+  					string("Variable no declarada, o funcion con el mismo nombre solamente declarada: ")
+  					+ string(*($1));
+            error(@$,errormsg);
 	  			}
+          else if (*fromSymTable != "Idafak" && *fromSymTable != "Fdafak"){
+            compiled = false;
+            string errormsg = 
+            string("Variable no numérica en una expresión aritmética: ")
+            + string(*($1));
+            error(@$,errormsg);
+          }
+          $$ = fromSymTable;
 			}
-			
-  | INTVALUE
-  | FLOATVALUE
+	| MINUS arithmetic_expression %prec UMINUS
+  {
+    $$ = $2;
+  }
+  | LPAREN arithmetic_expression RPAREN
+  {
+    $$ = $2;
+  }
+  | INTVALUE{
+    $$ = new IntegerType();
+  }
+  | FLOATVALUE{
+    $$ = new FloatType();
+  }
   | procedure_invoc
+  {
+    if (*($1) != "Fdafak" || *($1) != "Idafak"){
+      compiled = false;
+      error(@$,"Error en llamada a procedimiento");
+      $$ = new TypeError();
+    }
+    else $$ = $1;
+  }
   | id_dotlist1
+  {
+    if (*($1) != "Fdafak" || *($1) != "Idafak"){
+      compiled = false;
+      error(@$,"Error en expresión compuesta");
+    }
+  }
   ;
 
 
@@ -526,19 +764,21 @@ procedure_invoc:
   			{
 	  			MadafakaType *fromSymTable;
           fromSymTable = buscarVariable(*($1),actual);
-          if(!(*fromSymTable =="Function") && !(*fromSymTable=="Undeclared")){
+          if(*fromSymTable !="Function"){
             string errormsg = 
               string("Se esta usando una variable como funcion: ")
               + string(*($1));
             error(@$,errormsg);
-          compiled = false;
+            compiled = false;
           }
-        else if(*fromSymTable=="Undeclared"){
-          error(@$,"Funcion no declarada");
-          compiled = false;
+          else if(*fromSymTable == "Undeclared"){
+            string errormsg = 
+              string("Función no declarada: ")+ string(*($1));
+            error(@$,errormsg);
+            compiled = false;
+          }
+          $$ = fromSymTable;
 				}
-				
-			}
   | IDENTIFIER LPAREN arg_list error {compiled =false; error(@$,"La llamada a una funcion debe terminar con un parentesis");} 
 
   ;

@@ -15,22 +15,22 @@ using namespace std;
 
 //campos estaticos de IntegerType
 IntegerType *IntegerType::singleton_instance = NULL;
-int IntegerType::tam = 4;
+//int IntegerType::tam = 4;
 
 //Campos estaticos de FloatType
 FloatType *FloatType::singleton_instance = NULL;
-int FloatType::tam = 8;
+//int FloatType::tam = 8;
 
 //Campos estaticos de StringType
 StringType *StringType::singleton_instance = NULL;
 
 //Same as before
 CharType *CharType::singleton_instance = NULL;
-int CharType::tam = 1;
+//int CharType::tam = 1;
 
 //Same
 BoolType *BoolType::singleton_instance = NULL;
-int BoolType::tam = 1;
+//int BoolType::tam = 1;
 
 
 //" "
@@ -70,6 +70,7 @@ MadafakaType::operator string() const{
 
 IntegerType::IntegerType(){
  		name = "Idafak";
+		tam = 4;
  	};
 
 IntegerType* IntegerType::instance(){
@@ -80,6 +81,7 @@ IntegerType* IntegerType::instance(){
 
 FloatType::FloatType(){
  		name = "Fdafak";
+		tam =8;
 };
 FloatType* FloatType::instance(){
  		if (!singleton_instance)
@@ -89,6 +91,7 @@ FloatType* FloatType::instance(){
 
 StringType::StringType(){
  		name = "Sdafak";
+		tam =4;
 };
 
 StringType* StringType::instance(){
@@ -99,6 +102,7 @@ StringType* StringType::instance(){
 
 CharType::CharType(){
  		name = "Cdafak";
+		tam = 1;
 };
 CharType* CharType::instance(){
  		if (!singleton_instance)
@@ -109,6 +113,7 @@ CharType* CharType::instance(){
 
 BoolType::BoolType(){
     name = "Bdafak";
+    tam = 1;
 };
 BoolType* BoolType::instance(){
     if (!singleton_instance)
@@ -119,6 +124,7 @@ BoolType* BoolType::instance(){
 
 VoidType::VoidType(){
     name = "Void";
+    tam = 4;
 };
 VoidType* VoidType::instance(){
     if (!singleton_instance)
@@ -130,6 +136,7 @@ RecordType::RecordType(string *symname, arbol *newfields){
     name = "Struct";
     symbolName = symname;
     SymTable = newfields;
+    tam=0;
 };
 
 // Equivalencia por nombre en los records y unions
@@ -146,6 +153,7 @@ UnionType::UnionType(string *symname, arbol *newfields){
     symbolName = symname;
     SymTable = newfields;
     SymTable = new arbol();
+    tam =0;
 };
 
 bool UnionType::operator==(UnionType &rhs){
@@ -160,6 +168,7 @@ ArrayType::ArrayType(int s, MadafakaType *t){
     name = "Array";
     size = s;
     type = t;
+    tam =1;
 };
 
 FunctionType::FunctionType(arbol *arguments,MadafakaType *returntype){
@@ -179,7 +188,7 @@ TypeError* TypeError::instance(){
 
 Undeclared::Undeclared(){
     name = "Undeclared";
-	tam =0;
+    tam =0;
 };
 Undeclared* Undeclared::instance(){
     if (!singleton_instance)
@@ -274,6 +283,27 @@ string arbol::getTipoArray(string &var){
   return "";
 }
 
+int arbol::getTam(string &n1){
+	return contenido[n1]->tam;
+}
+
+
+int arbol::getBase(){
+	return base;
+}
+
+void arbol::addBase(int val){
+	base+=val;
+}
+
+void arbol::setOffset(string &v, int val){
+  offset[v]=val;
+}
+
+int arbol::getOffset(string &var){
+  if(!offset.count(var))return -1;
+  return offset[var];
+}
 
 
 MadafakaType *buscarVariable(string var, arbol *actual){
@@ -319,11 +349,18 @@ void recorrer(arbol *a, int nivel){
   string s = "";
   for(int i=0;i<nivel;i++) s+='\t';
   
-  cout << s << "Abriendo anidamiento"<<endl<<endl;
+  cout << s << "Abriendo anidamiento de base " << (*a).getBase();
+  cout <<endl<<endl;
 
   
   for(map<string,MadafakaType*>::iterator it = vars.begin();it!=vars.end();it++){
-    cout << s+"\t" << it->first << " es de tipo " << it->second->name << endl << endl;
+    string s2 = it->first;
+    if(it->second->name!="Function" && (*a).getOffset(s2)<0) continue;
+    cout << s+"\t" << it->first << " es de tipo " << it->second->name;
+    
+    cout << " y su offset es: " << (*a).getOffset(s2);
+    cout << " y tam: " << it->second->tam << endl;
+    cout << endl << endl;
     pair<int,int> p = ubic[it->first];
     int t1 = p.first;
     int t2 = p.second;
@@ -344,7 +381,7 @@ void recorrer(arbol *a, int nivel){
   }
 
   for(int i =0;i<h.size();i++){
-    if(!ya.count(i))
+    if(!ya.count(i) && h[i]->var)
       recorrer(h[i],nivel+1);
   }
   cout << s << "Cerrando anidamiendo" << endl<<endl;

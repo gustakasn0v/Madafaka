@@ -22,12 +22,14 @@ using namespace std;
 
 class MadafakaType{
  public:
+  int tam;
   string name;
   MadafakaType(){}
   bool operator==(MadafakaType &rhs);
-  bool operator==(string &rhs);
   bool operator==(const char* word);
-  std::ostream &operator<<(std::ostream &os);
+  bool operator!=(const char* word);
+  operator string() const;
+  friend std::ostream& operator<<(std::ostream &os,MadafakaType const &var);
   void print();
 };
 
@@ -56,7 +58,7 @@ class StringType: public MadafakaType{
   static StringType *instance();
 };
 
-StringType *StringType::singleton_instance = NULL;
+//StringType *StringType::singleton_instance = NULL;
 
 class CharType: public MadafakaType{
   static CharType *singleton_instance;
@@ -65,7 +67,7 @@ class CharType: public MadafakaType{
   static CharType *instance();
 };
 
-CharType *CharType::singleton_instance = NULL;
+//CharType *CharType::singleton_instance = NULL;
 
 class BoolType: public MadafakaType{
   static BoolType *singleton_instance;
@@ -74,13 +76,13 @@ class BoolType: public MadafakaType{
   static BoolType *instance();
 };
 
-BoolType *BoolType::singleton_instance = NULL;
+//BoolType *BoolType::singleton_instance = NULL;
 
 class ArrayType: public MadafakaType{
-  int lower,upper;
-  MadafakaType *type;
  public:
-  ArrayType(int, int, MadafakaType*);
+  int size;
+  MadafakaType *type;
+  ArrayType(int, MadafakaType*);
 };
 
 //ArrayType *ArrayType::singleton_instance = NULL;
@@ -92,7 +94,7 @@ class VoidType: public MadafakaType{
   static VoidType *instance();
 };
 
-VoidType *VoidType::singleton_instance = NULL;
+//VoidType *VoidType::singleton_instance = NULL;
 
 
 class TypeError: public MadafakaType{
@@ -102,7 +104,7 @@ class TypeError: public MadafakaType{
   static TypeError *instance();
 };
 
-TypeError *TypeError::singleton_instance = NULL;
+//TypeError *TypeError::singleton_instance = NULL;
 
 class Undeclared: public MadafakaType{
   static Undeclared *singleton_instance;
@@ -111,7 +113,9 @@ class Undeclared: public MadafakaType{
   static Undeclared *instance();
 };
 
-Undeclared *Undeclared::singleton_instance = NULL;
+MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right);
+
+//Undeclared *Undeclared::singleton_instance = NULL;
 
 // Cosas de estructuras.h
 
@@ -128,14 +132,21 @@ Undeclared *Undeclared::singleton_instance = NULL;
       arbol *papa;
       vector<arbol *> hijos;
       map<string,MadafakaType*> contenido;
+      map<string,int> tams;
+      map<string,int> offset;
       map<string,pair<int,int> > ubicacion;
       map<string,int> bloque;
       map<string,int> arguments;
       map<string,string> arrays;
+      int base;
+      int base2;//representa la base en negativo
+		//se utiliza para las funciones
+		//donde el negativo representan el offset en
+		//la pila
 
     public:
-      arbol(){papa=NULL;contenido.clear();ubicacion.clear();}
-      arbol(arbol *p,arbol *cont) : papa(p){contenido.clear();}
+      arbol(){papa=NULL;contenido.clear();ubicacion.clear();base=0;}
+      arbol(arbol *p,arbol *cont) : papa(p){contenido.clear();base=0;}
       void addHijo(arbol *);
       void setPapa(arbol *);
       vector<arbol *> getHijos();
@@ -149,6 +160,11 @@ Undeclared *Undeclared::singleton_instance = NULL;
       arbol *hijoEnStruct(string &);
       void esArray(string &);
       string getTipoArray(string &);
+      int getTam(string &);
+      int getBase();
+      void addBase(int);
+      void setOffset(string &, int);
+      int getOffset(string &);
   };
 
   /* Funcion que retornara el tipo de la variable
@@ -168,9 +184,9 @@ Undeclared *Undeclared::singleton_instance = NULL;
  
 class RecordType: public MadafakaType{
 private:
-  arbol* SymTable;
   string *symbolName;
  public:
+  arbol* SymTable;
   RecordType(){}
   RecordType(string*, arbol*);
   bool operator==(RecordType &rhs);
@@ -179,9 +195,9 @@ private:
 
 class UnionType: public MadafakaType{
 private:
-  arbol* SymTable;
   string *symbolName;
  public:
+  arbol* SymTable;
   UnionType(string*, arbol*);
   bool operator==(UnionType &rhs);
   arbol* getSymTable();
