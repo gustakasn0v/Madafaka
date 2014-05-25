@@ -103,6 +103,16 @@ class VoidType: public MadafakaType{
 //VoidType *VoidType::singleton_instance = NULL;
 
 
+class RefType: public MadafakaType{
+  static RefType *singleton_instance;
+ public:
+  RefType();
+  static RefType *instance();
+  MadafakaType *ref;
+};
+
+
+
 class TypeError: public MadafakaType{
   static TypeError *singleton_instance;
  public:

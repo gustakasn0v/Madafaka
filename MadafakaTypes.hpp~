@@ -20,6 +20,11 @@ using namespace std;
  * @author Wilmer Bandres <wilmer0593@gmail.com>
  */
 
+/*
+ Nota: los comentarios que explican el significado de cada funcion
+	estan en el archivo .cpp
+ */
+
 class MadafakaType{
  public:
   int tam;
@@ -96,6 +101,15 @@ class VoidType: public MadafakaType{
 };
 
 //VoidType *VoidType::singleton_instance = NULL;
+
+
+class RefType: public MadafakaType{
+  static RefType *singleton_instance;
+ public:
+  RefType();
+  static RefType *instance();
+};
+
 
 
 class TypeError: public MadafakaType{
