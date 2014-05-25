@@ -35,6 +35,9 @@ BoolType *BoolType::singleton_instance = NULL;
 VoidType *VoidType::singleton_instance = NULL;
 
 //" "
+RefType *RefType::singleton_instance = NULL;
+
+//" "
 TypeError *TypeError::singleton_instance = NULL;
 
 //" "
@@ -178,13 +181,22 @@ ArrayType::ArrayType(int s, MadafakaType *t){
     name = "Array";
     size = s;
     type = t;
-    tam =1;
+    tam =s;
 };
 
 FunctionType::FunctionType(arbol *arguments,MadafakaType *returntype){
     name = "Function";
     args = arguments;
     result = returntype;
+};
+
+RefType::RefType(){
+    name = "Reference";
+};
+RefType* RefType::instance(){
+    if (!singleton_instance)
+          singleton_instance = new RefType();
+     return singleton_instance;
 };
 
 TypeError::TypeError(){

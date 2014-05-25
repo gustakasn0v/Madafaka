@@ -1,12 +1,12 @@
 ??Programa que funciona y que tiene una declaracion de estructuras al principio para ser
 ??usada como parametros de funciones
-@@
-strdafak asd
-	mada
-		idafak i;
-		idafak j;
-	faka;
-@@
+??@@
+??strdafak asd
+??	mada
+??		idafak i;
+??		idafak j;
+??	faka;
+??@@
 idafak hola(bdafak bla,bdafak ble)
 mada
 	@@
@@ -14,7 +14,7 @@ mada
 		idafak h2;
 	@@
 	h = 1;
-	hola(bla,ble);
+	??hola(bla,ble);
 faka;
 
 
@@ -47,7 +47,6 @@ mada
 		fdafak q;
 		fdafak parray[10];
 		e jeje;
-		asd jeje2;
 		idafak h;
 		@@
 		mada 

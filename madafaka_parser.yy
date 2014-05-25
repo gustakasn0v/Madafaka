@@ -75,7 +75,11 @@
 	bool compiled = true;
 	int os = 1; //valor para indicar el offset hacia arriba
 		    // o hacia abajo
-
+  
+	int var =0;//Valor que indica si una variable esta siendo
+		  //pasada por valor o referencia
+		  //si es 0 es por valor
+		    
   // Booleano que indica si han habido errores en el uso de campos de struct
   // o valores de arreglos
   bool structureError = false;
@@ -145,6 +149,7 @@
 %type <strvalue> instruction
 %type <typevalue> declaration
 %type <typevalue> declaration1
+%type <typevalue> declaration11
 %type <typevalue> declaration2
 %type <typevalue> arg_decl
 %type <typevalue> initial_str
@@ -162,6 +167,7 @@
 %type <strvalue> while_loop
 %type <strvalue> for_loop
 %type <typevalue> typo
+%type <typevalue> typoBase
 %type <strvalue> typo2
 %type <strvalue> if_block
 %type <typevalue> array_variable
@@ -178,7 +184,7 @@
 %%
 
 program:
-  DECLARATIONS initial_str DECLARATIONS {os=-1;} 
+  //DECLARATIONS initial_str DECLARATIONS {os=-1;} 
   declaration_proc START bloque END
   { 
     if (compiled and !lexerror) recorrer(&raiz,0);
@@ -225,6 +231,49 @@ declaration_list:
   | declaration error declaration_list {compiled = false ; error(@$,"Las declaraciones van separadas por ;");}
 	;
 
+declaration11:
+  // Declaración de una variable o arreglo de variables de tipo primitivo
+  typoBase IDENTIFIER array_variable{ 
+      if(!(*actual).estaContenido(*($2))){
+      string *s2 = new string(*($2));
+      // Chequeamos si es un arreglo
+      
+      if (*($3) == "Void"){
+        (*actual).insertar(*s2,$1,yyline,frcol,0);
+        if(os>0){
+	  (*actual).setOffset(*s2,(*actual).getBase());
+	  (*actual).addBase(($1)->tam *os);
+	}
+	else{
+	  (*actual).addBase(($1)->tam *os);
+	  (*actual).setOffset(*s2,(*actual).getBase());
+	}
+        //cout << $1->tam << endl;
+      }
+      else{
+        ArrayType *nuevotipo = new ArrayType($3->tam * $1->tam,$1);
+        (*actual).insertar(*s2,nuevotipo,yyline,frcol,0);
+        if(os>0){
+	  (*actual).setOffset(*s2,(*actual).getBase());
+	  (*actual).addBase(($1)->tam *os * $3->tam);
+	}
+	else{
+	  (*actual).addBase(($1)->tam * $3->tam * os);
+	  (*actual).setOffset(*s2,(*actual).getBase());
+	}
+	}
+			
+      }  
+  	else{
+  		compiled = false;
+  		string errormsg = string("Variable ya declarada en el mismo bloque: ")
+  		+ string(*($2));
+  		error(@$,errormsg);
+  	}
+  }
+  | error {compiled = false; error(@$,"Variable debe ser pasada por referencia");}
+;
+	
 declaration1:
   // Declaración de una variable o arreglo de variables de tipo primitivo
   typo IDENTIFIER array_variable{ 
@@ -329,14 +378,17 @@ array_variable:
 | LARRAY INTVALUE RARRAY 
     {$$ = new ArrayType($2,new VoidType());}
 
-
-typo:
+typoBase:
   INTEGER {$$ = new IntegerType();}
   | FLOAT {$$ = new FloatType();}
   | CHAR {$$ = new CharType();}
   | STRING {$$ = new StringType();}
   | VOID {$$ = new VoidType();}
   | BOOL {$$ = new BoolType();}
+  ;
+
+typo:
+  typoBase {$$=$1;}
   | IDENTIFIER {
       MadafakaType *fromSymTable;
       fromSymTable = buscarVariable(*($1),actual);
@@ -832,8 +884,8 @@ arg_decl_list1:
   ;
 
 arg_decl:
-  declaration1 {$$=$1;}
-  | VAR declaration1 {$$=$2;}
+  declaration11 
+  //| {var=1;}VAR declaration11 {var=0;}
   ;
 
 arg_list:
