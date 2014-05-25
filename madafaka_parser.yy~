@@ -73,7 +73,7 @@
   // Booleano que marca si la compilación va bien. Si no, no se 
   // imprime el árbol
 	bool compiled = true;
-	int os = -1; //valor para indicar el offset hacia arriba
+	int os = 1; //valor para indicar el offset hacia arriba
 		    // o hacia abajo
 
   // Booleano que indica si han habido errores en el uso de campos de struct
@@ -145,7 +145,10 @@
 %type <strvalue> instruction
 %type <typevalue> declaration
 %type <typevalue> declaration1
+%type <typevalue> declaration2
 %type <typevalue> arg_decl
+%type <typevalue> initial_str
+
 %type <symboltreevalue> arg_decl_list
 %type <symboltreevalue> arg_decl_list1
 %type <symboltreevalue> declaration_list
@@ -162,7 +165,6 @@
 %type <strvalue> typo2
 %type <strvalue> if_block
 %type <typevalue> array_variable
-
 %type <typevalue> general_expression
 %type <typevalue> boolean_expression
 %type <typevalue> arithmetic_comparison
@@ -176,6 +178,7 @@
 %%
 
 program:
+  DECLARATIONS initial_str DECLARATIONS {os=-1;} 
   declaration_proc START bloque END
   { 
     if (compiled and !lexerror) recorrer(&raiz,0);
@@ -264,11 +267,8 @@ declaration1:
   }
 ;
 
-declaration:
-  // Declaración de una variable o arreglo de variables de tipo primitivo
-   declaration1
-  // Declaración de un struct o union
-  | typo2 IDENTIFIER START 
+declaration2:
+  typo2 IDENTIFIER START 
   	{actual = enterScope(actual);}  
 	declaration_list END
   	{
@@ -297,6 +297,18 @@ declaration:
 		}
 
 	}
+    ;
+
+initial_str:
+
+  | declaration2 SEPARATOR initial_str;
+  
+    
+declaration:
+  // Declaración de una variable o arreglo de variables de tipo primitivo
+   declaration1
+  // Declaración de un struct o union
+  | declaration2
 	
 
   | typo2 error {

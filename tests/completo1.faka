@@ -1,20 +1,22 @@
-?? Primera declaracion de funcon
-
-idafak hola(idafak bla,idafak ble, idafak bli[2])
+??Programa que funciona y que tiene una declaracion de estructuras al principio para ser
+??usada como parametros de funciones
+@@
+strdafak asd
+	mada
+		idafak i;
+		idafak j;
+	faka;
+@@
+idafak hola(bdafak bla,bdafak ble)
 mada
 	@@
 		idafak h;
 		idafak h2;
 	@@
-	bla=1;
+	h = 1;
+	hola(bla,ble);
 faka;
 
-??idafak pepe()
-??mada
-??	@@
-??		idafak h;
-??	@@
-??faka;
 
 mada
 	@@
@@ -33,6 +35,7 @@ mada
 			m o;
 	faka;
 
+
 	@@
 	??hola(s);
 	??wdafak s;
@@ -44,7 +47,7 @@ mada
 		fdafak q;
 		fdafak parray[10];
 		e jeje;
-		e jeje2[2];
+		asd jeje2;
 		idafak h;
 		@@
 		mada 
