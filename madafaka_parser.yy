@@ -242,32 +242,34 @@ declaration11:
   // Declaración de una variable o arreglo de variables de tipo primitivo
   typoBase IDENTIFIER array_variable{ 
       if(!(*actual).estaContenido(*($2))){
-      cout << argpos;
+      string *s3 = new string(*($2));
       string s2 = to_string(argpos);
       // Chequeamos si es un arreglo
       
       if (*($3) == "Void"){
         (*actual).insertar(s2,$1,yyline,frcol,0);
+        (*actual).insertar(*s3,$1,yyline,frcol,0);
         if(os>0){
-	  (*actual).setOffset(s2,(*actual).getBase());
+	  (*actual).setOffset(*s3,(*actual).getBase());
 	  (*actual).addBase(($1)->tam *os);
 	}
 	else{
 	  (*actual).addBase(($1)->tam *os);
-	  (*actual).setOffset(s2,(*actual).getBase());
+	  (*actual).setOffset(*s3,(*actual).getBase());
 	}
         //cout << $1->tam << endl;
       }
       else{
         ArrayType *nuevotipo = new ArrayType($3->tam * $1->tam,$1);
         (*actual).insertar(s2,nuevotipo,yyline,frcol,0);
+        (*actual).insertar(*s3,nuevotipo,yyline,frcol,0);
         if(os>0){
-	  (*actual).setOffset(s2,(*actual).getBase());
+	  (*actual).setOffset(*s3,(*actual).getBase());
 	  (*actual).addBase(($1)->tam *os * $3->tam);
 	}
 	else{
 	  (*actual).addBase(($1)->tam * $3->tam * os);
-	  (*actual).setOffset(s2,(*actual).getBase());
+	  (*actual).setOffset(*s3,(*actual).getBase());
 	}
 	}
 			
@@ -853,7 +855,7 @@ procedure_decl:
   {
     nuevaTabla = actual;
     os=1;
-    actual->addBase(-actual->getBase());
+    actual->addBase(actual->getBase());
     MadafakaType *fromSymTable;
     fromSymTable = buscarVariable(*($2),actual);
     if(*fromSymTable == "Undeclared"){
