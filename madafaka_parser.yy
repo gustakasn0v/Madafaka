@@ -83,6 +83,16 @@
   // Booleano que indica si han habido errores en el uso de campos de struct
   // o valores de arreglos
   bool structureError = false;
+
+  // Entero que almacena la posición del argumento para el que se está checkeando el tipo
+  int argpos=0;
+
+  // Firma de la función invocada, para revisar la firma de los argumentos
+  FunctionType *procType;
+
+  // Booleano que indica que se han revisado los argumentos de las invocaciones
+  // a funciones, y que todo va bien
+  bool invocation_ok;
 }
 
 /* Until whe have an AST, every nonterminal symbol with semantic meaning
@@ -126,19 +136,16 @@
 %token <charvalue> CHARVALUE "char_value"
 %token <strvalue> LARRAY "["
 %token <strvalue> RARRAY "]"
-
-/* Tokens for boolean/arithmetic expressions */
-%token TRUE "true"
-%token FALSE "false"
 %token DOT "."
 
-%left OR AND
-%nonassoc NOT
-%nonassoc LESS LESSEQ GREAT GREATEQ
-%left EQ
-%left PLUS MINUS
+/* Tokens for boolean/arithmetic expressions */
+%left OR AND PLUS MINUS LESS LESSEQ GREAT GREATEQ
 %left TIMES DIVIDE MOD
+%left EQ
 %left UMINUS
+
+%nonassoc NOT
+%nonassoc LPAREN
 
 /*extra tokens*/
 %token <strvalue> UNKNOWN
@@ -152,7 +159,7 @@
 %type <typevalue> declaration11
 %type <typevalue> declaration2
 %type <typevalue> arg_decl
-%type <typevalue> initial_str
+//%type <typevalue> initial_str
 
 %type <symboltreevalue> arg_decl_list
 %type <symboltreevalue> arg_decl_list1
@@ -172,9 +179,9 @@
 %type <strvalue> if_block
 %type <typevalue> array_variable
 %type <typevalue> general_expression
-%type <typevalue> boolean_expression
+%type <typevalue> expression
 %type <typevalue> arithmetic_comparison
-%type <typevalue> arithmetic_expression
+%type <typevalue> variable
 %type <strvalue> boolean_opr
 %type <strvalue> arithmetic_opr
 %type <strvalue> comparison_opr
@@ -185,7 +192,7 @@
 
 program:
   //DECLARATIONS initial_str DECLARATIONS {os=-1;} 
-  declaration_proc START bloque END
+  START bloque END
   { 
     if (compiled and !lexerror) recorrer(&raiz,0);
     return 0; 
@@ -235,31 +242,32 @@ declaration11:
   // Declaración de una variable o arreglo de variables de tipo primitivo
   typoBase IDENTIFIER array_variable{ 
       if(!(*actual).estaContenido(*($2))){
-      string *s2 = new string(*($2));
+      cout << argpos;
+      string s2 = to_string(argpos);
       // Chequeamos si es un arreglo
       
       if (*($3) == "Void"){
-        (*actual).insertar(*s2,$1,yyline,frcol,0);
+        (*actual).insertar(s2,$1,yyline,frcol,0);
         if(os>0){
-	  (*actual).setOffset(*s2,(*actual).getBase());
+	  (*actual).setOffset(s2,(*actual).getBase());
 	  (*actual).addBase(($1)->tam *os);
 	}
 	else{
 	  (*actual).addBase(($1)->tam *os);
-	  (*actual).setOffset(*s2,(*actual).getBase());
+	  (*actual).setOffset(s2,(*actual).getBase());
 	}
         //cout << $1->tam << endl;
       }
       else{
         ArrayType *nuevotipo = new ArrayType($3->tam * $1->tam,$1);
-        (*actual).insertar(*s2,nuevotipo,yyline,frcol,0);
+        (*actual).insertar(s2,nuevotipo,yyline,frcol,0);
         if(os>0){
-	  (*actual).setOffset(*s2,(*actual).getBase());
+	  (*actual).setOffset(s2,(*actual).getBase());
 	  (*actual).addBase(($1)->tam *os * $3->tam);
 	}
 	else{
 	  (*actual).addBase(($1)->tam * $3->tam * os);
-	  (*actual).setOffset(*s2,(*actual).getBase());
+	  (*actual).setOffset(s2,(*actual).getBase());
 	}
 	}
 			
@@ -348,9 +356,9 @@ declaration2:
 	}
     ;
 
-initial_str:
+// initial_str:
 
-  | declaration2 SEPARATOR initial_str;
+//   | declaration2 SEPARATOR initial_str;
   
     
 declaration:
@@ -358,6 +366,7 @@ declaration:
    declaration1
   // Declaración de un struct o union
   | declaration2
+  | procedure_decl
 	
 
   | typo2 error {
@@ -411,14 +420,13 @@ typo2:
 // Producciones que se encargan del acceso a campos del struct o union
 
 id_dotlist1:
-  IDENTIFIER LARRAY arithmetic_expression RARRAY
+  IDENTIFIER LARRAY INTVALUE RARRAY
   {
     MadafakaType *fromSymTable;
     fromSymTable = buscarVariable(*($1),actual);
     string s1 = (*actual).getTipoArray(*($1));
     if(!(*fromSymTable=="Array")){
       compiled = false;
-      structureError = true;
       string errormsg = string("La variable no es un arreglo o es un arreglo de una estructura anidada: ")
       + *($1);
       error(@$,errormsg);
@@ -430,7 +438,7 @@ id_dotlist1:
     }
   }
 
-  | IDENTIFIER LARRAY arithmetic_expression RARRAY 
+  | IDENTIFIER LARRAY INTVALUE RARRAY 
   {
     MadafakaType *fromSymTable;
     fromSymTable = buscarVariable(*($1),actual);
@@ -465,6 +473,7 @@ id_dotlist1:
   {
     if (!structureError) $$ = $id_dotlist2;
     else $$ = new TypeError();
+    structureError = false;
   }
 
   | IDENTIFIER 
@@ -492,6 +501,7 @@ id_dotlist1:
   {
     if (!structureError) $$ = $id_dotlist2;
     else $$ = new TypeError();
+    structureError = false;
   }
 
 id_dotlist2:
@@ -500,8 +510,7 @@ id_dotlist2:
     if (!structureError){
       MadafakaType *ptr = buscarVariable(*($1),bloque_struct);
       if(*ptr == "Undeclared"){
-        compiled = false;
-        structureError = true;
+        compiled = false;        
         string errormsg = string("Campo no contenido en la estructura: ")
         + *($1);
         error(@$,errormsg);
@@ -541,9 +550,10 @@ id_dotlist2:
   {
     if (!structureError) $$ = $right;
     else $$ = new TypeError();
+    structureError = false;
   }
 
-  | IDENTIFIER LARRAY arithmetic_expression RARRAY
+  | IDENTIFIER LARRAY INTVALUE RARRAY
   {
     if (!structureError){
       MadafakaType *fromSymTable;
@@ -555,7 +565,6 @@ id_dotlist2:
       }
       else{
         compiled = false;
-        structureError = true;
         string errormsg = string("La variable no es un arreglo: ")
         + *($1);
         error(@$,errormsg);
@@ -563,7 +572,7 @@ id_dotlist2:
     }
   }
 
-  | IDENTIFIER LARRAY arithmetic_expression RARRAY 
+  | IDENTIFIER LARRAY INTVALUE RARRAY 
   {
     if (!structureError){
       MadafakaType *fromSymTable;
@@ -600,13 +609,14 @@ id_dotlist2:
   {
     if (!structureError) $$ = $right;
     else $$ = new TypeError();
+    structureError = false;
   }
 
   | error {error(@$,"Acceso a de strdafak o unidafak de manera incorrecta.");}
   ;
 
 assign:
-  IDENTIFIER ASSIGN general_expression{
+  IDENTIFIER ASSIGN expression{
     MadafakaType *fromSymTable;
     fromSymTable = buscarVariable(*($1),actual);
   	if((*fromSymTable)=="Undeclared"){
@@ -631,7 +641,7 @@ assign:
       $$ = new TypeError();
     }
   }									
- | id_dotlist1 ASSIGN general_expression{
+ | id_dotlist1 ASSIGN expression{
     if(*($1) == *($3)){
       // Se asignó correctamente la expresión
       $$ = $3;
@@ -647,95 +657,164 @@ assign:
       }    
       $$ = new TypeError();
     }
- }
-									
+ }								
  ;
 
 // There's a reduce/reduce conflict here, since the parser
 // might see the error token, and wouldn't know to reduce
 // using an arithmetic or boolean expression. The error
 // message is the same in both cases, so "deje así"
-general_expression:
-  arithmetic_expression {$$ = $1;}
-  | boolean_expression {$$ = $1;}
-  | error {compiled = false ; error(@$,"Expresión inválida");}  
+expression:
+  general_expression
+  {
+    if (*($1) == "TypeError"){
+      compiled = false;
+      error(@$,"Expresión malformada");
+      $$ = new TypeError();
+    }
+    else $$ = $1;
+  }
   ;
 
-// There are 3 shift/reduce conflicts, which occur when the parser
-// has encountered a boolean expression, and upon seeing 
-//boolean_opr ahead, doesn't know wether to reduce the expression
-// already seen, or continue shifting, to increase the size of the 
-// expression. Since we want the expression as a whole, rather than
-// sets of smaller (component) expressions, we want the parser
-// to shift upon conflicts like these, as it does by default. "Deje así"
-boolean_expression:
-  boolean_expression[left] boolean_opr boolean_expression[right]
+general_expression:
+  general_expression[leftBool] boolean_opr general_expression[rightBool]
   {
-    if (*($left) != "Bdafak" || *($right) != "Bdafak") {
+    if (*($leftBool) != "Bdafak" || *($rightBool) != "Bdafak") {
+      compiled = false;
+      string errormsg = 
+      string("Se intentó aplicar un operador booleano entre una expresión ");
+      if (*($1) == "TypeError"){
+        errormsg+=string("malformada");
+      }
+      else{
+        errormsg+=string("de tipo ")+ string(*($1));
+      }
+      errormsg += string(" y otra ");
+      if (*($3) == "TypeError"){
+        errormsg+=string("malformada");
+      }
+      else{
+        errormsg+=string("de tipo ")+ string(*($3));
+      }
+      error(@$,errormsg);
       $$ = new TypeError();
     }
     else $$ = new BoolType();
   }
-  | LPAREN boolean_expression RPAREN
+
+  | general_expression[leftArithmetic] arithmetic_opr general_expression[rightArithmetic]
+  {
+    $$ = check_and_widen($leftArithmetic,$rightArithmetic);
+    if (*($$) == "TypeError") {
+      compiled = false;
+      string errormsg = string("Se intentó aplicar un operador aritmético entre una expresión ");
+      if (*($1) == "TypeError"){
+        errormsg+=string("malformada");
+      }
+      else{
+        errormsg+=string("de tipo ")+ string(*($1));
+      }
+      errormsg += string(" y otra ");
+      if (*($3) == "TypeError"){
+        errormsg+=string("malformada");
+      }
+      else{
+        errormsg+=string("de tipo ")+ string(*($3));
+      }
+      error(@$,errormsg);
+    }
+  }
+
+  | LPAREN general_expression RPAREN
   {
     $$ = $2;
   }
-  | NOT boolean_expression
+
+  | NOT general_expression
   {
-    $$ = $2;
+    if (*($2) != "Bdafak") {
+      compiled = false;
+      string errormsg = 
+      string("Se intentó aplicar un operador booleano a una expresión ");
+      if (*($2) != "TypeError"){
+        errormsg+=string("malformada");
+      }
+      else{
+        errormsg+=string("de tipo ")+string(*($2));
+      }
+      error(@$,errormsg);
+    }
+    else $$ = $2;
   }
+
+  | MINUS general_expression %prec UMINUS
+  {
+    if (*($2) != "Fdafak" && *($2) != "Idafak") {
+      compiled = false;
+      string errormsg = 
+      string("Se intentó aplicar un operador aritmético a una expresión ");
+      if (*($2) != "TypeError"){
+        errormsg+=string("malformada");
+      }
+      else{
+        errormsg+=string("de tipo ")+string(*($2));
+      }
+      error(@$,errormsg);
+    }
+    else $$ = $2;
+  }
+
   | arithmetic_comparison
   {
     $$ = $1;
   }
-  | IDENTIFIER
-  	{
-        MadafakaType *fromSymTable;
-        fromSymTable = buscarVariable(*($1),actual);
-  			if(*fromSymTable =="Undeclared" || *fromSymTable == "Function" ){
-  				compiled = false;
-  				string errormsg = 
-  					string("Variable no declarada, o funcion con el mismo nombre solamente declarada: ")
-  					+ string(*($1));
-            error(@$,errormsg);
-            $$ = new TypeError();
-  			}
-        else if(*fromSymTable != "Bdafak"){
-          compiled = false;
-          string errormsg = 
-            string("Variable no declarada de tipo booleano: ")
-            + string(*($1));
-            error(@$,errormsg);
-            $$ = new TypeError();
-        }
-        else $$ = fromSymTable;
-  	}
-  | BOOLVALUE {$$ = new BoolType();}
+
+  | variable
+  {
+    $$ = $1;
+  }
+
+  | BOOLVALUE
+  {
+    $$ = new BoolType();
+  }
+
+  | INTVALUE{
+    $$ = new IntegerType();
+  }
+
+  | FLOATVALUE{
+    $$ = new FloatType();
+  }
+
   | id_dotlist1 
   {
-    if (*($1) != "Bdafak"){
-      compiled = false;
-      error(@$,"Error en expresión compuesta");
-      $$ = new TypeError();
-    }
-    else $$ = new BoolType();
+    $$ = $1;
   }
   | procedure_invoc 
   {
-    if (*($1) != "Bdafak"){
-      compiled = false;
-      error(@$,"Error en llamada a procedimiento");
-      $$ = new TypeError();
-    }
-    else $$ = new BoolType();
+    $$ = $1;
   }
   ;
 
-boolean_opr: AND | OR | EQ
-  ;
+variable:
+  IDENTIFIER
+  {
+    MadafakaType *fromSymTable;
+    fromSymTable = buscarVariable(*($1),actual);
+    if(*fromSymTable =="Undeclared" || *fromSymTable == "Function" ){
+      compiled = false;
+      string errormsg = 
+        string("Variable no declarada, o funcion con el mismo nombre solamente declarada: ")
+        + string(*($1));
+        error(@$,errormsg);
+        $$ = new TypeError();
+    }
+    else $$ = fromSymTable;
+  }
 
 arithmetic_comparison:
-  arithmetic_expression comparison_opr arithmetic_expression
+  general_expression comparison_opr general_expression
   {
     if (
       // Ambas expresiones son de tipo entero o flotante
@@ -753,77 +832,23 @@ arithmetic_comparison:
   }
   ;
 
-comparison_opr: EQ | LESS | LESSEQ 
-  | GREAT | GREATEQ
-  ;
-
-
 // This produces a shift/reduce situation similar to the one stated
 // above, with the boolean expressions. As above, we are OK with the
 // parser shifting in situations like these. "Deje así"
-arithmetic_expression:
-  arithmetic_expression[left] arithmetic_opr arithmetic_expression[right]
-  {
-    $$ = check_and_widen($left,$right);
-  }
-  | IDENTIFIER {
-          MadafakaType *fromSymTable;
-          fromSymTable = buscarVariable(*($1),actual);
-	  			if(*fromSymTable=="Undeclared" || *fromSymTable == "Function"){
-	  				compiled = false;
-	  				string errormsg = 
-  					string("Variable no declarada, o funcion con el mismo nombre solamente declarada: ")
-  					+ string(*($1));
-            error(@$,errormsg);
-	  			}
-          else if (*fromSymTable != "Idafak" && *fromSymTable != "Fdafak"){
-            compiled = false;
-            string errormsg = 
-            string("Variable no numérica en una expresión aritmética: ")
-            + string(*($1));
-            error(@$,errormsg);
-          }
-          $$ = fromSymTable;
-			}
-	| MINUS arithmetic_expression %prec UMINUS
-  {
-    $$ = $2;
-  }
-  | LPAREN arithmetic_expression RPAREN
-  {
-    $$ = $2;
-  }
-  | INTVALUE{
-    $$ = new IntegerType();
-  }
-  | FLOATVALUE{
-    $$ = new FloatType();
-  }
-  | procedure_invoc
-  {
-    if (*($1) != "Fdafak" || *($1) != "Idafak"){
-      compiled = false;
-      error(@$,"Error en llamada a procedimiento");
-      $$ = new TypeError();
-    }
-    else $$ = $1;
-  }
-  | id_dotlist1
-  {
-    if (*($1) != "Fdafak" || *($1) != "Idafak"){
-      compiled = false;
-      error(@$,"Error en expresión compuesta");
-    }
-  }
-  ;
-
 
 arithmetic_opr: PLUS | MINUS | TIMES | DIVIDE | MOD
   ;
 
+comparison_opr: EQ | LESS | LESSEQ 
+  | GREAT | GREATEQ
+  ;
+
+boolean_opr: AND | OR
+  ;
+
 procedure_decl:
   typo IDENTIFIER LPAREN 
-  {actual=enterScope(actual);os=-1;}
+  {actual=enterScope(actual);os=-1;argpos=0;}
   arg_decl_list 
   {
     nuevaTabla = actual;
@@ -832,13 +857,15 @@ procedure_decl:
     MadafakaType *fromSymTable;
     fromSymTable = buscarVariable(*($2),actual);
     if(*fromSymTable == "Undeclared"){
-	int t1 = yyline;
-	int t2 = frcol;
-        FunctionType *tipoFuncion = new FunctionType(nuevaTabla,$1);
-					(*actual).insertar(*($2),tipoFuncion,t1,t2,0);
-    }
+      int t1 = yyline;
+      int t2 = frcol;
+      FunctionType *tipoFuncion = new FunctionType(nuevaTabla,$1);
+      if (argpos == 0) (*tipoFuncion).noargs = 0;
+      argpos = 0;
+			(*actual).insertar(*($2),tipoFuncion,t1,t2,0);
+  }
     else{
-	error(@$,"Funcion ya declarada anteriormente");
+	     error(@$,"Funcion ya declarada anteriormente");
     }
   }
   RPAREN START bloque END 
@@ -849,25 +876,42 @@ procedure_decl:
   ;
 
 procedure_invoc:
-  IDENTIFIER LPAREN arg_list RPAREN  
-  			{
-	  			MadafakaType *fromSymTable;
-          fromSymTable = buscarVariable(*($1),actual);
-          if(*fromSymTable !="Function"){
-            string errormsg = 
-              string("Se esta usando una variable como funcion: ")
-              + string(*($1));
-            error(@$,errormsg);
-            compiled = false;
-          }
-          else if(*fromSymTable == "Undeclared"){
-            string errormsg = 
-              string("Función no declarada: ")+ string(*($1));
-            error(@$,errormsg);
-            compiled = false;
-          }
-          $$ = fromSymTable;
-				}
+  IDENTIFIER
+  {
+		MadafakaType *fromSymTable;
+    fromSymTable = buscarVariable(*($1),actual);
+    if(*fromSymTable == "Undeclared"){
+      string errormsg = string("Función no declarada: ")+ string(*($1));
+      error(@$,errormsg);
+      compiled = false;
+      invocation_ok = false;
+    }
+    else if(*fromSymTable !="Function"){
+      string errormsg = 
+        string("Se esta usando una variable como funcion: ")
+        + string(*($1));
+      error(@$,errormsg);
+      compiled = false;
+      invocation_ok = false;
+    }
+    else{
+      procType = ((FunctionType *)fromSymTable);
+      argpos = 0;
+    }
+	}
+  LPAREN arg_list RPAREN
+  {
+    if (structureError){
+      $$ = new TypeError();
+    }
+    else {
+      MadafakaType *fromSymTable;
+      fromSymTable = buscarVariable(*($1),actual);
+      $$ = fromSymTable;
+    }
+    structureError = false;
+  }
+
   | IDENTIFIER LPAREN arg_list error {compiled =false; error(@$,"La llamada a una funcion debe terminar con un parentesis");} 
 
   ;
@@ -879,28 +923,64 @@ arg_decl_list:
 
 arg_decl_list1:
   {$$=actual;}
-  | COMMA arg_decl arg_decl_list1 {$$=actual;}
+  | COMMA {argpos++;}arg_decl arg_decl_list1 {$$=actual;}
   |  error arg_decl {compiled = false ; error(@$,"Los argumentos deben ir separados por comas");}  
   ;
 
 arg_decl:
   declaration11 
-  //| {var=1;}VAR declaration11 {var=0;}
+  | {var=1;}VAR declaration11 {var=0;}
   ;
 
 arg_list:
-
-  | general_expression arg_list1
+  {
+    if (!(*procType).noargs){
+      invocation_ok = false;
+    }
+  }
+  | expression
+  {
+    if (invocation_ok){
+      MadafakaType *supposedType=(*procType).get_argument(argpos);
+      MadafakaType *realType = ($1);
+      if (*supposedType != *realType ) {
+        compiled = false;
+        invocation_ok = false;
+        string errormsg = 
+        string("Se pasó un argumento de tipo ") + string(*realType)
+        + string(" pero se esperaba de tipo ") + string(*supposedType);
+        error(@$,errormsg);
+      }
+      else argpos++;
+    }
+  }
+  arg_list1
   ;
 
 arg_list1:
   
-  | COMMA general_expression arg_list1
-  | error general_expression {compiled = false ; error(@$,"Los argumentos deben ir separados por comas");}
+  | COMMA expression arg_list1
+  {
+    if (invocation_ok){
+      MadafakaType *supposedType=(*procType).get_argument(argpos);
+      MadafakaType *realType = ($2);
+      if (*supposedType != *realType ) {
+        compiled = false;
+        invocation_ok = false;
+        string errormsg = 
+        string("Se pasó un argumento de tipo ") + string(*realType)
+        + string(" pero se esperaba de tipo ") + string(*supposedType);
+        error(@$,errormsg);
+      }
+      else argpos++;
+    }
+  }
+
+  | error expression {compiled = false ; error(@$,"Los argumentos deben ir separados por comas");}
   ;
 
 write:
-  WRITE general_expression
+  WRITE expression
   ;
 
 read:
@@ -919,19 +999,47 @@ read:
   ;
 
 while_loop:
-  WHILE boolean_expression START bloque END
+  WHILE expression START bloque END
+  {
+    if (*($2) != "Bdafak"){
+      compiled = false;
+      error(@$,"Error en la condición del while");
+    }
+  }
+
   | WHILE error END {compiled = false ; error(@$,"Bloque while malformado");}
   ;
 
 for_loop:
-  FOR LPAREN assign SEPARATOR boolean_expression SEPARATOR assign RPAREN START bloque END
+  FOR LPAREN assign SEPARATOR expression SEPARATOR assign RPAREN START bloque END
+  {
+    if (*($5) != "Bdafak"){
+      compiled = false;
+      error(@$,"Error en la condición del for");
+    }
+  }
+
   | FOR error END {compiled = false ; error(@$,"Bloque for malformado");}
   ;
 
 
 if_block:
-  IF boolean_expression START bloque END
-  | IF boolean_expression START bloque END ELSE START bloque END
+  IF expression START bloque END
+  {
+    if (*($2) != "Bdafak"){
+      compiled = false;
+      error(@$,"Error en la condición del if");
+    }
+  }
+
+  | IF expression START bloque END ELSE START bloque END
+  {
+    if (*($2) != "Bdafak"){
+      compiled = false;
+      error(@$,"Error en la condición del if");
+    }
+  }
+
   | IF error END {compiled = false ; error(@$,"Bloque if malformado");}
   ;
 

@@ -14,6 +14,10 @@ mada
 	bdafak erculo;
 	bdafak chamito;
 	idafak pene;
+
+	idafak hardstyle(idafak culito) mada
+		wdafak culito;
+	faka;
 	@@
 
 	?? Campo de tipo idafak, y le intento asignar una expresion booleana
@@ -23,5 +27,7 @@ mada
 	hey[0].hola.jeje2=pene + chamito;
 
 	erculo = chamito;
+
+
 	
 faka

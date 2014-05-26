@@ -45,7 +45,7 @@ lexer: madafaka_scanner.l
 	$(CXX)  $(CXXFLAGS) -c madafaka_lexer.yy.cc -o lexer.o
 
 estructuras: MadafakaTypes.hpp MadafakaTypes.cpp
-	$(CXX) -c MadafakaTypes.cpp -o estructuras.o
+	$(CXX) $(CXXFLAGS) -c MadafakaTypes.cpp -o estructuras.o
  
 .PHONY: clean
 clean:

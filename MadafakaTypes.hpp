@@ -32,6 +32,7 @@ class MadafakaType{
   string name;
   MadafakaType(){}
   bool operator==(MadafakaType &rhs);
+  bool operator!=(MadafakaType &rhs);
   bool operator==(const char* word);
   bool operator!=(const char* word);
   operator string() const;
@@ -226,7 +227,9 @@ class FunctionType: public MadafakaType{
   arbol *args;
   MadafakaType *result;
  public:
+  bool noargs;
   FunctionType(arbol*,MadafakaType*);
+  MadafakaType* get_argument(int position);
 };
 
 #endif

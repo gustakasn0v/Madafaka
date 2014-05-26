@@ -53,6 +53,10 @@ bool MadafakaType::operator==(MadafakaType &rhs){
     return name==rhs.name;
 }
 
+bool MadafakaType::operator!=(MadafakaType &rhs){
+    return name!=rhs.name;
+}
+
 // redefiniendo operador == MadafakaType con un string
 bool MadafakaType::operator==(const char* word){
     return name==string(word);
@@ -190,6 +194,10 @@ FunctionType::FunctionType(arbol *arguments,MadafakaType *returntype){
     result = returntype;
 };
 
+MadafakaType* FunctionType::get_argument(int position){
+  return buscarVariable(to_string(position),args);
+}
+
 RefType::RefType(){
     name = "Reference";
     tam = 4;
@@ -231,10 +239,10 @@ MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right){
 
 bool compatible(MadafakaType *left, MadafakaType *right){
   // Son el mismo tipo
-  return *left == *right
   // o son tipos compatibles
-  || *left = "Idafak" && *right = "Fdafak"
-  || *left = "Fdafak" && *right = "Idafak"
+  return (*left == *right)
+  || (*left == "Idafak" && *right == "Fdafak")
+  || (*left == "Fdafak" && *right == "Idafak");
 };
 
 //funcion para agregar un hijo en un nodo del arbol de la tabla de
@@ -392,6 +400,8 @@ arbol *exitScope(arbol *actual){
   return actual;
 }
 
+
+
 //Recorre el arbol y lo imprime en pantalla
 void recorrer(arbol *a, int nivel){
   map<string, MadafakaType*> vars = (*a).getContenido();
@@ -426,7 +436,7 @@ void recorrer(arbol *a, int nivel){
     //  ya.insert(t);
     // }
     string tmp1 = it->first;
-    // if(it->second == "array" && ((*a).getTipoArray(tmp1)=="strdafak"\
+    // if(it->second == "array" && ((*a).getTipoArray(tmp1)=="strdafak"
     //             || (*a).getTipoArray(tmp1)=="unidafak")){
     //  int t = bloques[tmp1];
     //  recorrer(h[t],nivel+1);
