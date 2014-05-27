@@ -226,12 +226,6 @@ instruction:
   | error {compiled = false; error(@$,"Instruccion no valida");}
   ;
 
-
-declaration_proc:
-	
-	| procedure_decl SEPARATOR declaration_proc
-	;
-
 declaration_list:
 
 	| declaration SEPARATOR declaration_list { $$ = actual;}
@@ -987,17 +981,18 @@ write:
 
 read:
   READ IDENTIFIER 
-  		{
+	{
+    MadafakaType *fromSymTable;
+    fromSymTable = buscarVariable(*($2),actual);
+		if(*fromSymTable=="Undeclared" || *fromSymTable == "Function"){
+  		compiled = false;
+  		string errormsg = string("Variable no declarada: ")
+  		+ string(*($2));
+  		error(@$,errormsg);
+    }
+  }
 
-        MadafakaType *fromSymTable;
-        fromSymTable = buscarVariable(*($2),actual);
-	  		if(*fromSymTable=="Undeclared" || *fromSymTable == "Function"){
-				compiled = false;
-				string errormsg = string("Variable no declarada: ")
-				+ string(*($2));
-				error(@$,errormsg);
-			}
-		}
+  | READ id_dotlist1
   ;
 
 while_loop:
