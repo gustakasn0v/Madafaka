@@ -105,7 +105,6 @@
 %token <strvalue> SEPARATOR ";"
 %token <strvalue> ASSIGN "="
 %token <strvalue> COMMA ","
-%token <strvalue> LPAREN "("
 %token <strvalue> RPAREN ")"
 %token <strvalue> COMMENT "??"
 %token <strvalue> DECLARATIONS "@@"
@@ -137,6 +136,8 @@
 %token <strvalue> LARRAY "["
 %token <strvalue> RARRAY "]"
 %token DOT "."
+
+//%token OR AND PLUS MINUS LESS LESSEQ GREAT GREATEQ TIMES DIVIDE MOD EQ UMINUS NOT LPAREN
 
 /* Tokens for boolean/arithmetic expressions */
 %left OR AND PLUS MINUS LESS LESSEQ GREAT GREATEQ
@@ -182,9 +183,6 @@
 %type <typevalue> expression
 %type <typevalue> arithmetic_comparison
 %type <typevalue> variable
-%type <strvalue> boolean_opr
-%type <strvalue> arithmetic_opr
-%type <strvalue> comparison_opr
 
 %start program
 
@@ -673,52 +671,53 @@ expression:
   ;
 
 general_expression:
-  general_expression[leftBool] boolean_opr general_expression[rightBool]
+  general_expression[leftBool] AND general_expression[rightBool]
   {
-    if (*($leftBool) != "Bdafak" || *($rightBool) != "Bdafak") {
-      compiled = false;
-      string errormsg = 
-      string("Se intentó aplicar un operador booleano entre una expresión ");
-      if (*($1) == "TypeError"){
-        errormsg+=string("malformada");
-      }
-      else{
-        errormsg+=string("de tipo ")+ string(*($1));
-      }
-      errormsg += string(" y otra ");
-      if (*($3) == "TypeError"){
-        errormsg+=string("malformada");
-      }
-      else{
-        errormsg+=string("de tipo ")+ string(*($3));
-      }
-      error(@$,errormsg);
-      $$ = new TypeError();
-    }
-    else $$ = new BoolType();
+    string errormsg;
+    $$ = checkBooolean(errormsg,$1,$3);
+    if (*($$) == "TypeError") error(@$,errormsg);
   }
 
-  | general_expression[leftArithmetic] arithmetic_opr general_expression[rightArithmetic]
+  | general_expression[leftBool] OR general_expression[rightBool]
   {
-    $$ = check_and_widen($leftArithmetic,$rightArithmetic);
-    if (*($$) == "TypeError") {
-      compiled = false;
-      string errormsg = string("Se intentó aplicar un operador aritmético entre una expresión ");
-      if (*($1) == "TypeError"){
-        errormsg+=string("malformada");
-      }
-      else{
-        errormsg+=string("de tipo ")+ string(*($1));
-      }
-      errormsg += string(" y otra ");
-      if (*($3) == "TypeError"){
-        errormsg+=string("malformada");
-      }
-      else{
-        errormsg+=string("de tipo ")+ string(*($3));
-      }
-      error(@$,errormsg);
-    }
+    string errormsg;
+    $$ = checkBooolean(errormsg,$1,$3);
+    if (*($$) == "TypeError") error(@$,errormsg);
+  }
+
+  | general_expression[leftArithmetic] PLUS general_expression[rightArithmetic]
+  {
+    string errormsg;
+    $$ = checkArithmetic(errormsg,$1,$3);
+    if (*($$) == "TypeError") error(@$,errormsg);
+  }
+
+  | general_expression[leftArithmetic] MINUS general_expression[rightArithmetic]
+  {
+    string errormsg;
+    $$ = checkArithmetic(errormsg,$1,$3);
+    if (*($$) == "TypeError") error(@$,errormsg);
+  }
+
+  | general_expression[leftArithmetic] TIMES general_expression[rightArithmetic]
+  {
+    string errormsg;
+    $$ = checkArithmetic(errormsg,$1,$3);
+    if (*($$) == "TypeError") error(@$,errormsg);
+  }
+
+  | general_expression[leftArithmetic] DIVIDE general_expression[rightArithmetic]
+  {
+    string errormsg;
+    $$ = checkArithmetic(errormsg,$1,$3);
+    if (*($$) == "TypeError") error(@$,errormsg);
+  }
+
+  | general_expression[leftArithmetic] MOD general_expression[rightArithmetic]
+  {
+    string errormsg;
+    $$ = checkArithmetic(errormsg,$1,$3);
+    if (*($$) == "TypeError") error(@$,errormsg);
   }
 
   | LPAREN general_expression RPAREN
@@ -810,37 +809,45 @@ variable:
   }
 
 arithmetic_comparison:
-  general_expression comparison_opr general_expression
+  general_expression EQ general_expression
   {
-    if (
-      // Ambas expresiones son de tipo entero o flotante
-      ((*($1) == "Idafak") || (*($1) == "Idafak")) 
-      && ((*($3) == "Fdafak") || (*($3) == "Fdafak"))
-      ){
-      $$ = new BoolType();
-    }
-    else{
-      compiled = false;
-      string errormsg = string("Comparación booleana malformada");
-      error(@$,errormsg);
-      $$ = new TypeError();
-    }
+    string errormsg;
+    $$ = checkComparison(errormsg,$1,$3);
+    if (*($$) == "TypeError") error(@$,errormsg);
+  }
+
+  | general_expression LESS general_expression
+  {
+    string errormsg;
+    $$ = checkComparison(errormsg,$1,$3);
+    if (*($$) == "TypeError") error(@$,errormsg);
   }
   ;
 
-// This produces a shift/reduce situation similar to the one stated
-// above, with the boolean expressions. As above, we are OK with the
-// parser shifting in situations like these. "Deje así"
-
-arithmetic_opr: PLUS | MINUS | TIMES | DIVIDE | MOD
+  | general_expression LESSEQ general_expression
+  {
+    string errormsg;
+    $$ = checkComparison(errormsg,$1,$3);
+    if (*($$) == "TypeError") error(@$,errormsg);
+  }
   ;
 
-comparison_opr: EQ | LESS | LESSEQ 
-  | GREAT | GREATEQ
+  | general_expression GREAT general_expression
+  {
+    string errormsg;
+    $$ = checkComparison(errormsg,$1,$3);
+    if (*($$) == "TypeError") error(@$,errormsg);
+  }
   ;
 
-boolean_opr: AND | OR
+  | general_expression GREATEQ general_expression
+  {
+    string errormsg;
+    $$ = checkComparison(errormsg,$1,$3);
+    if (*($$) == "TypeError") error(@$,errormsg);
+  }
   ;
+
 
 procedure_decl:
   typo IDENTIFIER LPAREN 
@@ -907,9 +914,6 @@ procedure_invoc:
     }
     structureError = false;
   }
-
-  | IDENTIFIER LPAREN arg_list error {compiled =false; error(@$,"La llamada a una funcion debe terminar con un parentesis");} 
-
   ;
 
 arg_decl_list:
@@ -1059,4 +1063,3 @@ static int yylex(Madafaka::Madafaka_Parser::semantic_type *yylval,
 {
    return( scanner.yylex(yylval) );
 }
-

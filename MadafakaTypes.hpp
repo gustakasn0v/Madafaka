@@ -132,7 +132,12 @@ class Undeclared: public MadafakaType{
 
 MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right);
 
-bool compatible(MadafakaType *left, MadafakaType *right);
+MadafakaType *checkBooolean(string &errormsg,MadafakaType *leftBool,MadafakaType *rightBool);
+
+MadafakaType *checkArithmetic(string &errormsg,MadafakaType *leftBool,MadafakaType *rightBool);
+
+MadafakaType *checkComparison(string &errormsg,MadafakaType *leftBool,MadafakaType *rightBool);
+
 
 //Undeclared *Undeclared::singleton_instance = NULL;
 

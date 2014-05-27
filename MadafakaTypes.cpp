@@ -237,13 +237,85 @@ MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right){
   else return new IntegerType();
 }
 
-bool compatible(MadafakaType *left, MadafakaType *right){
-  // Son el mismo tipo
-  // o son tipos compatibles
-  return (*left == *right)
-  || (*left == "Idafak" && *right == "Fdafak")
-  || (*left == "Fdafak" && *right == "Idafak");
-};
+
+// Checkeo de las expresiones booleanas
+MadafakaType *checkBooolean(string &errormsg,MadafakaType *leftBool,MadafakaType *rightBool){
+  if (*(leftBool) != "Bdafak" || *(rightBool) != "Bdafak") {
+    errormsg = 
+    string("Se intentó aplicar un operador booleano entre una expresión ");
+    if (*(leftBool) == "TypeError"){
+      errormsg+=string("malformada");
+    }
+    else{
+      errormsg+=string("de tipo ")+ string(*(leftBool));
+    }
+    errormsg += string(" y otra ");
+    if (*(rightBool) == "TypeError"){
+      errormsg+=string("malformada");
+    }
+    else{
+      errormsg+=string("de tipo ")+ string(*(rightBool));
+    }
+    return new TypeError();
+  }
+  else return new BoolType();
+}
+
+MadafakaType *checkArithmetic(string &errormsg,MadafakaType *leftArithmetic,MadafakaType *rightArithmetic){
+  MadafakaType *widened = check_and_widen(leftArithmetic,rightArithmetic);
+  if (*(widened) == "TypeError") {
+    errormsg = 
+    string("Se intentó aplicar un operador aritmético entre una expresión ");
+    if (*(leftArithmetic) == "TypeError"){
+      errormsg+=string("malformada");
+    }
+    else{
+      errormsg+=string("de tipo ")+ string(*(leftArithmetic));
+    }
+    errormsg += string(" y otra ");
+    if (*(rightArithmetic) == "TypeError"){
+      errormsg+=string("malformada");
+    }
+    else{
+      errormsg+=string("de tipo ")+ string(*(rightArithmetic));
+    }
+    return new TypeError();
+  }
+  else return widened;
+}
+
+MadafakaType *checkComparison(string &errormsg,MadafakaType *leftBool,MadafakaType *rightBool){
+  if (
+    ((*(leftBool) != "Idafak" && *(leftBool) != "Fdafak"))
+   || ((*(rightBool) != "Idafak") && (*(rightBool) != "Fdafak")) 
+     ){
+    errormsg = 
+    string("Se intentó aplicar un operador de comparación entre una expresión ");
+    if (*(leftBool) == "TypeError"){
+      errormsg+=string("malformada");
+    }
+    else{
+      errormsg+=string("de tipo ")+ string(*(leftBool));
+    }
+    errormsg += string(" y otra ");
+    if (*(rightBool) == "TypeError"){
+      errormsg+=string("malformada");
+    }
+    else{
+      errormsg+=string("de tipo ")+ string(*(rightBool));
+    }
+    return new TypeError();
+  }
+  else return new BoolType();
+}
+
+// bool compatible(MadafakaType *left, MadafakaType *right){
+//   // Son el mismo tipo
+//   // o son tipos compatibles
+//   return (*left == *right)
+//   || (*left == "Idafak" && *right == "Fdafak")
+//   || (*left == "Fdafak" && *right == "Idafak");
+// };
 
 //funcion para agregar un hijo en un nodo del arbol de la tabla de
 //simbolos
