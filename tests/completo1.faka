@@ -1,27 +1,8 @@
-??Programa que funciona y que tiene una declaracion de estructuras al principio para ser
-??usada como parametros de funciones
-??@@
-??strdafak asd
-??	mada
-??		idafak i;
-??		idafak j;
-??	faka;
-??@@
-idafak hola(bdafak bla,bdafak ble)
-mada
-	@@
-		idafak h;
-		idafak h2;
-	@@
-	h = 1;
-	??hola(bla,ble);
-faka;
-
-
+??Programa que muestra una funcion recursiva
+??y tambien el ciclo while
 mada
 	@@
 	sdafak s;
-	??rdafak s;
 	strdafak m
 	mada
 		idafak tu;
@@ -34,13 +15,17 @@ mada
 			idafak p5;
 			m o;
 	faka;
+	idafak hola(idafak arg)
+	mada
+		@@
+		@@
+		wdafak(arg);
 
+		??Funciones recursivas
+		hola(arg);
+	faka;
 
 	@@
-	??hola(s);
-	??wdafak s;
-??	pepe();	
-
 	mada
 		@@
 		idafak p;
@@ -49,10 +34,13 @@ mada
 		e jeje;
 		idafak h;
 		@@
-		mada 
-			@@
-			fdafak p2;
-			@@
-		faka;
+
+		whiledafak (true)
+			mada
+				@@
+				@@
+				wdafak(true);
+			faka;
+
 	faka;
 faka

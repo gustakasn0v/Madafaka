@@ -9,12 +9,14 @@ mada
 	@@
 	s[1] = 1;
 	wdafak s[1];
+	??intento asignar un booleano a un entero
+	s[2]=q;
 
 	??Este bloque siempre se ejecuta
 	rdafak q;
 
 	??if mal formado, va sin el then
-	ifdafak q
+	ifdafak q then
 	mada
 		@@@@
 		wdafak(q);

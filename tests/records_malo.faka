@@ -29,6 +29,9 @@ mada
 
 	b1 = b2;
 
+	??Aqui se intenta asignar una variable de tipo estructura a un booleano
+	b1 = hey[0];
+
 
 	
 faka

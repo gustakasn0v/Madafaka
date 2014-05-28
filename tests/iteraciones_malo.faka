@@ -1,12 +1,14 @@
 ?? Este es un programa que pone a prueba varios ciclos anidados
+??pero falla ya que la variable hola2 del bloque interno no ha 
+??sido declarada
 mada
 	@@
-	idafak hola;
+		idafak hola;
 	@@
 	fordafak(hola=0; hola<2 ; hola=hola+1) mada
 		@@
 		@@
-		whiledafak (hola < 30) mada
+		whiledafak (hola2 < 30) mada
 			@@
 			@@
 			wdafak hola;
