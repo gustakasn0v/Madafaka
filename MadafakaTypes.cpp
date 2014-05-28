@@ -370,12 +370,18 @@ MadafakaType* arbol::tipoVar(string &var){
 }
 
 //Retorna el mapa de hijos de un nodo
-map<string,MadafakaType*> arbol::getContenido(){
+map<string,MadafakaType*> arbol::getMapaContenido(){
   return contenido;
 }
 
+pair<int,int> arbol::getUbicacion(string& nombre){
+  if(ubicacion.count(nombre))
+    return ubicacion[nombre];
+  return make_pair(-1,-1);
+};
+
 //Retorna las ubicaciones de todos los nodos, que es un mapa
-map<string,pair<int,int> > arbol::getUbicacion(){
+map<string,pair<int,int> > arbol::getMapaUbicacion(){
   return ubicacion;
 }
 
@@ -473,11 +479,10 @@ arbol *exitScope(arbol *actual){
 }
 
 
-
 //Recorre el arbol y lo imprime en pantalla
 void recorrer(arbol *a, int nivel){
-  map<string, MadafakaType*> vars = (*a).getContenido();
-  map<string,pair<int,int> > ubic = (*a).getUbicacion();
+  map<string, MadafakaType*> vars = (*a).getMapaContenido();
+  map<string,pair<int,int> > ubic = (*a).getMapaUbicacion();
   map<string,int> bloques = (*a).getBloque();
   vector<arbol *> h = (*a).getHijos();
   set<int> ya;

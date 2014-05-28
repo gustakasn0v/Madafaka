@@ -179,8 +179,9 @@ MadafakaType *checkComparison(string &errormsg,MadafakaType *leftBool,MadafakaTy
       void insertar(string ,MadafakaType*, int, int, int);
       int estaContenido(string &);
       MadafakaType *tipoVar(string &);
-      map<string,MadafakaType*> getContenido();
-      map<string,pair<int,int> > getUbicacion();
+      map<string,MadafakaType*> getMapaContenido();
+      pair<int,int> getUbicacion(string&);
+      map<string,pair<int,int> > getMapaUbicacion();
       map<string,int> getBloque();
       arbol *hijoEnStruct(string &);
       void esArray(string &);

@@ -63,8 +63,7 @@
                     Madafaka::Madafaka_Scanner  &scanner,
                     Madafaka::Madafaka_Driver   &driver);
 
-   /*Incluyendo estructuras auxiliares*/
-  
+   /*Incluyendo estructuras auxiliares*/  
 	arbol raiz;
  	arbol *actual = &raiz;
   arbol *nuevaTabla;
@@ -88,6 +87,8 @@
   int argpos=0;
 
   // Firma de la función invocada, para revisar la firma de los argumentos
+  // También sirver para heredar la firma de la función al final de la regla
+  // de declaración de función, para insertar la firma en la table
   FunctionType *procType;
 
   // Booleano que indica que se han revisado los argumentos de las invocaciones
@@ -872,10 +873,17 @@ procedure_decl:
     }
   }
   RPAREN START bloque END 
-			{
-	actual=exitScope(actual);
-			
-	  		}
+	{
+    MadafakaType *fromSymTable = buscarVariable(*($2),actual);
+    FunctionType *tipoFuncion = (FunctionType *) fromSymTable;
+    pair<int,int> ubicacion = (*actual).getUbicacion(*($2));
+    actual=exitScope(actual);
+    if (ubicacion != make_pair(-1,-1)){
+      (*actual).insertar(*($2),tipoFuncion,ubicacion.first,ubicacion.second,0);
+    }
+
+    
+	}
   ;
 
 procedure_invoc:
