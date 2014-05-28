@@ -190,7 +190,7 @@
 %%
 
 program:
-  //DECLARATIONS initial_str DECLARATIONS {os=-1;} 
+  //Regla para definir un programa
   START bloque END
   { 
     if (compiled and !lexerror) recorrer(&raiz,0);
@@ -199,6 +199,8 @@ program:
   | error {compiled = false; error(@$,"Something wicked happened");}
   ;
 
+//Regla que define un bloque del programa, que consta de 
+//una lista de Declaraciones e instrucciones
 bloque:
 	{actual=enterScope(actual);} 
 	DECLARATIONS declaration_list DECLARATIONS instruction_list 
@@ -206,12 +208,14 @@ bloque:
   | error {compiled = false; error(@$,"Something wicked happened");}
 	;
 
+//regla que define una lista de instrucciones
 instruction_list:
 
   | instruction SEPARATOR instruction_list
   | error {compiled = false; error(@$,"Something wicked happened");}
   ;
 
+//Regla que define como esta conformada una sola instruccion
 instruction:
   assign 
   | procedure_invoc
@@ -222,18 +226,21 @@ instruction:
   | for_loop
   | if_block
   | START bloque END
-  | error {compiled = false; error(@$,"Instruccion no valida");}
+  | error {compiled = false; error(@$,"Instruccion no valida");} //Instruccion no valida
   ;
 
+//lista de declaraciones
 declaration_list:
 
 	| declaration SEPARATOR declaration_list { $$ = actual;}
   | declaration error declaration_list {compiled = false ; error(@$,"Las declaraciones van separadas por ;");}
 	;
 
+
 declaration11:
   // Declaración de una variable o arreglo de variables de tipo primitivo
   typoBase IDENTIFIER array_variable{ 
+      //verifica si la variable esta declarada
       if(!(*actual).estaContenido(*($2))){
       string *s3 = new string(*($2));
       string s2 = to_string(argpos);
@@ -287,6 +294,7 @@ declaration1:
       if (*($3) == "Void"){
         (*actual).insertar(*s2,$1,yyline,frcol,0);
         if(os>0){
+    //Atualizacines de offset
 	  (*actual).setOffset(*s2,(*actual).getBase());
 	  (*actual).addBase(($1)->tam *os);
 	}
@@ -297,6 +305,7 @@ declaration1:
         //cout << $1->tam << endl;
       }
       else{
+        //Actualizaciones de offset
         ArrayType *nuevotipo = new ArrayType($3->tam * $1->tam,$1);
         (*actual).insertar(*s2,nuevotipo,yyline,frcol,0);
         if(os>0){
@@ -304,6 +313,7 @@ declaration1:
 	  (*actual).addBase(($1)->tam *os * $3->tam);
 	}
 	else{
+    //Actualizacion de offset
 	  (*actual).addBase(($1)->tam * $3->tam * os);
 	  (*actual).setOffset(*s2,(*actual).getBase());
 	}
@@ -319,6 +329,7 @@ declaration1:
   }
 ;
 
+//declaracion de un struct o un union
 declaration2:
   typo2 IDENTIFIER START 
   	{actual = enterScope(actual);}  
@@ -326,7 +337,8 @@ declaration2:
   	{
       nuevaTabla = actual;
     	actual = exitScope(actual);
-	nuevaTabla->var = false;
+	    nuevaTabla->var = false;
+      //Verifica si este tipo de estructura o union ya esta contenido
     	if(!(*actual).estaContenido(*($2))){
         if (*($1) == "Union"){
           UnionType *newUnion = new UnionType($2,nuevaTabla);
@@ -377,11 +389,14 @@ declaration:
 	 			}
   ;
 
+//Verifica si una variable es un arreglo o no
 array_variable:
     {$$ = new VoidType();}
 | LARRAY INTVALUE RARRAY 
     {$$ = new ArrayType($2,new VoidType());}
 
+
+//Define los tipos bases en MadafakaLanguage
 typoBase:
   INTEGER {$$ = new IntegerType();}
   | FLOAT {$$ = new FloatType();}
@@ -391,6 +406,7 @@ typoBase:
   | BOOL {$$ = new BoolType();}
   ;
 
+//Define todo los tipos posibles del lenguaje
 typo:
   typoBase {$$=$1;}
   | IDENTIFIER {
@@ -412,8 +428,9 @@ typo2:
 	| STRUCT {$$ = new string("struct");}
 	;
 
-// Producciones que se encargan del acceso a campos del struct o union
 
+
+// Producciones que se encargan del acceso a campos del struct o union
 id_dotlist1:
   IDENTIFIER LARRAY INTVALUE RARRAY
   {
@@ -437,6 +454,8 @@ id_dotlist1:
   {
     MadafakaType *fromSymTable;
     fromSymTable = buscarVariable(*($1),actual);
+    //Verifica si el arreglo es un arreglo de tipos anidados
+    //y actualiza el bloque del struct para seguir verificando en los accesos a campos
     if(*fromSymTable=="Array"){
       ArrayType *miarreglo = (ArrayType *)fromSymTable;
       MadafakaType *tipoarray =  miarreglo->type;
@@ -610,10 +629,12 @@ id_dotlist2:
   | error {error(@$,"Acceso a de strdafak o unidafak de manera incorrecta.");}
   ;
 
+//Regla que define una asignacion
 assign:
   IDENTIFIER ASSIGN expression{
     MadafakaType *fromSymTable;
     fromSymTable = buscarVariable(*($1),actual);
+    //verifica si esta declarada la variable
   	if((*fromSymTable)=="Undeclared"){
   		compiled=false;
   		string errormsg = string("Variable no declarada: ")+ string(*($1));
@@ -636,7 +657,7 @@ assign:
       $$ = new TypeError();
     }
   }									
- | id_dotlist1 ASSIGN expression{
+ | id_dotlist1 ASSIGN expression{ //asignaciones para campos en structs o unions
     if(*($1) == *($3)){
       // Se asignó correctamente la expresión
       $$ = $3;
@@ -671,6 +692,8 @@ expression:
   }
   ;
 
+//Define todas las posibles expresiones validas en un lenguaje,
+//ya sea arimetica o booleana
 general_expression:
   general_expression[leftBool] AND general_expression[rightBool]
   {
@@ -728,6 +751,8 @@ general_expression:
 
   | NOT general_expression
   {
+    //si no es booleano, la expresion que acompania al NOT, entonces 
+    //Hay error de tipo
     if (*($2) != "Bdafak") {
       compiled = false;
       string errormsg = 
@@ -745,6 +770,7 @@ general_expression:
 
   | MINUS general_expression %prec UMINUS
   {
+    //Verifica si la expresion precedida por el signo -, es de tipo numerico
     if (*($2) != "Fdafak" && *($2) != "Idafak") {
       compiled = false;
       string errormsg = 
@@ -793,6 +819,7 @@ general_expression:
   }
   ;
 
+//Verifica si una variable esta declarada y retorna su tipo
 variable:
   IDENTIFIER
   {
@@ -809,6 +836,7 @@ variable:
     else $$ = fromSymTable;
   }
 
+//Define una comparacion aritmetica
 arithmetic_comparison:
   general_expression EQ general_expression
   {
@@ -849,7 +877,7 @@ arithmetic_comparison:
   }
   ;
 
-
+//Regla para la definicion de procedimientos
 procedure_decl:
   typo IDENTIFIER LPAREN 
   {actual=enterScope(actual);os=-1;argpos=0;}
@@ -886,6 +914,9 @@ procedure_decl:
 	}
   ;
 
+//Define la invocacin de una funcion,
+// y verifica que los tipos de los argumentos que le son pasados
+// son del tipo correcto
 procedure_invoc:
   IDENTIFIER
   {
@@ -924,6 +955,8 @@ procedure_invoc:
   }
   ;
 
+
+//define una lista de argumentos declarados para una funcion
 arg_decl_list:
   
   | arg_decl arg_decl_list1 {$$=actual;}
@@ -935,6 +968,7 @@ arg_decl_list1:
   |  error arg_decl {compiled = false ; error(@$,"Los argumentos deben ir separados por comas");}  
   ;
 
+//Define la declaracio nde una variable
 arg_decl:
   declaration11 
   | {var=1;}VAR declaration11 {var=0;}
@@ -987,10 +1021,13 @@ arg_list1:
   | error expression {compiled = false ; error(@$,"Los argumentos deben ir separados por comas");}
   ;
 
+
+//Define la funcion write
 write:
   WRITE expression
   ;
 
+//Define la funcion read para el lenguaje
 read:
   READ IDENTIFIER 
 	{
@@ -1007,6 +1044,7 @@ read:
   | READ id_dotlist1
   ;
 
+//Define una iteracion while del lenguaje
 while_loop:
   WHILE expression START bloque END
   {
@@ -1019,6 +1057,8 @@ while_loop:
   | WHILE error END {compiled = false ; error(@$,"Bloque while malformado");}
   ;
 
+
+//Define una iteracion for del lenguaje
 for_loop:
   FOR LPAREN assign SEPARATOR expression SEPARATOR assign RPAREN START bloque END
   {
@@ -1031,7 +1071,7 @@ for_loop:
   | FOR error END {compiled = false ; error(@$,"Bloque for malformado");}
   ;
 
-
+//Define una isntruccion if para el lenguaje
 if_block:
   IF expression START bloque END
   {
