@@ -481,7 +481,7 @@ arbol *exitScope(arbol *actual){
 void arbol::borrarMapaContenido(string &str){
   contenido.erase(str);
 }
-set<arbol *> se;
+
 //Recorre el arbol y lo imprime en pantalla
 void recorrer(arbol *a, int nivel){
   map<string, MadafakaType*> vars = (*a).getMapaContenido();
@@ -489,8 +489,6 @@ void recorrer(arbol *a, int nivel){
   map<string,int> bloques = (*a).getBloque();
   vector<arbol *> h = (*a).getHijos();
   set<int> ya;
-  if(se.count(a)) return;
-  se.insert(a);
   string s = "";
   for(int i=0;i<nivel;i++) s+='\t';
   cout << s << "Abriendo anidamiento de base " << (*a).getBase();

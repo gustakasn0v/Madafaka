@@ -18,6 +18,7 @@ mada
 	idafak hola(idafak arg)
 	mada
 		@@
+			idafak b;
 		@@
 		wdafak(arg);
 

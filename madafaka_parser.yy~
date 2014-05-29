@@ -915,7 +915,7 @@ procedure_decl:
       FunctionType *tipoFuncion = new FunctionType(nuevaTabla,$1);
       if (argpos == 0) (*tipoFuncion).noargs = 0;
       argpos = 0;
-		(*actual).insertar(*($2),tipoFuncion,t1,t2,0);
+			(*actual).insertar(*($2),tipoFuncion,t1,t2,0);
   }
     else{
 	     error(@$,"Funcion ya declarada anteriormente");
