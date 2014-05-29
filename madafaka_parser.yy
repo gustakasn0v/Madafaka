@@ -905,7 +905,7 @@ procedure_decl:
   {
     nuevaTabla = actual;
     os=1;
-    actual->addBase(actual->getBase());
+    actual->addBase(-actual->getBase());
     MadafakaType *fromSymTable;
     fromSymTable = buscarVariable(*($2),actual);
     if(*fromSymTable == "Undeclared"){
@@ -925,6 +925,7 @@ procedure_decl:
     MadafakaType *fromSymTable = buscarVariable(*($2),actual);
     FunctionType *tipoFuncion = (FunctionType *) fromSymTable;
     pair<int,int> ubicacion = (*actual).getUbicacion(*($2));
+    (*actual).borrarMapaContenido(*($2));
     actual=exitScope(actual);
     if (ubicacion != make_pair(-1,-1)){
       (*actual).insertar(*($2),tipoFuncion,ubicacion.first,ubicacion.second,0);

@@ -32,6 +32,7 @@ class MadafakaType{
   string name;
   MadafakaType(){}
   bool operator==(MadafakaType &rhs);
+  bool operator!=(MadafakaType &rhs);
   bool operator==(const char* word);
   bool operator!=(const char* word);
   operator string() const;
@@ -108,6 +109,7 @@ class RefType: public MadafakaType{
  public:
   RefType();
   static RefType *instance();
+  MadafakaType *ref;
 };
 
 
@@ -129,6 +131,13 @@ class Undeclared: public MadafakaType{
 };
 
 MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right);
+
+MadafakaType *checkBooolean(string &errormsg,MadafakaType *leftBool,MadafakaType *rightBool);
+
+MadafakaType *checkArithmetic(string &errormsg,MadafakaType *leftBool,MadafakaType *rightBool);
+
+MadafakaType *checkComparison(string &errormsg,MadafakaType *leftBool,MadafakaType *rightBool);
+
 
 //Undeclared *Undeclared::singleton_instance = NULL;
 
@@ -170,8 +179,9 @@ MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right);
       void insertar(string ,MadafakaType*, int, int, int);
       int estaContenido(string &);
       MadafakaType *tipoVar(string &);
-      map<string,MadafakaType*> getContenido();
-      map<string,pair<int,int> > getUbicacion();
+      map<string,MadafakaType*> getMapaContenido();
+      pair<int,int> getUbicacion(string&);
+      map<string,pair<int,int> > getMapaUbicacion();
       map<string,int> getBloque();
       arbol *hijoEnStruct(string &);
       void esArray(string &);
@@ -181,6 +191,7 @@ MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right);
       void addBase(int);
       void setOffset(string &, int);
       int getOffset(string &);
+      void borrarMapaContenido();
   };
 
   /* Funcion que retornara el tipo de la variable
@@ -220,10 +231,12 @@ private:
 };
 
 class FunctionType: public MadafakaType{
-  arbol *args;
   MadafakaType *result;
  public:
+  arbol *args;
+  bool noargs;
   FunctionType(arbol*,MadafakaType*);
+  MadafakaType* get_argument(int position);
 };
 
 #endif

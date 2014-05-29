@@ -191,6 +191,7 @@ MadafakaType *checkComparison(string &errormsg,MadafakaType *leftBool,MadafakaTy
       void addBase(int);
       void setOffset(string &, int);
       int getOffset(string &);
+      void borrarMapaContenido(string &);
   };
 
   /* Funcion que retornara el tipo de la variable
@@ -230,9 +231,9 @@ private:
 };
 
 class FunctionType: public MadafakaType{
-  arbol *args;
   MadafakaType *result;
  public:
+  arbol *args;
   bool noargs;
   FunctionType(arbol*,MadafakaType*);
   MadafakaType* get_argument(int position);
