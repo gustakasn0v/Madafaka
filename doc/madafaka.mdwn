@@ -45,11 +45,23 @@ comentarios multilínea
 
 Un programa de Madafaka consiste en un bloque global, delimitado por las palabras
 reservadas `mada` y `faka`, que inicia con una serie de declaraciones de
-variables, y continúa con una serie de instrucciones, potencialmente vacía. 
-Por simplicidad de implementación, las declaraciones de variables deben ir 
-*antes* que cualquier instrucción. Adicionalmente, en un cuerpo de un bloque 
-se puede crear otro bloque mediante las palabras `mada` y `faka`, 
-permitiéndose el anidamiento de bloques.
+variables, delimitadas por dos líneas con \@\@ y *separadas* por \; y continúa con una serie de 
+instrucciones, siempre con \; al final de cada instrucción, potencialmente vacía. 
+Por simplicidad de implementación, las declaraciones de variables deben ir *antes* que cualquier instrucción.
+Adicionalmente, en un cuerpo de un bloque se puede crear otro bloque 
+mediante las palabras `mada` y `faka`, permitiéndose el anidamiento de bloques.
+Un programa de Madafaka tiene la siguiente estructura:
+
+    mada
+        @@
+        declaracion1;
+        declaracion2;
+        ...
+        declaracionN
+        @@
+
+        instruccion1;
+        instruccion2;
 
 # Alcance
 
@@ -78,8 +90,8 @@ Para hacer una declaración de variables, se utiliza la sintaxis
 
     <TipoDeDato> <identificador>;
 En adición a esto, se permite la construcción de tipos compuestos (struct, que
-recibe el nombre de strdafak en Madafaka) al estilo C/C++. 
-Para esto se utiliza la sintaxis
+recibe el nombre de strdafak en Madafaka, o unions, que reciben el nombre de
+unidafak en Madafaka) al estilo C/C++. Para esto se utiliza la sintaxis
 
 	strdafak <identificador> mada
 		<TipoDeDatoCampo1> <identificador>;
@@ -89,15 +101,14 @@ Para esto se utiliza la sintaxis
 
 # Arreglos
 
-Los arreglos en Madafaka son multidimensionales, homogéneos, y estáticos. Son
+Los arreglos en Madafaka son unidimensionales, homogéneos, y estáticos. Son
 declarados de la siguiente manera:
 
-    <TipoDeDato> <identificador>[tamaño1][tamaño2]...;
+    <TipoDeDato> <identificador>[tamaño1];
 
-Donde `tamañoN` consiste en una expresión aritmética que determina
+Donde `tamañoN` consiste en una constante entera que determina
 una de las dimensiones del arreglo.
 
-*	tamañoN debe poder cumplir con las reglas de alcance del lenguaje
 *	Los índices del arreglo van desde 0 a tamañoN-1
 
 
@@ -111,10 +122,11 @@ Las declaraciones de funciones se realizan mediante la sintaxis
 
     <TipoRetorno> <Identificador>(<TipoArg1> <id1>, <TipoArg2> <id2>,...)
 
-*	Todas las funciones deben declararse antes del primer bloque del lenguaje
 *	Una función puede tener cero o más parámetros.
 *	Los argumentos pueden ser de todos los tipos soportados por el lenguaje:
 	tipos primitivos, compuestos o arreglos.
+*   Las funciones pueden declararse en cualquier parte de los bloques de
+    declaraciones
 *	Por defecto el pasaje de parámetros es **por valor**. Sin embargo puede
 	utilizarse el pasaje por referencia colocando la palabra `var` antes
 	de la declaración del parámetro.
@@ -139,8 +151,13 @@ Sin embargo, el resto de las operaciones típicas está soportado:
 
 *	En las comparaciones aritméticas, ambos lados de la comparación deben ser
 	del mismo tipo (enteros con enteros, flotantes con flotantes)
-*	Al hacer operaciones aritméticas, ambos lados de la operación deben ser
-	del mismo tipo (enteros con enteros, flotantes con flotantes)
+*	Al hacer operaciones aritméticas, ambos lados de la operación pueden ser
+	del mismo tipo (enteros con enteros, flotantes con flotantes), pero también
+    se acepta operaciones aritméticas entre enteros y flotantes a través del
+    **ensanchamiento** de tipos (una suma de enteros con flotantes produce un
+    flotante). Lo importante es que las asignaciones se realicen respetando 
+    el sistema de tipos (una variable flotante no puede asignarse en un tipo 
+    entero)
 *	Las expresiones booleanas no soportan cortocircuitos
 *	Las comparaciones de igualdad (`==`) deben hacerse entre tipos equivalentes
 *	Al hacer expresiones booleanas con los operadores `and` y `or`, 
