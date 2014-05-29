@@ -62,6 +62,7 @@ Un programa de Madafaka tiene la siguiente estructura:
 
         instruccion1;
         instruccion2;
+    faka
 
 # Alcance
 

@@ -34,4 +34,4 @@ madafaka_lexer.yy.cc
 madafaka
 
 # Pandoc Output
-doc/madafaka.pdf
+#doc/madafaka.pdf
