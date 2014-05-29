@@ -45,8 +45,9 @@ comentarios multilínea
 
 Un programa de Madafaka consiste en un bloque global, delimitado por las palabras
 reservadas `mada` y `faka`, que inicia con una serie de declaraciones de
-variables, delimitadas por dos líneas con \@\@ y *separadas* por \; y continúa con una serie de 
-instrucciones, siempre con \; al final de cada instrucción, potencialmente vacía. 
+variables, delimitadas por dos líneas con \@\@ y con \; al final de *cada*
+declaración, y continúa con una serie de 
+instrucciones, siempre con \; al final de *cada* instrucción, potencialmente vacía. 
 Por simplicidad de implementación, las declaraciones de variables deben ir *antes* que cualquier instrucción.
 Adicionalmente, en un cuerpo de un bloque se puede crear otro bloque 
 mediante las palabras `mada` y `faka`, permitiéndose el anidamiento de bloques.
