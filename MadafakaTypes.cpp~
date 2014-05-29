@@ -53,6 +53,10 @@ bool MadafakaType::operator==(MadafakaType &rhs){
     return name==rhs.name;
 }
 
+bool MadafakaType::operator!=(MadafakaType &rhs){
+    return name!=rhs.name;
+}
+
 // redefiniendo operador == MadafakaType con un string
 bool MadafakaType::operator==(const char* word){
     return name==string(word);
@@ -190,8 +194,13 @@ FunctionType::FunctionType(arbol *arguments,MadafakaType *returntype){
     result = returntype;
 };
 
+MadafakaType* FunctionType::get_argument(int position){
+  return buscarVariable(to_string(position),args);
+}
+
 RefType::RefType(){
     name = "Reference";
+    tam = 4;
 };
 RefType* RefType::instance(){
     if (!singleton_instance)
@@ -227,6 +236,86 @@ MadafakaType* check_and_widen(MadafakaType *left, MadafakaType *right){
   else if ((*left == "Fdafak") || (*right == "Fdafak")) return new FloatType();
   else return new IntegerType();
 }
+
+
+// Checkeo de las expresiones booleanas
+MadafakaType *checkBooolean(string &errormsg,MadafakaType *leftBool,MadafakaType *rightBool){
+  if (*(leftBool) != "Bdafak" || *(rightBool) != "Bdafak") {
+    errormsg = 
+    string("Se intentó aplicar un operador booleano entre una expresión ");
+    if (*(leftBool) == "TypeError"){
+      errormsg+=string("malformada");
+    }
+    else{
+      errormsg+=string("de tipo ")+ string(*(leftBool));
+    }
+    errormsg += string(" y otra ");
+    if (*(rightBool) == "TypeError"){
+      errormsg+=string("malformada");
+    }
+    else{
+      errormsg+=string("de tipo ")+ string(*(rightBool));
+    }
+    return new TypeError();
+  }
+  else return new BoolType();
+}
+
+MadafakaType *checkArithmetic(string &errormsg,MadafakaType *leftArithmetic,MadafakaType *rightArithmetic){
+  MadafakaType *widened = check_and_widen(leftArithmetic,rightArithmetic);
+  if (*(widened) == "TypeError") {
+    errormsg = 
+    string("Se intentó aplicar un operador aritmético entre una expresión ");
+    if (*(leftArithmetic) == "TypeError"){
+      errormsg+=string("malformada");
+    }
+    else{
+      errormsg+=string("de tipo ")+ string(*(leftArithmetic));
+    }
+    errormsg += string(" y otra ");
+    if (*(rightArithmetic) == "TypeError"){
+      errormsg+=string("malformada");
+    }
+    else{
+      errormsg+=string("de tipo ")+ string(*(rightArithmetic));
+    }
+    return new TypeError();
+  }
+  else return widened;
+}
+
+MadafakaType *checkComparison(string &errormsg,MadafakaType *leftBool,MadafakaType *rightBool){
+  if (
+    ((*(leftBool) != "Idafak" && *(leftBool) != "Fdafak"))
+   || ((*(rightBool) != "Idafak") && (*(rightBool) != "Fdafak")) 
+     ){
+    errormsg = 
+    string("Se intentó aplicar un operador de comparación entre una expresión ");
+    if (*(leftBool) == "TypeError"){
+      errormsg+=string("malformada");
+    }
+    else{
+      errormsg+=string("de tipo ")+ string(*(leftBool));
+    }
+    errormsg += string(" y otra ");
+    if (*(rightBool) == "TypeError"){
+      errormsg+=string("malformada");
+    }
+    else{
+      errormsg+=string("de tipo ")+ string(*(rightBool));
+    }
+    return new TypeError();
+  }
+  else return new BoolType();
+}
+
+// bool compatible(MadafakaType *left, MadafakaType *right){
+//   // Son el mismo tipo
+//   // o son tipos compatibles
+//   return (*left == *right)
+//   || (*left == "Idafak" && *right == "Fdafak")
+//   || (*left == "Fdafak" && *right == "Idafak");
+// };
 
 //funcion para agregar un hijo en un nodo del arbol de la tabla de
 //simbolos
@@ -281,12 +370,18 @@ MadafakaType* arbol::tipoVar(string &var){
 }
 
 //Retorna el mapa de hijos de un nodo
-map<string,MadafakaType*> arbol::getContenido(){
+map<string,MadafakaType*> arbol::getMapaContenido(){
   return contenido;
 }
 
+pair<int,int> arbol::getUbicacion(string& nombre){
+  if(ubicacion.count(nombre))
+    return ubicacion[nombre];
+  return make_pair(-1,-1);
+};
+
 //Retorna las ubicaciones de todos los nodos, que es un mapa
-map<string,pair<int,int> > arbol::getUbicacion(){
+map<string,pair<int,int> > arbol::getMapaUbicacion(){
   return ubicacion;
 }
 
@@ -383,10 +478,14 @@ arbol *exitScope(arbol *actual){
   return actual;
 }
 
+void arbol::borrarMapaContenido(string &str){
+  contenido.erase(str);
+}
+
 //Recorre el arbol y lo imprime en pantalla
 void recorrer(arbol *a, int nivel){
-  map<string, MadafakaType*> vars = (*a).getContenido();
-  map<string,pair<int,int> > ubic = (*a).getUbicacion();
+  map<string, MadafakaType*> vars = (*a).getMapaContenido();
+  map<string,pair<int,int> > ubic = (*a).getMapaUbicacion();
   map<string,int> bloques = (*a).getBloque();
   vector<arbol *> h = (*a).getHijos();
   set<int> ya;
@@ -402,6 +501,7 @@ void recorrer(arbol *a, int nivel){
     if(it->second->name!="Function" && (*a).getOffset(s2)<-800000) continue;
     cout << s+"\t" << it->first << " es de tipo " << it->second->name;
     
+    
     if(it->second->name!="Function"){
       cout << " y su offset es: " << (*a).getOffset(s2);
       cout << " y tam: " << it->second->tam << endl;
@@ -411,13 +511,26 @@ void recorrer(arbol *a, int nivel){
     int t1 = p.first;
     int t2 = p.second;
     cout << s+"\t" << "Ubicacion, fila: " << t1 << ", columna: "<<t2<<endl<<endl;
+    
+    if(it->second->name=="Struct"){
+      recorrer(((RecordType *)it->second)->SymTable,nivel+1);
+    }
+    if(it->second->name=="Union"){
+      recorrer(((UnionType *)it->second)->SymTable ,nivel+1);
+    }
+    
+    //if(it->second->name=="Function" ){
+      //recorrer(((FunctionType *)it->second)->args ,nivel+1);
+      
+    //}
+    
     // if(it->second == "strdafak" || it->second=="unidafak"){
     //  int t = bloques[it->first];
     //  recorrer(h[t],nivel+1);
     //  ya.insert(t);
     // }
     string tmp1 = it->first;
-    // if(it->second == "array" && ((*a).getTipoArray(tmp1)=="strdafak"\
+    // if(it->second == "array" && ((*a).getTipoArray(tmp1)=="strdafak"
     //             || (*a).getTipoArray(tmp1)=="unidafak")){
     //  int t = bloques[tmp1];
     //  recorrer(h[t],nivel+1);

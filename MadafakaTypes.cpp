@@ -478,6 +478,9 @@ arbol *exitScope(arbol *actual){
   return actual;
 }
 
+void arbol::borrarMapaContenido(string &str){
+  contenido.erase(str);
+}
 
 //Recorre el arbol y lo imprime en pantalla
 void recorrer(arbol *a, int nivel){
@@ -498,6 +501,7 @@ void recorrer(arbol *a, int nivel){
     if(it->second->name!="Function" && (*a).getOffset(s2)<-800000) continue;
     cout << s+"\t" << it->first << " es de tipo " << it->second->name;
     
+    
     if(it->second->name!="Function"){
       cout << " y su offset es: " << (*a).getOffset(s2);
       cout << " y tam: " << it->second->tam << endl;
@@ -507,6 +511,19 @@ void recorrer(arbol *a, int nivel){
     int t1 = p.first;
     int t2 = p.second;
     cout << s+"\t" << "Ubicacion, fila: " << t1 << ", columna: "<<t2<<endl<<endl;
+    
+    if(it->second->name=="Struct"){
+      recorrer(((RecordType *)it->second)->SymTable,nivel+1);
+    }
+    if(it->second->name=="Union"){
+      recorrer(((UnionType *)it->second)->SymTable ,nivel+1);
+    }
+    
+    if(it->second->name=="Function" ){
+      recorrer(((FunctionType *)it->second)->args ,nivel+1);
+      
+    }
+    
     // if(it->second == "strdafak" || it->second=="unidafak"){
     //  int t = bloques[it->first];
     //  recorrer(h[t],nivel+1);
