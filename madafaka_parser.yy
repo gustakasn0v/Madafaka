@@ -631,7 +631,27 @@ id_dotlist2:
 
 //Regla que define una asignacion
 assign:
-  IDENTIFIER ASSIGN expression{
+  IDENTIFIER ASSIGN STRVALUE
+  {
+    MadafakaType *fromSymTable;
+    fromSymTable = buscarVariable(*($1),actual);
+    //verifica si esta declarada la variable
+    if((*fromSymTable)=="Undeclared"){
+      compiled=false;
+      string errormsg = string("Variable no declarada: ")+ string(*($1));
+      error(@$,errormsg);
+      $$ = new TypeError();
+    }
+    else if(*fromSymTable != "Sdafak"){
+      compiled=false;
+      string errormsg = string("Asignación de string a variable que no es de tipo sdafak: ")+ string(*($1));
+      error(@$,errormsg);
+      $$ = new TypeError();
+    }
+    else $$ = new StringType();
+  }
+
+  | IDENTIFIER ASSIGN expression{
     MadafakaType *fromSymTable;
     fromSymTable = buscarVariable(*($1),actual);
     //verifica si esta declarada la variable
@@ -1025,6 +1045,7 @@ arg_list1:
 //Define la funcion write
 write:
   WRITE expression
+  | WRITE STRVALUE
   ;
 
 //Define la funcion read para el lenguaje
