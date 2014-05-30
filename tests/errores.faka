@@ -1,0 +1,15 @@
+mada
+	@@
+	idafak haj;
+	@@
+
+	// Instruccion buena
+	haj = 2;
+
+	// Instruccion invalida
+	dsdsfds;
+
+	// Instruccion sin ; y luego una buena
+	hah = 2
+	hah = 2;
+faka

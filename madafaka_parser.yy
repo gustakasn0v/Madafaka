@@ -213,7 +213,7 @@ bloque:
 instruction_list:
 
   | instruction SEPARATOR instruction_list
-  | error {compiled = false; error(@$,"Something wicked happened");}
+  | instruction error instruction_list {compiled = false; error(@$,"Las declaraciones van separadas por ;");}
   ;
 
 //Regla que define como esta conformada una sola instruccion
